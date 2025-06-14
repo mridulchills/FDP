@@ -103,7 +103,7 @@ export const Dashboard: React.FC = () => {
                 <CardTitle>Submission Status</CardTitle>
               </CardHeader>
               <CardContent>
-                <AnimatedPieChart data={pieData} />
+                <AnimatedPieChart data={pieData} title="Submission Status" />
               </CardContent>
             </Card>
 
@@ -112,7 +112,7 @@ export const Dashboard: React.FC = () => {
                 <CardTitle>Module Breakdown</CardTitle>
               </CardHeader>
               <CardContent>
-                <AnimatedBarChart data={barData} />
+                <AnimatedBarChart data={barData} title="Module Breakdown" />
               </CardContent>
             </Card>
           </div>
@@ -142,7 +142,7 @@ export const Dashboard: React.FC = () => {
                 <CardTitle>Department Overview</CardTitle>
               </CardHeader>
               <CardContent>
-                <AnimatedPieChart data={pieData} />
+                <AnimatedPieChart data={pieData} title="Department Overview" />
               </CardContent>
             </Card>
 
@@ -151,7 +151,7 @@ export const Dashboard: React.FC = () => {
                 <CardTitle>Monthly Trends</CardTitle>
               </CardHeader>
               <CardContent>
-                <AnimatedBarChart data={barData} />
+                <AnimatedBarChart data={barData} title="Monthly Trends" />
               </CardContent>
             </Card>
           </div>
@@ -185,7 +185,7 @@ export const Dashboard: React.FC = () => {
                 <CardTitle>All Submissions</CardTitle>
               </CardHeader>
               <CardContent>
-                <AnimatedPieChart data={pieData} />
+                <AnimatedPieChart data={pieData} title="All Submissions" />
               </CardContent>
             </Card>
 
@@ -194,7 +194,7 @@ export const Dashboard: React.FC = () => {
                 <CardTitle>Department Activity</CardTitle>
               </CardHeader>
               <CardContent>
-                <AnimatedBarChart data={barData} />
+                <AnimatedBarChart data={barData} title="Department Activity" />
               </CardContent>
             </Card>
 
@@ -254,27 +254,30 @@ export const Dashboard: React.FC = () => {
         <AnimatedStatsCard
           title="Total Submissions"
           value={stats?.totalSubmissions || 0}
-          icon={FileText}
-          trend={stats?.thisMonth && stats?.lastMonth ? 
-            ((stats.thisMonth - stats.lastMonth) / (stats.lastMonth || 1)) * 100 : 0}
+          icon={<FileText className="w-6 h-6 text-white" />}
+          color="bg-blue-500"
+          trend={stats?.thisMonth && stats?.lastMonth ? {
+            value: Math.round(((stats.thisMonth - stats.lastMonth) / (stats.lastMonth || 1)) * 100),
+            isPositive: stats.thisMonth >= stats.lastMonth
+          } : undefined}
         />
         <AnimatedStatsCard
           title="Pending Approvals"
           value={stats?.pendingApprovals || 0}
-          icon={Clock}
-          iconColor="text-yellow-600"
+          icon={<Clock className="w-6 h-6 text-white" />}
+          color="bg-yellow-500"
         />
         <AnimatedStatsCard
           title="Approved"
           value={stats?.approved || 0}
-          icon={CheckCircle}
-          iconColor="text-green-600"
+          icon={<CheckCircle className="w-6 h-6 text-white" />}
+          color="bg-green-500"
         />
         <AnimatedStatsCard
           title="This Month"
           value={stats?.thisMonth || 0}
-          icon={TrendingUp}
-          iconColor="text-blue-600"
+          icon={<TrendingUp className="w-6 h-6 text-white" />}
+          color="bg-purple-500"
         />
       </div>
 
