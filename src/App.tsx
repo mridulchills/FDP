@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -9,6 +10,7 @@ import { Layout } from "@/components/layout/Layout";
 import { Login } from "@/pages/Login";
 import { Dashboard } from "@/pages/Dashboard";
 import { NewSubmission } from "@/pages/NewSubmission";
+import { MySubmissions } from "@/pages/MySubmissions";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -43,6 +45,17 @@ const AppRoutes = () => {
           <ProtectedRoute allowedRoles={['faculty']}>
             <Layout>
               <NewSubmission />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/submissions"
+        element={
+          <ProtectedRoute allowedRoles={['faculty']}>
+            <Layout>
+              <MySubmissions />
             </Layout>
           </ProtectedRoute>
         }

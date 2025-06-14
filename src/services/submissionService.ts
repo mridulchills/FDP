@@ -117,6 +117,20 @@ export const submissionService = {
     }
   },
 
+  async deleteSubmission(id: string): Promise<{ error: any }> {
+    try {
+      const { error } = await supabase
+        .from('submissions')
+        .delete()
+        .eq('id', id);
+
+      return { error };
+    } catch (error) {
+      console.error('Error deleting submission:', error);
+      return { error };
+    }
+  },
+
   async getSubmissionById(id: string): Promise<{ data: Submission | null; error: any }> {
     try {
       const { data, error } = await supabase

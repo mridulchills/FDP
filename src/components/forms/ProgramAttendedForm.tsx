@@ -1,74 +1,76 @@
+
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
-import { FileUpload } from './FileUpload';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { programAttendedSchema, type ProgramAttendedFormData } from '@/lib/validations';
-import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { FileUpload } from '@/components/forms/FileUpload';
+import { ArrowLeft, ArrowRight, FileText } from 'lucide-react';
 
 interface ProgramAttendedFormProps {
-  onSubmit: (data: ProgramAttendedFormData & { documentUrl?: string }) => Promise<void>;
-  initialData?: Partial<ProgramAttendedFormData & { documentUrl?: string }>;
+  onSubmit: (data: ProgramAttendedFormData) => Promise<void>;
+  initialData?: Partial<ProgramAttendedFormData>;
   isSubmitting?: boolean;
+  submitButtonText?: string;
 }
 
 export const ProgramAttendedForm: React.FC<ProgramAttendedFormProps> = ({
   onSubmit,
   initialData,
-  isSubmitting = false
+  isSubmitting = false,
+  submitButtonText = 'Submit for Approval'
 }) => {
   const [currentStep, setCurrentStep] = useState(1);
-  const [documentUrl, setDocumentUrl] = useState<string | undefined>(initialData?.documentUrl);
-  const [documentPath, setDocumentPath] = useState<string>('');
+  const [uploadedFileUrl, setUploadedFileUrl] = useState<string>(initialData?.documentUrl || '');
 
   const form = useForm<ProgramAttendedFormData>({
     resolver: zodResolver(programAttendedSchema),
     defaultValues: {
-      title: '',
-      type: 'Workshop',
-      mode: 'Online',
-      organizingInstitution: '',
-      venue: '',
-      startDate: '',
-      endDate: '',
-      duration: 1,
-      durationType: 'days',
-      domain: 'Own',
-      domainOther: '',
-      objective: '',
-      keyLearnings: '',
-      contribution: '',
-      sponsored: false,
-      sponsorName: '',
-      ...initialData
+      title: initialData?.title || '',
+      type: initialData?.type || 'FDP',
+      mode: initialData?.mode || 'Online',
+      organizingInstitution: initialData?.organizingInstitution || '',
+      venue: initialData?.venue || '',
+      startDate: initialData?.startDate || '',
+      endDate: initialData?.endDate || '',
+      duration: initialData?.duration || 1,
+      durationType: initialData?.durationType || 'days',
+      domain: initialData?.domain || 'Own',
+      domainOther: initialData?.domainOther || '',
+      objective: initialData?.objective || '',
+      keyLearnings: initialData?.keyLearnings || '',
+      contribution: initialData?.contribution || '',
+      sponsored: initialData?.sponsored || false,
+      sponsorName: initialData?.sponsorName || '',
+      documentUrl: initialData?.documentUrl || '',
     }
   });
 
-  const watchedValues = form.watch();
-
-  const handleStepSubmit = async (data: ProgramAttendedFormData) => {
-    await onSubmit({ ...data, documentUrl });
+  const handleFormSubmit = async (data: ProgramAttendedFormData) => {
+    const finalData = {
+      ...data,
+      documentUrl: uploadedFileUrl
+    };
+    await onSubmit(finalData);
   };
 
   const nextStep = async () => {
-    const fieldsToValidate = currentStep === 1 
-      ? ['title', 'type', 'mode', 'organizingInstitution', 'startDate', 'endDate', 'duration', 'durationType']
-      : ['domain', 'objective', 'keyLearnings', 'contribution'];
-
-    const isValid = await form.trigger(fieldsToValidate as any);
-    if (isValid) {
-      setCurrentStep(2);
+    const isValid = await form.trigger();
+    if (isValid && currentStep < 3) {
+      setCurrentStep(currentStep + 1);
     }
   };
 
   const prevStep = () => {
-    setCurrentStep(1);
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
+    }
   };
 
   const renderStep1 = () => (
@@ -80,14 +82,14 @@ export const ProgramAttendedForm: React.FC<ProgramAttendedFormProps> = ({
           <FormItem>
             <FormLabel>Program Title *</FormLabel>
             <FormControl>
-              <Input placeholder="Enter program title" {...field} />
+              <Input placeholder="Enter the full title of the program" {...field} />
             </FormControl>
             <FormMessage />
           </FormItem>
         )}
       />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <FormField
           control={form.control}
           name="type"
@@ -101,7 +103,7 @@ export const ProgramAttendedForm: React.FC<ProgramAttendedFormProps> = ({
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="FDP">FDP</SelectItem>
+                  <SelectItem value="FDP">Faculty Development Program (FDP)</SelectItem>
                   <SelectItem value="Workshop">Workshop</SelectItem>
                   <SelectItem value="Conference">Conference</SelectItem>
                   <SelectItem value="Seminar">Seminar</SelectItem>
@@ -145,30 +147,32 @@ export const ProgramAttendedForm: React.FC<ProgramAttendedFormProps> = ({
           <FormItem>
             <FormLabel>Organizing Institution *</FormLabel>
             <FormControl>
-              <Input placeholder="Enter organizing institution" {...field} />
+              <Input placeholder="Enter the name of the organizing institution" {...field} />
             </FormControl>
             <FormMessage />
           </FormItem>
         )}
       />
 
-      {watchedValues.mode !== 'Online' && (
-        <FormField
-          control={form.control}
-          name="venue"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Venue</FormLabel>
-              <FormControl>
-                <Input placeholder="Enter venue" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      )}
+      <FormField
+        control={form.control}
+        name="venue"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Venue</FormLabel>
+            <FormControl>
+              <Input placeholder="Enter venue (if applicable)" {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+    </div>
+  );
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+  const renderStep2 = () => (
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <FormField
           control={form.control}
           name="startDate"
@@ -198,7 +202,7 @@ export const ProgramAttendedForm: React.FC<ProgramAttendedFormProps> = ({
         />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <FormField
           control={form.control}
           name="duration"
@@ -209,8 +213,8 @@ export const ProgramAttendedForm: React.FC<ProgramAttendedFormProps> = ({
                 <Input 
                   type="number" 
                   min="1" 
-                  {...field}
-                  onChange={(e) => field.onChange(parseInt(e.target.value) || 1)}
+                  {...field} 
+                  onChange={(e) => field.onChange(Number(e.target.value))}
                 />
               </FormControl>
               <FormMessage />
@@ -240,11 +244,7 @@ export const ProgramAttendedForm: React.FC<ProgramAttendedFormProps> = ({
           )}
         />
       </div>
-    </div>
-  );
 
-  const renderStep2 = () => (
-    <div className="space-y-6">
       <FormField
         control={form.control}
         name="domain"
@@ -268,7 +268,7 @@ export const ProgramAttendedForm: React.FC<ProgramAttendedFormProps> = ({
         )}
       />
 
-      {watchedValues.domain === 'Other' && (
+      {form.watch('domain') === 'Other' && (
         <FormField
           control={form.control}
           name="domainOther"
@@ -276,14 +276,18 @@ export const ProgramAttendedForm: React.FC<ProgramAttendedFormProps> = ({
             <FormItem>
               <FormLabel>Specify Other Domain *</FormLabel>
               <FormControl>
-                <Input placeholder="Enter domain details" {...field} />
+                <Input placeholder="Please specify the domain" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
       )}
+    </div>
+  );
 
+  const renderStep3 = () => (
+    <div className="space-y-6">
       <FormField
         control={form.control}
         name="objective"
@@ -293,8 +297,8 @@ export const ProgramAttendedForm: React.FC<ProgramAttendedFormProps> = ({
             <FormControl>
               <Textarea 
                 placeholder="Describe the objective of attending this program"
-                className="min-h-[100px]"
-                {...field} 
+                className="min-h-24"
+                {...field}
               />
             </FormControl>
             <FormMessage />
@@ -311,8 +315,8 @@ export const ProgramAttendedForm: React.FC<ProgramAttendedFormProps> = ({
             <FormControl>
               <Textarea 
                 placeholder="Describe the key learnings from this program"
-                className="min-h-[100px]"
-                {...field} 
+                className="min-h-24"
+                {...field}
               />
             </FormControl>
             <FormMessage />
@@ -328,9 +332,9 @@ export const ProgramAttendedForm: React.FC<ProgramAttendedFormProps> = ({
             <FormLabel>Contribution to Institution *</FormLabel>
             <FormControl>
               <Textarea 
-                placeholder="Describe how this program will contribute to your institution"
-                className="min-h-[100px]"
-                {...field} 
+                placeholder="Describe how this program will contribute to your role and the institution"
+                className="min-h-24"
+                {...field}
               />
             </FormControl>
             <FormMessage />
@@ -338,86 +342,123 @@ export const ProgramAttendedForm: React.FC<ProgramAttendedFormProps> = ({
         )}
       />
 
-      <FormField
-        control={form.control}
-        name="sponsored"
-        render={({ field }) => (
-          <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-            <FormControl>
-              <Checkbox
-                checked={field.value}
-                onCheckedChange={field.onChange}
-              />
-            </FormControl>
-            <div className="space-y-1 leading-none">
-              <FormLabel>
-                Was this program sponsored?
-              </FormLabel>
-            </div>
-          </FormItem>
-        )}
-      />
-
-      {watchedValues.sponsored && (
+      <div className="space-y-4">
         <FormField
           control={form.control}
-          name="sponsorName"
+          name="sponsored"
           render={({ field }) => (
-            <FormItem>
-              <FormLabel>Sponsor Name *</FormLabel>
+            <FormItem className="flex flex-row items-start space-x-3 space-y-0">
               <FormControl>
-                <Input placeholder="Enter sponsor name" {...field} />
+                <Checkbox
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
               </FormControl>
-              <FormMessage />
+              <div className="space-y-1 leading-none">
+                <FormLabel>
+                  Was this program sponsored?
+                </FormLabel>
+              </div>
             </FormItem>
           )}
         />
-      )}
 
-      <FileUpload
-        label="Upload Certificate/Document"
-        description="Upload your participation certificate or related document"
-        onFileUploaded={(url, path) => {
-          setDocumentUrl(url);
-          setDocumentPath(path);
-        }}
-        onFileRemoved={() => {
-          setDocumentUrl(undefined);
-          setDocumentPath('');
-        }}
-        currentFile={documentUrl ? { url: documentUrl, path: documentPath } : undefined}
-      />
+        {form.watch('sponsored') && (
+          <FormField
+            control={form.control}
+            name="sponsorName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Sponsor Name *</FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter the name of the sponsor" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
+      </div>
+
+      <div className="space-y-4">
+        <FormLabel>Supporting Document</FormLabel>
+        <FileUpload
+          onFileUpload={(url) => {
+            setUploadedFileUrl(url);
+            form.setValue('documentUrl', url);
+          }}
+          currentFileUrl={uploadedFileUrl}
+          accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+          maxSize={10}
+        />
+        <p className="text-sm text-gray-500">
+          Upload certificate, brochure, or any supporting document (Max 10MB)
+        </p>
+      </div>
     </div>
   );
 
   return (
     <Card className="w-full max-w-4xl mx-auto">
       <CardHeader>
-        <CardTitle>Programs/Workshops Attended - Step {currentStep} of 2</CardTitle>
+        <CardTitle className="flex items-center justify-between">
+          <span>Programs/Workshops Attended</span>
+          <div className="flex space-x-2">
+            {[1, 2, 3].map((step) => (
+              <div
+                key={step}
+                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
+                  step === currentStep
+                    ? 'bg-primary text-primary-foreground'
+                    : step < currentStep
+                    ? 'bg-green-500 text-white'
+                    : 'bg-gray-200 text-gray-600'
+                }`}
+              >
+                {step}
+              </div>
+            ))}
+          </div>
+        </CardTitle>
       </CardHeader>
+
       <CardContent>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleStepSubmit)} className="space-y-6">
-            {currentStep === 1 ? renderStep1() : renderStep2()}
-            
-            <div className="flex justify-between">
-              {currentStep === 2 && (
+          <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-6">
+            {currentStep === 1 && renderStep1()}
+            {currentStep === 2 && renderStep2()}
+            {currentStep === 3 && renderStep3()}
+
+            <div className="flex justify-between pt-6">
+              {currentStep > 1 && (
                 <Button type="button" variant="outline" onClick={prevStep}>
                   <ArrowLeft className="w-4 h-4 mr-2" />
                   Previous
                 </Button>
               )}
-              
-              {currentStep === 1 ? (
-                <Button type="button" onClick={nextStep} className="ml-auto">
-                  Next
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
-              ) : (
-                <Button type="submit" disabled={isSubmitting} className="ml-auto">
-                  {isSubmitting ? 'Submitting...' : 'Submit Program'}
-                </Button>
-              )}
+
+              <div className="ml-auto">
+                {currentStep < 3 ? (
+                  <Button type="button" onClick={nextStep}>
+                    Next
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                ) : (
+                  <Button type="submit" disabled={isSubmitting}>
+                    {isSubmitting ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                        Submitting...
+                      </>
+                    ) : (
+                      <>
+                        <FileText className="w-4 h-4 mr-2" />
+                        {submitButtonText}
+                      </>
+                    )}
+                  </Button>
+                )}
+              </div>
             </div>
           </form>
         </Form>
