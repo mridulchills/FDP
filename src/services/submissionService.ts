@@ -1,6 +1,8 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import type { ModuleType, Submission } from '@/types';
+import type { DatabaseSubmission } from '@/types/database';
+import { transformDatabaseSubmission } from '@/utils/transformers';
 
 export interface CreateSubmissionData {
   moduleType: ModuleType;
@@ -34,7 +36,14 @@ export const submissionService = {
         .select()
         .single();
 
-      return { data: submission, error };
+      if (error) {
+        return { data: null, error };
+      }
+
+      return { 
+        data: transformDatabaseSubmission(submission as DatabaseSubmission), 
+        error: null 
+      };
     } catch (error) {
       console.error('Error creating submission:', error);
       return { data: null, error };
@@ -62,7 +71,15 @@ export const submissionService = {
         .eq('user_id', userData.id)
         .order('created_at', { ascending: false });
 
-      return { data, error };
+      if (error) {
+        return { data: null, error };
+      }
+
+      const transformedSubmissions = data?.map(submission => 
+        transformDatabaseSubmission(submission as DatabaseSubmission)
+      ) || [];
+
+      return { data: transformedSubmissions, error: null };
     } catch (error) {
       console.error('Error fetching submissions:', error);
       return { data: null, error };
@@ -71,14 +88,29 @@ export const submissionService = {
 
   async updateSubmission(id: string, updates: Partial<Submission>): Promise<{ data: Submission | null; error: any }> {
     try {
+      // Convert camelCase updates back to snake_case for database
+      const dbUpdates: any = {};
+      if (updates.status) dbUpdates.status = updates.status;
+      if (updates.hodComment !== undefined) dbUpdates.hod_comment = updates.hodComment;
+      if (updates.adminComment !== undefined) dbUpdates.admin_comment = updates.adminComment;
+      if (updates.documentUrl !== undefined) dbUpdates.document_url = updates.documentUrl;
+      if (updates.formData) dbUpdates.form_data = updates.formData;
+
       const { data, error } = await supabase
         .from('submissions')
-        .update(updates)
+        .update(dbUpdates)
         .eq('id', id)
         .select()
         .single();
 
-      return { data, error };
+      if (error) {
+        return { data: null, error };
+      }
+
+      return { 
+        data: transformDatabaseSubmission(data as DatabaseSubmission), 
+        error: null 
+      };
     } catch (error) {
       console.error('Error updating submission:', error);
       return { data: null, error };
@@ -96,7 +128,14 @@ export const submissionService = {
         .eq('id', id)
         .single();
 
-      return { data, error };
+      if (error) {
+        return { data: null, error };
+      }
+
+      return { 
+        data: transformDatabaseSubmission(data as DatabaseSubmission), 
+        error: null 
+      };
     } catch (error) {
       console.error('Error fetching submission:', error);
       return { data: null, error };

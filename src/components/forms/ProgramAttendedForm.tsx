@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -15,7 +14,7 @@ import { ArrowLeft, ArrowRight } from 'lucide-react';
 
 interface ProgramAttendedFormProps {
   onSubmit: (data: ProgramAttendedFormData & { documentUrl?: string }) => Promise<void>;
-  initialData?: Partial<ProgramAttendedFormData>;
+  initialData?: Partial<ProgramAttendedFormData & { documentUrl?: string }>;
   isSubmitting?: boolean;
 }
 
