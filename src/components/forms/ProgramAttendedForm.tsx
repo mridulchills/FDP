@@ -383,13 +383,16 @@ export const ProgramAttendedForm: React.FC<ProgramAttendedFormProps> = ({
       <div className="space-y-4">
         <FormLabel>Supporting Document</FormLabel>
         <FileUpload
-          onFileUpload={(url) => {
+          onFileUpload={(url, path) => {
             setUploadedFileUrl(url);
             form.setValue('documentUrl', url);
           }}
           currentFileUrl={uploadedFileUrl}
+          onFileRemoved={() => {
+            setUploadedFileUrl('');
+            form.setValue('documentUrl', '');
+          }}
           accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-          maxSize={10}
         />
         <p className="text-sm text-gray-500">
           Upload certificate, brochure, or any supporting document (Max 10MB)

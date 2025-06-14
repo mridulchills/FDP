@@ -6,8 +6,8 @@ import { Upload, File, X, Loader2 } from 'lucide-react';
 import { useFileUpload } from '@/hooks/useFileUpload';
 
 interface FileUploadProps {
-  onFileUploaded: (url: string, path: string) => void;
-  currentFile?: { url: string; path: string };
+  onFileUpload: (url: string, path: string) => void;
+  currentFileUrl?: string;
   onFileRemoved?: () => void;
   label?: string;
   description?: string;
@@ -16,8 +16,8 @@ interface FileUploadProps {
 }
 
 export const FileUpload: React.FC<FileUploadProps> = ({
-  onFileUploaded,
-  currentFile,
+  onFileUpload,
+  currentFileUrl,
   onFileRemoved,
   label = "Upload Document",
   description = "Upload PDF, DOC, DOCX, JPG, or PNG files (max 10MB)",
@@ -31,7 +31,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
   const handleFileSelect = async (file: File) => {
     const result = await uploadFile(file, folder);
     if (result) {
-      onFileUploaded(result.url, result.path);
+      onFileUpload(result.url, result.path);
     }
   };
 
@@ -63,11 +63,8 @@ export const FileUpload: React.FC<FileUploadProps> = ({
   };
 
   const handleRemoveFile = async () => {
-    if (currentFile) {
-      const success = await deleteFile(currentFile.path);
-      if (success && onFileRemoved) {
-        onFileRemoved();
-      }
+    if (currentFileUrl && onFileRemoved) {
+      onFileRemoved();
     }
   };
 
@@ -76,7 +73,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
     return parts[parts.length - 1];
   };
 
-  if (currentFile) {
+  if (currentFileUrl) {
     return (
       <Card>
         <CardContent className="p-4">
@@ -84,7 +81,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
             <div className="flex items-center space-x-3">
               <File className="w-8 h-8 text-blue-500" />
               <div>
-                <p className="font-medium">{getFileName(currentFile.url)}</p>
+                <p className="font-medium">{getFileName(currentFileUrl)}</p>
                 <p className="text-sm text-gray-500">File uploaded successfully</p>
               </div>
             </div>
@@ -92,7 +89,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => window.open(currentFile.url, '_blank')}
+                onClick={() => window.open(currentFileUrl, '_blank')}
               >
                 View
               </Button>

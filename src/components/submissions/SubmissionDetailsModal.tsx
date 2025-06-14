@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Calendar, Clock, MapPin, Building, User, FileText, ExternalLink } from 'lucide-react';
 import { format } from 'date-fns';
-import type { Submission } from '@/types';
+import type { Submission, ProgramAttendedData, ProgramOrganizedData, CertificationData } from '@/types';
 
 interface SubmissionDetailsModalProps {
   submission: Submission | null;
@@ -38,20 +38,31 @@ export const SubmissionDetailsModal: React.FC<SubmissionDetailsModalProps> = ({
     }
   };
 
+  const getTitle = () => {
+    const { formData } = submission;
+    if (submission.moduleType === 'attended' || submission.moduleType === 'organized') {
+      return (formData as ProgramAttendedData | ProgramOrganizedData).title;
+    } else if (submission.moduleType === 'certification') {
+      return (formData as CertificationData).courseName;
+    }
+    return 'Submission Details';
+  };
+
   const renderFormData = () => {
     const { formData } = submission;
     
     if (submission.moduleType === 'attended') {
+      const attendedData = formData as ProgramAttendedData;
       return (
         <div className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="text-sm font-medium text-gray-500">Program Type</label>
-              <p className="mt-1">{formData.type}</p>
+              <p className="mt-1">{attendedData.type}</p>
             </div>
             <div>
               <label className="text-sm font-medium text-gray-500">Mode</label>
-              <p className="mt-1">{formData.mode}</p>
+              <p className="mt-1">{attendedData.mode}</p>
             </div>
           </div>
           
@@ -59,16 +70,16 @@ export const SubmissionDetailsModal: React.FC<SubmissionDetailsModalProps> = ({
             <label className="text-sm font-medium text-gray-500">Organizing Institution</label>
             <p className="mt-1 flex items-center gap-2">
               <Building className="w-4 h-4 text-gray-400" />
-              {formData.organizingInstitution}
+              {attendedData.organizingInstitution}
             </p>
           </div>
 
-          {formData.venue && (
+          {attendedData.venue && (
             <div>
               <label className="text-sm font-medium text-gray-500">Venue</label>
               <p className="mt-1 flex items-center gap-2">
                 <MapPin className="w-4 h-4 text-gray-400" />
-                {formData.venue}
+                {attendedData.venue}
               </p>
             </div>
           )}
@@ -78,14 +89,14 @@ export const SubmissionDetailsModal: React.FC<SubmissionDetailsModalProps> = ({
               <label className="text-sm font-medium text-gray-500">Start Date</label>
               <p className="mt-1 flex items-center gap-2">
                 <Calendar className="w-4 h-4 text-gray-400" />
-                {format(new Date(formData.startDate), 'MMM dd, yyyy')}
+                {format(new Date(attendedData.startDate), 'MMM dd, yyyy')}
               </p>
             </div>
             <div>
               <label className="text-sm font-medium text-gray-500">End Date</label>
               <p className="mt-1 flex items-center gap-2">
                 <Calendar className="w-4 h-4 text-gray-400" />
-                {format(new Date(formData.endDate), 'MMM dd, yyyy')}
+                {format(new Date(attendedData.endDate), 'MMM dd, yyyy')}
               </p>
             </div>
           </div>
@@ -94,36 +105,127 @@ export const SubmissionDetailsModal: React.FC<SubmissionDetailsModalProps> = ({
             <label className="text-sm font-medium text-gray-500">Duration</label>
             <p className="mt-1 flex items-center gap-2">
               <Clock className="w-4 h-4 text-gray-400" />
-              {formData.duration} {formData.durationType}
+              {attendedData.duration} {attendedData.durationType}
             </p>
           </div>
 
           <div>
             <label className="text-sm font-medium text-gray-500">Domain</label>
-            <p className="mt-1">{formData.domain === 'Other' ? formData.domainOther : formData.domain}</p>
+            <p className="mt-1">{attendedData.domain === 'Other' ? attendedData.domainOther : attendedData.domain}</p>
           </div>
 
           <div>
             <label className="text-sm font-medium text-gray-500">Objective</label>
-            <p className="mt-1 text-gray-700 whitespace-pre-wrap">{formData.objective}</p>
+            <p className="mt-1 text-gray-700 whitespace-pre-wrap">{attendedData.objective}</p>
           </div>
 
           <div>
             <label className="text-sm font-medium text-gray-500">Key Learnings</label>
-            <p className="mt-1 text-gray-700 whitespace-pre-wrap">{formData.keyLearnings}</p>
+            <p className="mt-1 text-gray-700 whitespace-pre-wrap">{attendedData.keyLearnings}</p>
           </div>
 
           <div>
             <label className="text-sm font-medium text-gray-500">Contribution</label>
-            <p className="mt-1 text-gray-700 whitespace-pre-wrap">{formData.contribution}</p>
+            <p className="mt-1 text-gray-700 whitespace-pre-wrap">{attendedData.contribution}</p>
           </div>
 
-          {formData.sponsored && formData.sponsorName && (
+          {attendedData.sponsored && attendedData.sponsorName && (
             <div>
               <label className="text-sm font-medium text-gray-500">Sponsor</label>
-              <p className="mt-1">{formData.sponsorName}</p>
+              <p className="mt-1">{attendedData.sponsorName}</p>
             </div>
           )}
+        </div>
+      );
+    }
+
+    if (submission.moduleType === 'organized') {
+      const organizedData = formData as ProgramOrganizedData;
+      return (
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm font-medium text-gray-500">Program Type</label>
+              <p className="mt-1">{organizedData.type}</p>
+            </div>
+            <div>
+              <label className="text-sm font-medium text-gray-500">Mode</label>
+              <p className="mt-1">{organizedData.mode}</p>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm font-medium text-gray-500">Start Date</label>
+              <p className="mt-1 flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-gray-400" />
+                {format(new Date(organizedData.startDate), 'MMM dd, yyyy')}
+              </p>
+            </div>
+            <div>
+              <label className="text-sm font-medium text-gray-500">End Date</label>
+              <p className="mt-1 flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-gray-400" />
+                {format(new Date(organizedData.endDate), 'MMM dd, yyyy')}
+              </p>
+            </div>
+          </div>
+
+          <div>
+            <label className="text-sm font-medium text-gray-500">Target Audience</label>
+            <p className="mt-1">{organizedData.targetAudience.join(', ')}</p>
+          </div>
+
+          <div>
+            <label className="text-sm font-medium text-gray-500">Participants</label>
+            <p className="mt-1">{organizedData.participants}</p>
+          </div>
+
+          <div>
+            <label className="text-sm font-medium text-gray-500">Role</label>
+            <p className="mt-1">{organizedData.role}</p>
+          </div>
+
+          <div>
+            <label className="text-sm font-medium text-gray-500">Outcome Summary</label>
+            <p className="mt-1 text-gray-700 whitespace-pre-wrap">{organizedData.outcomeSummary}</p>
+          </div>
+        </div>
+      );
+    }
+
+    if (submission.moduleType === 'certification') {
+      const certData = formData as CertificationData;
+      return (
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm font-medium text-gray-500">Platform</label>
+              <p className="mt-1">{certData.platform === 'Other' ? certData.platformOther : certData.platform}</p>
+            </div>
+            <div>
+              <label className="text-sm font-medium text-gray-500">Status</label>
+              <p className="mt-1">{certData.status}</p>
+            </div>
+          </div>
+
+          <div>
+            <label className="text-sm font-medium text-gray-500">Domain</label>
+            <p className="mt-1">{certData.domain}</p>
+          </div>
+
+          <div>
+            <label className="text-sm font-medium text-gray-500">Duration</label>
+            <p className="mt-1 flex items-center gap-2">
+              <Clock className="w-4 h-4 text-gray-400" />
+              {certData.duration} {certData.durationType}
+            </p>
+          </div>
+
+          <div>
+            <label className="text-sm font-medium text-gray-500">Relevance</label>
+            <p className="mt-1 text-gray-700 whitespace-pre-wrap">{certData.relevance}</p>
+          </div>
         </div>
       );
     }
@@ -140,7 +242,7 @@ export const SubmissionDetailsModal: React.FC<SubmissionDetailsModalProps> = ({
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center justify-between">
-            <span>{submission.formData?.title || 'Submission Details'}</span>
+            <span>{getTitle()}</span>
             <Badge className={getStatusColor(submission.status)}>
               {submission.status}
             </Badge>
