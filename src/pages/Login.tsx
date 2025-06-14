@@ -6,143 +6,225 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { LoadingSpinner } from '@/components/common/LoadingSpinner';
-import { User, Lock, Eye, EyeOff } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { supabase } from '@/integrations/supabase/client';
+import { useQuery } from '@tanstack/react-query';
 
 export const Login: React.FC = () => {
-  const [employeeId, setEmployeeId] = useState('');
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  
-  const { login, isLoading } = useAuth();
+  const { login, signup, isLoading } = useAuth();
   const navigate = useNavigate();
+  
+  // Login form state
+  const [loginForm, setLoginForm] = useState({
+    employeeId: '',
+    password: ''
+  });
+  
+  // Signup form state
+  const [signupForm, setSignupForm] = useState({
+    employeeId: '',
+    name: '',
+    designation: '',
+    departmentId: '',
+    password: '',
+    confirmPassword: ''
+  });
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // Fetch departments for signup
+  const { data: departments } = useQuery({
+    queryKey: ['departments'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('departments')
+        .select('id, name, code')
+        .order('name');
+      
+      if (error) throw error;
+      return data;
+    }
+  });
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!employeeId.trim() || !password.trim()) {
+    if (!loginForm.employeeId || !loginForm.password) {
       return;
     }
 
-    setIsSubmitting(true);
-    
-    try {
-      const success = await login({ employeeId: employeeId.trim(), password });
-      if (success) {
-        navigate('/dashboard');
-      }
-    } finally {
-      setIsSubmitting(false);
+    const success = await login(loginForm);
+    if (success) {
+      navigate('/dashboard');
     }
   };
 
-  if (isLoading) {
-    return <LoadingSpinner size="lg" text="Authenticating..." />;
-  }
+  const handleSignup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!signupForm.employeeId || !signupForm.name || !signupForm.designation || 
+        !signupForm.departmentId || !signupForm.password || !signupForm.confirmPassword) {
+      return;
+    }
+
+    if (signupForm.password !== signupForm.confirmPassword) {
+      return;
+    }
+
+    const success = await signup({
+      employeeId: signupForm.employeeId,
+      name: signupForm.name,
+      designation: signupForm.designation,
+      departmentId: signupForm.departmentId,
+      password: signupForm.password
+    });
+
+    if (success) {
+      // Reset form and switch to login tab
+      setSignupForm({
+        employeeId: '',
+        name: '',
+        designation: '',
+        departmentId: '',
+        password: '',
+        confirmPassword: ''
+      });
+    }
+  };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-nmit-blue via-blue-800 to-blue-900 p-4">
-      <div className="w-full max-w-md animate-fade-in">
-        {/* Logo and Header */}
-        <div className="text-center mb-8">
-          <div className="bg-white p-4 rounded-full w-20 h-20 mx-auto mb-4 shadow-lg">
-            <div className="w-full h-full bg-gradient-nmit rounded-full flex items-center justify-center">
-              <span className="text-white font-bold text-2xl">N</span>
-            </div>
-          </div>
-          <h1 className="text-3xl font-bold text-white mb-2">FDTS Portal</h1>
-          <p className="text-blue-100">Faculty Development Tracking System</p>
-          <p className="text-blue-200 text-sm">Nitte Meenakshi Institute of Technology</p>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8">
+        <div className="text-center">
+          <h1 className="text-3xl font-bold text-gray-900">FDTS</h1>
+          <p className="mt-2 text-gray-600">Faculty Development Tracking System</p>
         </div>
 
-        {/* Login Card */}
-        <Card className="shadow-2xl border-0">
-          <CardHeader className="space-y-1 pb-6">
-            <CardTitle className="text-2xl font-bold text-center text-gray-900">
-              Sign In
-            </CardTitle>
-            <CardDescription className="text-center text-gray-600">
-              Enter your credentials to access your account
-            </CardDescription>
+        <Card>
+          <CardHeader>
+            <CardTitle>Welcome</CardTitle>
+            <CardDescription>Sign in to your account or create a new one</CardDescription>
           </CardHeader>
-          
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Employee ID Field */}
-              <div className="space-y-2">
-                <Label htmlFor="employeeId" className="text-sm font-medium">
-                  Employee ID
-                </Label>
-                <div className="relative">
-                  <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                  <Input
-                    id="employeeId"
-                    type="text"
-                    value={employeeId}
-                    onChange={(e) => setEmployeeId(e.target.value)}
-                    placeholder="Enter your employee ID"
-                    className="pl-10 h-12"
-                    required
-                  />
-                </div>
-              </div>
+            <Tabs defaultValue="login" className="space-y-4">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="login">Login</TabsTrigger>
+                <TabsTrigger value="signup">Sign Up</TabsTrigger>
+              </TabsList>
 
-              {/* Password Field */}
-              <div className="space-y-2">
-                <Label htmlFor="password" className="text-sm font-medium">
-                  Password
-                </Label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                  <Input
-                    id="password"
-                    type={showPassword ? 'text' : 'password'}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter your password"
-                    className="pl-10 pr-10 h-12"
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
-                  >
-                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                  </button>
-                </div>
-              </div>
+              <TabsContent value="login">
+                <form onSubmit={handleLogin} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="employeeId">Employee ID or Email</Label>
+                    <Input
+                      id="employeeId"
+                      type="text"
+                      placeholder="e.g., FAC001 or email@nmit.ac.in"
+                      value={loginForm.employeeId}
+                      onChange={(e) => setLoginForm({ ...loginForm, employeeId: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="password">Password</Label>
+                    <Input
+                      id="password"
+                      type="password"
+                      value={loginForm.password}
+                      onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <Button type="submit" className="w-full" disabled={isLoading}>
+                    {isLoading ? 'Signing in...' : 'Sign In'}
+                  </Button>
+                </form>
+              </TabsContent>
 
-              {/* Submit Button */}
-              <Button
-                type="submit"
-                disabled={isSubmitting || !employeeId.trim() || !password.trim()}
-                className="w-full h-12 bg-nmit-blue hover:bg-blue-800 text-white font-medium transition-all duration-200 disabled:opacity-50"
-              >
-                {isSubmitting ? (
-                  <LoadingSpinner size="sm" text="" />
-                ) : (
-                  'Sign In'
-                )}
-              </Button>
-            </form>
-
-            {/* Demo Credentials */}
-            <div className="mt-8 p-4 bg-gray-50 rounded-lg">
-              <h4 className="text-sm font-medium text-gray-900 mb-2">Demo Credentials:</h4>
-              <div className="space-y-1 text-xs text-gray-600">
-                <div>Faculty: <code className="bg-white px-1 rounded">FAC001</code> / <code className="bg-white px-1 rounded">password123</code></div>
-                <div>HoD: <code className="bg-white px-1 rounded">HOD001</code> / <code className="bg-white px-1 rounded">password123</code></div>
-                <div>Admin: <code className="bg-white px-1 rounded">ADM001</code> / <code className="bg-white px-1 rounded">password123</code></div>
-              </div>
-            </div>
+              <TabsContent value="signup">
+                <form onSubmit={handleSignup} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="signupEmployeeId">Employee ID</Label>
+                    <Input
+                      id="signupEmployeeId"
+                      type="text"
+                      placeholder="e.g., FAC001"
+                      value={signupForm.employeeId}
+                      onChange={(e) => setSignupForm({ ...signupForm, employeeId: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="name">Full Name</Label>
+                    <Input
+                      id="name"
+                      type="text"
+                      placeholder="Dr. John Doe"
+                      value={signupForm.name}
+                      onChange={(e) => setSignupForm({ ...signupForm, name: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="designation">Designation</Label>
+                    <Input
+                      id="designation"
+                      type="text"
+                      placeholder="Assistant Professor"
+                      value={signupForm.designation}
+                      onChange={(e) => setSignupForm({ ...signupForm, designation: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="department">Department</Label>
+                    <Select
+                      value={signupForm.departmentId}
+                      onValueChange={(value) => setSignupForm({ ...signupForm, departmentId: value })}
+                      required
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select department" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {departments?.map((dept) => (
+                          <SelectItem key={dept.id} value={dept.id}>
+                            {dept.name} ({dept.code})
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="signupPassword">Password</Label>
+                    <Input
+                      id="signupPassword"
+                      type="password"
+                      value={signupForm.password}
+                      onChange={(e) => setSignupForm({ ...signupForm, password: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="confirmPassword">Confirm Password</Label>
+                    <Input
+                      id="confirmPassword"
+                      type="password"
+                      value={signupForm.confirmPassword}
+                      onChange={(e) => setSignupForm({ ...signupForm, confirmPassword: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <Button type="submit" className="w-full" disabled={isLoading}>
+                    {isLoading ? 'Creating Account...' : 'Create Account'}
+                  </Button>
+                </form>
+              </TabsContent>
+            </Tabs>
           </CardContent>
         </Card>
 
-        {/* Footer */}
-        <div className="text-center mt-8 text-blue-200 text-sm">
-          <p>© 2024 NMIT. All rights reserved.</p>
+        <div className="text-center text-sm text-gray-600">
+          <p>For testing purposes, you can create an account or contact admin for credentials.</p>
         </div>
       </div>
     </div>
