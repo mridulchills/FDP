@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -9,6 +8,7 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { Layout } from "@/components/layout/Layout";
 import { Login } from "@/pages/Login";
 import { Dashboard } from "@/pages/Dashboard";
+import { NewSubmission } from "@/pages/NewSubmission";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -42,24 +42,7 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute allowedRoles={['faculty']}>
             <Layout>
-              <div className="text-center py-20">
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">New Submission</h2>
-                <p className="text-gray-600">Form wizard for creating new submissions coming soon...</p>
-              </div>
-            </Layout>
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/submissions"
-        element={
-          <ProtectedRoute allowedRoles={['faculty']}>
-            <Layout>
-              <div className="text-center py-20">
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">My Submissions</h2>
-                <p className="text-gray-600">View and manage your submissions...</p>
-              </div>
+              <NewSubmission />
             </Layout>
           </ProtectedRoute>
         }

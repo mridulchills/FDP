@@ -219,6 +219,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_notification: {
+        Args: {
+          target_user_id: string
+          notification_message: string
+          notification_link?: string
+        }
+        Returns: string
+      }
       get_current_user_department: {
         Args: Record<PropertyKey, never>
         Returns: string
