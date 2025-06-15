@@ -360,8 +360,8 @@ export const Dashboard: React.FC = () => {
         </p>
       </div>
 
-      {/* Enhanced Stats Overview */}
-      <div className="grid gap-8 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
+      {/* Enhanced Stats Overview - Fixed spacing and layout */}
+      <div className="grid gap-8 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
         <ModernStatsCard
           title="Total Submissions"
           value={stats?.totalSubmissions || 0}
