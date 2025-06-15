@@ -13,6 +13,10 @@ import { Dashboard } from "@/pages/Dashboard";
 import { NewSubmission } from "@/pages/NewSubmission";
 import { MySubmissions } from "@/pages/MySubmissions";
 import { ApprovalsDashboard } from "@/pages/ApprovalsDashboard";
+import { AllSubmissions } from "@/pages/AllSubmissions";
+import { UserManagement } from "@/pages/UserManagement";
+import { Reports } from "@/pages/Reports";
+import { Settings } from "@/pages/Settings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient({

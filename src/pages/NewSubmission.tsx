@@ -5,11 +5,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ProgramAttendedForm } from '@/components/forms/ProgramAttendedForm';
+import { ProgramOrganizedForm } from '@/components/forms/ProgramOrganizedForm';
+import { CertificationForm } from '@/components/forms/CertificationForm';
 import { submissionService } from '@/services/submissionService';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, FileText, Users, Award } from 'lucide-react';
 import type { ModuleType } from '@/types';
-import type { ProgramAttendedFormData } from '@/lib/validations';
 
 type FormStep = 'selection' | 'form';
 
@@ -153,29 +154,17 @@ export const NewSubmission: React.FC = () => {
         )}
 
         {selectedModule === 'organized' && (
-          <Card className="w-full max-w-4xl mx-auto">
-            <CardContent className="p-8 text-center">
-              <Users className="w-16 h-16 mx-auto text-gray-400 mb-4" />
-              <h2 className="text-xl font-semibold mb-2">Programs Organized Form</h2>
-              <p className="text-gray-600 mb-4">This form is coming soon...</p>
-              <Button variant="outline" onClick={handleBackToSelection}>
-                Go Back
-              </Button>
-            </CardContent>
-          </Card>
+          <ProgramOrganizedForm 
+            onSubmit={handleFormSubmit}
+            isSubmitting={isSubmitting}
+          />
         )}
 
         {selectedModule === 'certification' && (
-          <Card className="w-full max-w-4xl mx-auto">
-            <CardContent className="p-8 text-center">
-              <Award className="w-16 h-16 mx-auto text-gray-400 mb-4" />
-              <h2 className="text-xl font-semibold mb-2">Certifications Form</h2>
-              <p className="text-gray-600 mb-4">This form is coming soon...</p>
-              <Button variant="outline" onClick={handleBackToSelection}>
-                Go Back
-              </Button>
-            </CardContent>
-          </Card>
+          <CertificationForm 
+            onSubmit={handleFormSubmit}
+            isSubmitting={isSubmitting}
+          />
         )}
       </div>
     );

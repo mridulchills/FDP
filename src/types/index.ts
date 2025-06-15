@@ -1,4 +1,3 @@
-
 // Core types for FDTS application
 
 export interface User {
@@ -106,6 +105,7 @@ export interface CertificationData {
   mode: 'Online' | 'Blended';
   status: 'Completed' | 'In Progress';
   relevance: string;
+  implementation: string;
   extractedName?: string;
   extractedCourse?: string;
   extractedDate?: string;
