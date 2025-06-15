@@ -1,0 +1,291 @@
+
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import { submissionService } from '@/services/submissionService';
+import { useToast } from '@/hooks/use-toast';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { Clock, CheckCircle, XCircle, FileText } from 'lucide-react';
+import type { Submission } from '@/types';
+
+export const ApprovalsDashboard: React.FC = () => {
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const [submissions, setSubmissions] = useState<Submission[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [processingId, setProcessingId] = useState<string | null>(null);
+  const [comments, setComments] = useState<{ [key: string]: string }>({});
+
+  useEffect(() => {
+    loadSubmissions();
+  }, [user]);
+
+  const loadSubmissions = async () => {
+    try {
+      let result;
+      if (user?.role === 'hod') {
+        result = await submissionService.getDepartmentSubmissions();
+      } else if (user?.role === 'admin') {
+        result = await submissionService.getAllSubmissions();
+      } else {
+        return;
+      }
+
+      if (result.error) {
+        throw result.error;
+      }
+
+      // Filter submissions based on role and status
+      let filteredSubmissions = result.data || [];
+      
+      if (user?.role === 'hod') {
+        filteredSubmissions = filteredSubmissions.filter(s => 
+          s.status === 'Pending HoD Approval'
+        );
+      } else if (user?.role === 'admin') {
+        filteredSubmissions = filteredSubmissions.filter(s => 
+          s.status === 'Approved by HoD'
+        );
+      }
+
+      setSubmissions(filteredSubmissions);
+    } catch (error: any) {
+      console.error('Error loading submissions:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load submissions",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleApproval = async (submissionId: string, approved: boolean) => {
+    setProcessingId(submissionId);
+    
+    try {
+      let newStatus;
+      let commentField;
+      
+      if (user?.role === 'hod') {
+        newStatus = approved ? 'Approved by HoD' : 'Rejected by HoD';
+        commentField = 'hodComment';
+      } else if (user?.role === 'admin') {
+        newStatus = approved ? 'Approved by Admin' : 'Rejected by Admin';
+        commentField = 'adminComment';
+      } else {
+        throw new Error('Unauthorized');
+      }
+
+      const updates: Partial<Submission> = {
+        status: newStatus as any,
+        [commentField]: comments[submissionId] || ''
+      };
+
+      const result = await submissionService.updateSubmission(submissionId, updates);
+      
+      if (result.error) {
+        throw result.error;
+      }
+
+      toast({
+        title: approved ? "Approved" : "Rejected",
+        description: `Submission has been ${approved ? 'approved' : 'rejected'} successfully`,
+      });
+
+      // Remove from list and clear comment
+      setSubmissions(prev => prev.filter(s => s.id !== submissionId));
+      setComments(prev => {
+        const newComments = { ...prev };
+        delete newComments[submissionId];
+        return newComments;
+      });
+      
+    } catch (error: any) {
+      console.error('Error processing submission:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to process submission",
+        variant: "destructive",
+      });
+    } finally {
+      setProcessingId(null);
+    }
+  };
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'Pending HoD Approval':
+        return <Clock className="w-4 h-4 text-yellow-500" />;
+      case 'Approved by HoD':
+        return <CheckCircle className="w-4 h-4 text-green-500" />;
+      case 'Rejected by HoD':
+      case 'Rejected by Admin':
+        return <XCircle className="w-4 h-4 text-red-500" />;
+      case 'Approved by Admin':
+        return <CheckCircle className="w-4 h-4 text-green-600" />;
+      default:
+        return <FileText className="w-4 h-4 text-gray-500" />;
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'Pending HoD Approval':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'Approved by HoD':
+        return 'bg-green-100 text-green-800';
+      case 'Rejected by HoD':
+      case 'Rejected by Admin':
+        return 'bg-red-100 text-red-800';
+      case 'Approved by Admin':
+        return 'bg-green-100 text-green-900';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-2 text-gray-600">Loading submissions...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold text-gray-900">
+          {user?.role === 'hod' ? 'Pending HoD Approvals' : 'Pending Admin Approvals'}
+        </h1>
+        <Badge variant="secondary">
+          {submissions.length} pending
+        </Badge>
+      </div>
+
+      {submissions.length === 0 ? (
+        <Card>
+          <CardContent className="py-8">
+            <div className="text-center text-gray-500">
+              <FileText className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+              <p className="text-lg font-medium">No pending submissions</p>
+              <p className="text-sm">All submissions have been processed.</p>
+            </div>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid gap-6">
+          {submissions.map((submission) => (
+            <Card key={submission.id} className="border border-gray-200">
+              <CardHeader>
+                <div className="flex items-start justify-between">
+                  <div>
+                    <CardTitle className="text-lg">
+                      {submission.formData?.title || 'Untitled Submission'}
+                    </CardTitle>
+                    <div className="flex items-center gap-2 mt-2">
+                      <Badge variant="outline" className="capitalize">
+                        {submission.moduleType.replace('_', ' ')}
+                      </Badge>
+                      <Badge className={getStatusColor(submission.status)}>
+                        <div className="flex items-center gap-1">
+                          {getStatusIcon(submission.status)}
+                          {submission.status}
+                        </div>
+                      </Badge>
+                    </div>
+                  </div>
+                  <div className="text-right text-sm text-gray-500">
+                    <p className="font-medium">{submission.user?.name}</p>
+                    <p>{submission.user?.department}</p>
+                    <p>{new Date(submission.createdAt).toLocaleDateString()}</p>
+                  </div>
+                </div>
+              </CardHeader>
+              
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <p><strong>Type:</strong> {submission.formData?.type}</p>
+                    <p><strong>Mode:</strong> {submission.formData?.mode}</p>
+                    <p><strong>Duration:</strong> {submission.formData?.duration} {submission.formData?.durationType}</p>
+                  </div>
+                  <div>
+                    <p><strong>Start Date:</strong> {submission.formData?.startDate}</p>
+                    <p><strong>End Date:</strong> {submission.formData?.endDate}</p>
+                    <p><strong>Institution:</strong> {submission.formData?.organizingInstitution}</p>
+                  </div>
+                </div>
+
+                {submission.formData?.objective && (
+                  <div>
+                    <p className="font-medium text-sm">Objective:</p>
+                    <p className="text-sm text-gray-600">{submission.formData.objective}</p>
+                  </div>
+                )}
+
+                {submission.documentUrl && (
+                  <div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => window.open(submission.documentUrl, '_blank')}
+                    >
+                      <FileText className="w-4 h-4 mr-2" />
+                      View Document
+                    </Button>
+                  </div>
+                )}
+
+                <div className="space-y-3 pt-4 border-t">
+                  <div>
+                    <label className="text-sm font-medium">
+                      {user?.role === 'hod' ? 'HoD Comment' : 'Admin Comment'}:
+                    </label>
+                    <Textarea
+                      placeholder={`Add your comment${user?.role === 'hod' ? ' (optional)' : ''}...`}
+                      value={comments[submission.id] || ''}
+                      onChange={(e) => setComments(prev => ({
+                        ...prev,
+                        [submission.id]: e.target.value
+                      }))}
+                      className="mt-1"
+                      rows={3}
+                    />
+                  </div>
+
+                  <div className="flex gap-3">
+                    <Button
+                      onClick={() => handleApproval(submission.id, true)}
+                      disabled={processingId === submission.id}
+                      className="bg-green-600 hover:bg-green-700"
+                    >
+                      <CheckCircle className="w-4 h-4 mr-2" />
+                      {processingId === submission.id ? 'Processing...' : 'Approve'}
+                    </Button>
+                    
+                    <Button
+                      onClick={() => handleApproval(submission.id, false)}
+                      disabled={processingId === submission.id}
+                      variant="destructive"
+                    >
+                      <XCircle className="w-4 h-4 mr-2" />
+                      {processingId === submission.id ? 'Processing...' : 'Reject'}
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};

@@ -12,6 +12,7 @@ import { Login } from "@/pages/Login";
 import { Dashboard } from "@/pages/Dashboard";
 import { NewSubmission } from "@/pages/NewSubmission";
 import { MySubmissions } from "@/pages/MySubmissions";
+import { ApprovalsDashboard } from "@/pages/ApprovalsDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient({
@@ -75,10 +76,7 @@ const AppRoutes: React.FC = () => {
         element={
           <ProtectedRoute allowedRoles={['hod', 'admin']}>
             <Layout>
-              <div className="text-center py-20">
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">Pending Approvals</h2>
-                <p className="text-gray-600">Review and approve pending submissions...</p>
-              </div>
+              <ApprovalsDashboard />
             </Layout>
           </ProtectedRoute>
         }

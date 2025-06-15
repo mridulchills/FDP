@@ -55,15 +55,25 @@ export const useFileUpload = () => {
     setUploading(true);
 
     try {
+      // Get the current user's auth_user_id from auth context
+      const { data: { user: authUser } } = await supabase.auth.getUser();
+      
+      if (!authUser) {
+        throw new Error('User not authenticated');
+      }
+
       const fileExt = file.name.split('.').pop();
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-      const filePath = `${user.id}/${folder}/${fileName}`;
+      const filePath = `${authUser.id}/${folder}/${fileName}`;
+
+      console.log('Uploading file to path:', filePath);
 
       const { error: uploadError } = await supabase.storage
         .from('documents')
         .upload(filePath, file);
 
       if (uploadError) {
+        console.error('Upload error:', uploadError);
         throw uploadError;
       }
 

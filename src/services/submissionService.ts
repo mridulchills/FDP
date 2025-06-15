@@ -21,8 +21,11 @@ export const submissionService = {
         .single();
 
       if (userError || !userData) {
+        console.error('User not found:', userError);
         throw new Error('User not found');
       }
+
+      console.log('Creating submission for user:', userData.id);
 
       const { data: submission, error } = await supabase
         .from('submissions')
@@ -33,10 +36,14 @@ export const submissionService = {
           document_url: data.documentUrl || null,
           status: 'Pending HoD Approval'
         })
-        .select()
+        .select(`
+          *,
+          user:users(*)
+        `)
         .single();
 
       if (error) {
+        console.error('Submission creation error:', error);
         return { data: null, error };
       }
 
@@ -86,6 +93,62 @@ export const submissionService = {
     }
   },
 
+  async getDepartmentSubmissions(): Promise<{ data: Submission[] | null; error: any }> {
+    try {
+      const { data, error } = await supabase
+        .from('submissions')
+        .select(`
+          *,
+          user:users(
+            *,
+            department:departments(*)
+          )
+        `)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        return { data: null, error };
+      }
+
+      const transformedSubmissions = data?.map(submission => 
+        transformDatabaseSubmission(submission as DatabaseSubmission)
+      ) || [];
+
+      return { data: transformedSubmissions, error: null };
+    } catch (error) {
+      console.error('Error fetching department submissions:', error);
+      return { data: null, error };
+    }
+  },
+
+  async getAllSubmissions(): Promise<{ data: Submission[] | null; error: any }> {
+    try {
+      const { data, error } = await supabase
+        .from('submissions')
+        .select(`
+          *,
+          user:users(
+            *,
+            department:departments(*)
+          )
+        `)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        return { data: null, error };
+      }
+
+      const transformedSubmissions = data?.map(submission => 
+        transformDatabaseSubmission(submission as DatabaseSubmission)
+      ) || [];
+
+      return { data: transformedSubmissions, error: null };
+    } catch (error) {
+      console.error('Error fetching all submissions:', error);
+      return { data: null, error };
+    }
+  },
+
   async updateSubmission(id: string, updates: Partial<Submission>): Promise<{ data: Submission | null; error: any }> {
     try {
       // Convert camelCase updates back to snake_case for database
@@ -100,7 +163,10 @@ export const submissionService = {
         .from('submissions')
         .update(dbUpdates)
         .eq('id', id)
-        .select()
+        .select(`
+          *,
+          user:users(*)
+        `)
         .single();
 
       if (error) {
