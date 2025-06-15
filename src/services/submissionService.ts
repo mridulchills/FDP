@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import type { ModuleType, Submission } from '@/types';
 import type { DatabaseSubmission } from '@/types/database';
@@ -101,7 +100,7 @@ export const submissionService = {
           *,
           user:users(
             *,
-            department:departments(*)
+            department:departments!users_department_id_fkey(*)
           )
         `)
         .order('created_at', { ascending: false });
@@ -129,7 +128,7 @@ export const submissionService = {
           *,
           user:users(
             *,
-            department:departments(*)
+            department:departments!users_department_id_fkey(*)
           )
         `)
         .order('created_at', { ascending: false });
