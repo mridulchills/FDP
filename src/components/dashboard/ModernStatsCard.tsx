@@ -53,38 +53,51 @@ export const ModernStatsCard: React.FC<ModernStatsCardProps> = ({
 
   return (
     <Card className={`
-      w-full h-[160px] shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border-0
-      bg-white/80 backdrop-blur-sm
+      relative overflow-hidden bg-white rounded-3xl border-0 shadow-lg hover:shadow-xl 
+      transition-all duration-500 hover:-translate-y-1 group
       ${isVisible ? 'animate-fade-in' : 'opacity-0'}
     `}>
-      <CardContent className="p-6 h-full">
-        <div className="flex items-center justify-between h-full">
-          <div className="flex-1 space-y-3 min-w-0">
-            <p className="text-sm font-semibold text-gray-600 tracking-wide truncate">{title}</p>
-            <div className="flex items-baseline space-x-2">
-              <p className="text-3xl font-bold text-gray-900 leading-none">
-                {displayValue.toLocaleString()}
+      <CardContent className="p-8">
+        <div className="flex items-start justify-between">
+          <div className="flex-1 space-y-4">
+            <div className={`
+              w-14 h-14 rounded-2xl bg-gradient-to-br ${gradient} 
+              flex items-center justify-center shadow-lg
+              group-hover:scale-110 transition-transform duration-300
+            `}>
+              <div className="w-7 h-7 text-white">
+                {icon}
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <p className="text-sm font-medium text-gray-500 uppercase tracking-wider">
+                {title}
               </p>
-              {trend && (
-                <span className={`text-xs flex items-center font-semibold px-2 py-1 rounded-full ${
-                  trend.isPositive 
-                    ? 'text-emerald-700 bg-emerald-100' 
-                    : 'text-red-700 bg-red-100'
-                }`}>
-                  {trend.isPositive ? '↗' : '↘'} {Math.abs(trend.value)}%
-                </span>
-              )}
+              <div className="flex items-baseline gap-3">
+                <p className="text-4xl font-bold text-gray-900 leading-none">
+                  {displayValue.toLocaleString()}
+                </p>
+                {trend && (
+                  <span className={`
+                    inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold
+                    ${trend.isPositive 
+                      ? 'text-emerald-700 bg-emerald-50 border border-emerald-200' 
+                      : 'text-red-700 bg-red-50 border border-red-200'
+                    }
+                  `}>
+                    <span className="text-sm">{trend.isPositive ? '↗' : '↘'}</span>
+                    {Math.abs(trend.value)}%
+                  </span>
+                )}
+              </div>
             </div>
           </div>
-          <div className={`
-            p-4 rounded-2xl bg-gradient-to-br ${gradient} 
-            transform transition-all duration-300 hover:scale-110 hover:rotate-6
-            shadow-xl flex-shrink-0 ml-4
-          `}>
-            <div className="w-8 h-8 text-white">
-              {icon}
-            </div>
-          </div>
+        </div>
+        
+        {/* Subtle background pattern */}
+        <div className="absolute top-0 right-0 w-32 h-32 opacity-5 transform translate-x-8 -translate-y-8">
+          <div className={`w-full h-full bg-gradient-to-br ${gradient} rounded-full`}></div>
         </div>
       </CardContent>
     </Card>
