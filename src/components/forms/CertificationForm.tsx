@@ -301,10 +301,10 @@ export const CertificationForm: React.FC<CertificationFormProps> = ({
           </CardHeader>
           <CardContent>
             <FileUpload
-              onFileSelect={(url) => form.setValue('documentUrl', url)}
-              accept=".pdf,.jpg,.jpeg,.png"
-              maxSize={10}
+              onFileUpload={(url) => form.setValue('documentUrl', url)}
               label="Upload Certificate (Required for completed courses)"
+              description="Upload PDF, DOC, DOCX, JPG, or PNG files (max 10MB)"
+              accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
             />
           </CardContent>
         </Card>

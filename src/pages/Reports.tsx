@@ -42,12 +42,12 @@ export const Reports: React.FC = () => {
   ];
 
   const monthlyData = [
-    { name: 'Jan', submissions: 12, approved: 8 },
-    { name: 'Feb', submissions: 15, approved: 12 },
-    { name: 'Mar', submissions: 18, approved: 14 },
-    { name: 'Apr', submissions: 22, approved: 18 },
-    { name: 'May', submissions: 25, approved: 20 },
-    { name: 'Jun', submissions: 28, approved: 24 }
+    { name: 'Jan', value: 12 },
+    { name: 'Feb', value: 15 },
+    { name: 'Mar', value: 18 },
+    { name: 'Apr', value: 22 },
+    { name: 'May', value: 25 },
+    { name: 'Jun', value: 28 }
   ];
 
   const handleExport = () => {
@@ -121,44 +121,36 @@ export const Reports: React.FC = () => {
         <ModernStatsCard
           title="Total Submissions"
           value={totalSubmissions}
-          change={12}
-          trend="up"
-          icon={FileText}
+          change={{ value: 12, isPositive: true }}
+          icon={<FileText />}
         />
         <ModernStatsCard
           title="Approved"
           value={approvedSubmissions}
-          change={8}
-          trend="up"
-          icon={TrendingUp}
+          change={{ value: 8, isPositive: true }}
+          icon={<TrendingUp />}
         />
         <ModernStatsCard
           title="Pending"
           value={pendingSubmissions}
-          change={-5}
-          trend="down"
-          icon={Calendar}
+          change={{ value: 5, isPositive: false }}
+          icon={<Calendar />}
         />
         <ModernStatsCard
           title="Active Users"
           value={45}
-          change={15}
-          trend="up"
-          icon={Users}
+          change={{ value: 15, isPositive: true }}
+          icon={<Users />}
         />
       </div>
 
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <ModernBarChart
-          title="Monthly Submission Trends"
-          subtitle="Submissions and approvals over time"
           data={monthlyData}
         />
         
         <ModernPieChart
-          title="Submission Status"
-          subtitle="Current status distribution"
           data={statusData}
         />
       </div>

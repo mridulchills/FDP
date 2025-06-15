@@ -119,7 +119,7 @@ export const AllSubmissions: React.FC = () => {
       <SubmissionsTable
         submissions={filteredSubmissions}
         isLoading={isLoading}
-        onViewDetails={setSelectedSubmission}
+        onSubmissionSelect={setSelectedSubmission}
         showActions={true}
         onRefresh={refetch}
       />
@@ -130,7 +130,7 @@ export const AllSubmissions: React.FC = () => {
           submission={selectedSubmission}
           isOpen={!!selectedSubmission}
           onClose={() => setSelectedSubmission(null)}
-          onUpdate={refetch}
+          onRefresh={refetch}
         />
       )}
     </div>

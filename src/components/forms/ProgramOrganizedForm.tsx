@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -447,10 +446,10 @@ export const ProgramOrganizedForm: React.FC<ProgramOrganizedFormProps> = ({
           </CardHeader>
           <CardContent>
             <FileUpload
-              onFileSelect={(url) => form.setValue('documentUrl', url)}
-              accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-              maxSize={10}
+              onFileUpload={(url) => form.setValue('documentUrl', url)}
               label="Upload Brochure/Flyer/Report (Optional)"
+              description="Upload PDF, DOC, DOCX, JPG, or PNG files (max 10MB)"
+              accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
             />
           </CardContent>
         </Card>
