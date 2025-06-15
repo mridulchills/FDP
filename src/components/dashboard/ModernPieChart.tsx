@@ -58,7 +58,7 @@ export const ModernPieChart: React.FC<ModernPieChartProps> = ({
 
   const CustomLegend = ({ payload }: any) => {
     return (
-      <div className="flex flex-wrap justify-center gap-3 mt-4">
+      <div className="flex flex-wrap justify-center gap-3 mt-3">
         {payload?.map((entry: any, index: number) => (
           <div key={index} className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 rounded-full">
             <div 
@@ -86,18 +86,18 @@ export const ModernPieChart: React.FC<ModernPieChartProps> = ({
   };
 
   return (
-    <div className={`w-full p-4 ${isVisible ? 'animate-fade-in' : 'opacity-0'}`}>
+    <div className={`w-full ${isVisible ? 'animate-fade-in' : 'opacity-0'}`}>
       <div className="flex flex-col items-center justify-center">
         {/* Chart Container with Fixed Dimensions */}
-        <div className="w-[280px] h-[280px] flex items-center justify-center">
+        <div className="w-[260px] h-[220px] flex items-center justify-center">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
                 data={animatedData}
                 cx="50%"
                 cy="50%"
-                innerRadius={60}
-                outerRadius={100}
+                innerRadius={50}
+                outerRadius={85}
                 paddingAngle={2}
                 dataKey="value"
                 animationBegin={0}
