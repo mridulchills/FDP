@@ -79,222 +79,264 @@ export const Dashboard: React.FC = () => {
     switch (user?.role) {
       case 'faculty':
         return (
-          <div className="grid gap-10 lg:grid-cols-3">
-            {/* Quick Actions Card */}
-            <Card className="lg:col-span-1 min-h-[320px] shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border-0 bg-gradient-to-br from-blue-50 via-white to-indigo-50 backdrop-blur-sm">
-              <CardHeader className="pb-6">
-                <CardTitle className="flex items-center gap-4 text-2xl font-bold text-gray-900">
-                  <div className="p-3 bg-blue-100 rounded-2xl">
-                    <Plus className="w-7 h-7 text-blue-600" />
-                  </div>
-                  Quick Actions
-                </CardTitle>
-                <CardDescription className="text-base text-muted-foreground">
-                  Manage your submissions efficiently
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6 pt-0">
-                <Link to="/submissions/new">
-                  <Button className="w-full justify-start py-4 px-8 rounded-2xl bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 transition-all duration-200 transform hover:scale-105 text-white font-semibold shadow-lg text-base">
-                    <FileText className="w-6 h-6 mr-4" />
-                    New Submission
-                  </Button>
-                </Link>
-                <Link to="/submissions">
-                  <Button variant="outline" className="w-full justify-start py-4 px-8 rounded-2xl hover:bg-blue-50 border-2 border-blue-200 text-blue-700 font-semibold transition-all duration-200 transform hover:scale-105 text-base">
-                    <Clock className="w-6 h-6 mr-4" />
-                    My Submissions
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
+          <div className="space-y-12">
+            {/* Charts Section - 2 columns */}
+            <div className="grid gap-12 lg:grid-cols-2">
+              {/* Submission Status Chart */}
+              <Card className="min-h-[600px] shadow-xl hover:shadow-2xl transition-all duration-300 border-0 bg-white/80 backdrop-blur-sm">
+                <CardHeader className="pb-8">
+                  <CardTitle className="text-3xl font-bold text-gray-900">Submission Status</CardTitle>
+                  <CardDescription className="text-lg text-muted-foreground">
+                    Current status overview
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <ModernPieChart 
+                    data={pieData} 
+                    total={stats?.totalSubmissions || 0}
+                    height={500} 
+                  />
+                </CardContent>
+              </Card>
 
-            {/* Submission Status Chart */}
-            <Card className="lg:col-span-1 min-h-[500px] shadow-xl hover:shadow-2xl transition-all duration-300 border-0 bg-white/80 backdrop-blur-sm">
-              <CardHeader className="pb-6">
-                <CardTitle className="text-2xl font-bold text-gray-900">Submission Status</CardTitle>
-                <CardDescription className="text-base text-muted-foreground">
-                  Current status overview
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="pt-0">
-                <ModernPieChart 
-                  data={pieData} 
-                  total={stats?.totalSubmissions || 0}
-                  height={400} 
-                />
-              </CardContent>
-            </Card>
-
-            {/* Activity by Module Chart */}
-            <Card className="lg:col-span-1 min-h-[500px] shadow-xl hover:shadow-2xl transition-all duration-300 border-0 bg-white/80 backdrop-blur-sm">
-              <CardHeader className="pb-6">
-                <CardTitle className="text-2xl font-bold text-gray-900">Activity by Module</CardTitle>
-                <CardDescription className="text-base text-muted-foreground">
-                  Your submissions breakdown
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="pt-0">
-                <ModernBarChart 
-                  data={stats?.moduleData || []} 
-                  height={400} 
-                  color="#3b82f6" 
-                />
-              </CardContent>
-            </Card>
+              {/* Activity by Module Chart */}
+              <Card className="min-h-[600px] shadow-xl hover:shadow-2xl transition-all duration-300 border-0 bg-white/80 backdrop-blur-sm">
+                <CardHeader className="pb-8">
+                  <CardTitle className="text-3xl font-bold text-gray-900">Activity by Module</CardTitle>
+                  <CardDescription className="text-lg text-muted-foreground">
+                    Your submissions breakdown
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <ModernBarChart 
+                    data={stats?.moduleData || []} 
+                    height={500} 
+                    color="#3b82f6" 
+                  />
+                </CardContent>
+              </Card>
+            </div>
           </div>
         );
 
       case 'hod':
         return (
-          <div className="grid gap-10 lg:grid-cols-3">
-            {/* Pending Reviews Card */}
-            <Card className="lg:col-span-1 min-h-[320px] shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border-0 bg-gradient-to-br from-amber-50 via-white to-orange-50 backdrop-blur-sm">
-              <CardHeader className="pb-6">
-                <CardTitle className="flex items-center gap-4 text-2xl font-bold text-gray-900">
-                  <div className="p-3 bg-amber-100 rounded-2xl">
-                    <Clock className="w-7 h-7 text-amber-600" />
-                  </div>
-                  Pending Reviews
-                </CardTitle>
-                <CardDescription className="text-base text-muted-foreground">
-                  Submissions awaiting your approval
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="pt-0">
-                <Link to="/approvals">
-                  <Button className="w-full py-4 px-8 rounded-2xl bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 transition-all duration-200 transform hover:scale-105 text-white font-semibold shadow-lg text-base">
-                    Review Submissions ({stats?.pendingApprovals || 0})
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
+          <div className="space-y-12">
+            {/* Charts Section - 2 columns */}
+            <div className="grid gap-12 lg:grid-cols-2">
+              {/* Department Overview Chart */}
+              <Card className="min-h-[600px] shadow-xl hover:shadow-2xl transition-all duration-300 border-0 bg-white/80 backdrop-blur-sm">
+                <CardHeader className="pb-8">
+                  <CardTitle className="text-3xl font-bold text-gray-900">Department Overview</CardTitle>
+                  <CardDescription className="text-lg text-muted-foreground">
+                    Department submission status
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <ModernPieChart 
+                    data={pieData} 
+                    total={stats?.totalSubmissions || 0}
+                    height={500} 
+                  />
+                </CardContent>
+              </Card>
 
-            {/* Department Overview Chart */}
-            <Card className="lg:col-span-1 min-h-[500px] shadow-xl hover:shadow-2xl transition-all duration-300 border-0 bg-white/80 backdrop-blur-sm">
-              <CardHeader className="pb-6">
-                <CardTitle className="text-2xl font-bold text-gray-900">Department Overview</CardTitle>
-                <CardDescription className="text-base text-muted-foreground">
-                  Department submission status
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="pt-0">
-                <ModernPieChart 
-                  data={pieData} 
-                  total={stats?.totalSubmissions || 0}
-                  height={400} 
-                />
-              </CardContent>
-            </Card>
-
-            {/* Monthly Trends Chart */}
-            <Card className="lg:col-span-1 min-h-[500px] shadow-xl hover:shadow-2xl transition-all duration-300 border-0 bg-white/80 backdrop-blur-sm">
-              <CardHeader className="pb-6">
-                <CardTitle className="text-2xl font-bold text-gray-900">Monthly Trends</CardTitle>
-                <CardDescription className="text-base text-muted-foreground">
-                  Department activity trends
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="pt-0">
-                <ModernBarChart 
-                  data={stats?.moduleData || []} 
-                  height={400} 
-                  color="#059669" 
-                />
-              </CardContent>
-            </Card>
+              {/* Monthly Trends Chart */}
+              <Card className="min-h-[600px] shadow-xl hover:shadow-2xl transition-all duration-300 border-0 bg-white/80 backdrop-blur-sm">
+                <CardHeader className="pb-8">
+                  <CardTitle className="text-3xl font-bold text-gray-900">Monthly Trends</CardTitle>
+                  <CardDescription className="text-lg text-muted-foreground">
+                    Department activity trends
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <ModernBarChart 
+                    data={stats?.moduleData || []} 
+                    height={500} 
+                    color="#059669" 
+                  />
+                </CardContent>
+              </Card>
+            </div>
           </div>
         );
 
       case 'admin':
         return (
-          <div className="grid gap-10 lg:grid-cols-4">
-            {/* System Overview Card */}
-            <Card className="min-h-[320px] shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border-0 bg-gradient-to-br from-purple-50 via-white to-indigo-50 backdrop-blur-sm">
-              <CardHeader className="pb-6">
-                <CardTitle className="flex items-center gap-4 text-xl font-bold text-gray-900">
-                  <div className="p-3 bg-purple-100 rounded-2xl">
-                    <Users className="w-6 h-6 text-purple-600" />
+          <div className="space-y-12">
+            {/* Charts Section - 3 columns for admin */}
+            <div className="grid gap-12 lg:grid-cols-3">
+              {/* All Submissions Chart */}
+              <Card className="min-h-[600px] shadow-xl hover:shadow-2xl transition-all duration-300 border-0 bg-white/80 backdrop-blur-sm">
+                <CardHeader className="pb-8">
+                  <CardTitle className="text-2xl font-bold text-gray-900">All Submissions</CardTitle>
+                  <CardDescription className="text-lg text-muted-foreground">
+                    Institution-wide overview
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <ModernPieChart 
+                    data={pieData} 
+                    total={stats?.totalSubmissions || 0}
+                    height={400} 
+                  />
+                </CardContent>
+              </Card>
+
+              {/* Department Activity Chart */}
+              <Card className="min-h-[600px] shadow-xl hover:shadow-2xl transition-all duration-300 border-0 bg-white/80 backdrop-blur-sm">
+                <CardHeader className="pb-8">
+                  <CardTitle className="text-2xl font-bold text-gray-900">Department Activity</CardTitle>
+                  <CardDescription className="text-lg text-muted-foreground">
+                    Cross-department trends
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <ModernBarChart 
+                    data={stats?.moduleData || []} 
+                    height={400} 
+                    color="#7c3aed" 
+                  />
+                </CardContent>
+              </Card>
+
+              {/* System Analytics Card */}
+              <Card className="min-h-[600px] shadow-xl hover:shadow-2xl transition-all duration-300 border-0 bg-gradient-to-br from-emerald-50 via-white to-green-50 backdrop-blur-sm">
+                <CardHeader className="pb-8">
+                  <CardTitle className="flex items-center gap-4 text-2xl font-bold text-gray-900">
+                    <div className="p-4 bg-emerald-100 rounded-2xl">
+                      <TrendingUp className="w-8 h-8 text-emerald-600" />
+                    </div>
+                    System Analytics
+                  </CardTitle>
+                  <CardDescription className="text-lg text-muted-foreground">
+                    Comprehensive system insights
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="pt-0 space-y-8">
+                  <div className="grid gap-6">
+                    <div className="text-center p-8 bg-white rounded-2xl shadow-md">
+                      <div className="text-4xl font-bold text-emerald-600 mb-2">{stats?.totalSubmissions || 0}</div>
+                      <div className="text-gray-600 font-medium">Total System Submissions</div>
+                    </div>
+                    <div className="text-center p-8 bg-white rounded-2xl shadow-md">
+                      <div className="text-4xl font-bold text-amber-600 mb-2">{stats?.pendingApprovals || 0}</div>
+                      <div className="text-gray-600 font-medium">Pending Final Approval</div>
+                    </div>
+                    <div className="text-center p-8 bg-white rounded-2xl shadow-md">
+                      <div className="text-4xl font-bold text-blue-600 mb-2">{stats?.thisMonth || 0}</div>
+                      <div className="text-gray-600 font-medium">This Month Activity</div>
+                    </div>
                   </div>
-                  System Overview
-                </CardTitle>
-                <CardDescription className="text-base text-muted-foreground">
-                  Administrative actions
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4 pt-0">
-                <Link to="/approvals">
-                  <Button className="w-full justify-start py-4 px-6 rounded-2xl bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 transition-all duration-200 transform hover:scale-105 text-white font-semibold shadow-lg text-base">
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        );
+
+      default:
+        return null;
+    }
+  };
+
+  const getQuickActionsFooter = () => {
+    switch (user?.role) {
+      case 'faculty':
+        return (
+          <Card className="shadow-xl hover:shadow-2xl transition-all duration-300 border-0 bg-gradient-to-br from-blue-50 via-white to-indigo-50 backdrop-blur-sm">
+            <CardHeader className="pb-6">
+              <CardTitle className="flex items-center gap-4 text-2xl font-bold text-gray-900">
+                <div className="p-3 bg-blue-100 rounded-2xl">
+                  <Plus className="w-7 h-7 text-blue-600" />
+                </div>
+                Quick Actions
+              </CardTitle>
+              <CardDescription className="text-lg text-muted-foreground">
+                Manage your submissions efficiently
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <div className="flex flex-wrap gap-6">
+                <Link to="/submissions/new" className="flex-1 min-w-[280px]">
+                  <Button className="w-full justify-start py-6 px-8 rounded-2xl bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 transition-all duration-200 transform hover:scale-105 text-white font-semibold shadow-lg text-lg">
+                    <FileText className="w-6 h-6 mr-4" />
+                    New Submission
+                  </Button>
+                </Link>
+                <Link to="/submissions" className="flex-1 min-w-[280px]">
+                  <Button variant="outline" className="w-full justify-start py-6 px-8 rounded-2xl hover:bg-blue-50 border-2 border-blue-200 text-blue-700 font-semibold transition-all duration-200 transform hover:scale-105 text-lg">
+                    <Clock className="w-6 h-6 mr-4" />
+                    My Submissions
+                  </Button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+        );
+
+      case 'hod':
+        return (
+          <Card className="shadow-xl hover:shadow-2xl transition-all duration-300 border-0 bg-gradient-to-br from-amber-50 via-white to-orange-50 backdrop-blur-sm">
+            <CardHeader className="pb-6">
+              <CardTitle className="flex items-center gap-4 text-2xl font-bold text-gray-900">
+                <div className="p-3 bg-amber-100 rounded-2xl">
+                  <Clock className="w-7 h-7 text-amber-600" />
+                </div>
+                Department Management
+              </CardTitle>
+              <CardDescription className="text-lg text-muted-foreground">
+                Review and manage department submissions
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <div className="flex flex-wrap gap-6">
+                <Link to="/approvals" className="flex-1 min-w-[280px]">
+                  <Button className="w-full py-6 px-8 rounded-2xl bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 transition-all duration-200 transform hover:scale-105 text-white font-semibold shadow-lg text-lg">
+                    Review Submissions ({stats?.pendingApprovals || 0})
+                  </Button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+        );
+
+      case 'admin':
+        return (
+          <Card className="shadow-xl hover:shadow-2xl transition-all duration-300 border-0 bg-gradient-to-br from-purple-50 via-white to-indigo-50 backdrop-blur-sm">
+            <CardHeader className="pb-6">
+              <CardTitle className="flex items-center gap-4 text-2xl font-bold text-gray-900">
+                <div className="p-3 bg-purple-100 rounded-2xl">
+                  <Users className="w-7 h-7 text-purple-600" />
+                </div>
+                System Administration
+              </CardTitle>
+              <CardDescription className="text-lg text-muted-foreground">
+                Manage system-wide operations and reports
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <div className="flex flex-wrap gap-6">
+                <Link to="/approvals" className="flex-1 min-w-[200px]">
+                  <Button className="w-full justify-start py-6 px-6 rounded-2xl bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 transition-all duration-200 transform hover:scale-105 text-white font-semibold shadow-lg text-lg">
                     <Clock className="w-5 h-5 mr-3" />
                     Final Approvals
                   </Button>
                 </Link>
-                <Link to="/users">
-                  <Button variant="outline" className="w-full justify-start py-4 px-6 rounded-2xl hover:bg-purple-50 border-2 border-purple-200 text-purple-700 font-semibold transition-all duration-200 transform hover:scale-105 text-base">
+                <Link to="/users" className="flex-1 min-w-[200px]">
+                  <Button variant="outline" className="w-full justify-start py-6 px-6 rounded-2xl hover:bg-purple-50 border-2 border-purple-200 text-purple-700 font-semibold transition-all duration-200 transform hover:scale-105 text-lg">
                     <Users className="w-5 h-5 mr-3" />
                     Manage Users
                   </Button>
                 </Link>
-              </CardContent>
-            </Card>
-
-            {/* All Submissions Chart */}
-            <Card className="min-h-[500px] shadow-xl hover:shadow-2xl transition-all duration-300 border-0 bg-white/80 backdrop-blur-sm">
-              <CardHeader className="pb-6">
-                <CardTitle className="text-xl font-bold text-gray-900">All Submissions</CardTitle>
-                <CardDescription className="text-base text-muted-foreground">
-                  Institution-wide overview
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="pt-0">
-                <ModernPieChart 
-                  data={pieData} 
-                  total={stats?.totalSubmissions || 0}
-                  height={300} 
-                />
-              </CardContent>
-            </Card>
-
-            {/* Department Activity Chart */}
-            <Card className="min-h-[500px] shadow-xl hover:shadow-2xl transition-all duration-300 border-0 bg-white/80 backdrop-blur-sm">
-              <CardHeader className="pb-6">
-                <CardTitle className="text-xl font-bold text-gray-900">Department Activity</CardTitle>
-                <CardDescription className="text-base text-muted-foreground">
-                  Cross-department trends
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="pt-0">
-                <ModernBarChart 
-                  data={stats?.moduleData || []} 
-                  height={300} 
-                  color="#7c3aed" 
-                />
-              </CardContent>
-            </Card>
-
-            {/* System Reports Card */}
-            <Card className="min-h-[320px] shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border-0 bg-gradient-to-br from-emerald-50 via-white to-green-50 backdrop-blur-sm">
-              <CardHeader className="pb-6">
-                <CardTitle className="flex items-center gap-4 text-xl font-bold text-gray-900">
-                  <div className="p-3 bg-emerald-100 rounded-2xl">
-                    <TrendingUp className="w-6 h-6 text-emerald-600" />
-                  </div>
-                  System Reports
-                </CardTitle>
-                <CardDescription className="text-base text-muted-foreground">
-                  Analytics & insights
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="pt-0">
-                <Link to="/reports">
-                  <Button className="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 transition-all duration-200 transform hover:scale-105 text-white font-semibold shadow-lg text-base">
+                <Link to="/reports" className="flex-1 min-w-[200px]">
+                  <Button variant="outline" className="w-full justify-start py-6 px-6 rounded-2xl hover:bg-emerald-50 border-2 border-emerald-200 text-emerald-700 font-semibold transition-all duration-200 transform hover:scale-105 text-lg">
                     <Calendar className="w-5 h-5 mr-3" />
                     Generate Reports
                   </Button>
                 </Link>
-              </CardContent>
-            </Card>
-          </div>
+              </div>
+            </CardContent>
+          </Card>
         );
 
       default:
@@ -307,13 +349,13 @@ export const Dashboard: React.FC = () => {
   }
 
   return (
-    <div className="space-y-10 animate-fade-in">
+    <div className="space-y-12 animate-fade-in">
       {/* Welcome Header */}
-      <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 rounded-3xl p-10 text-white shadow-2xl">
-        <h1 className="text-4xl font-bold tracking-tight mb-3">
+      <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 rounded-3xl p-12 text-white shadow-2xl">
+        <h1 className="text-5xl font-bold tracking-tight mb-4">
           Welcome back, {user?.name}
         </h1>
-        <p className="text-blue-100 text-lg opacity-90 font-medium">
+        <p className="text-blue-100 text-xl opacity-90 font-medium">
           {user?.designation} • {user?.department} • {user?.institution}
         </p>
       </div>
@@ -352,6 +394,9 @@ export const Dashboard: React.FC = () => {
 
       {/* Role-specific content */}
       {getRoleSpecificContent()}
+
+      {/* Quick Actions Footer */}
+      {getQuickActionsFooter()}
     </div>
   );
 };
