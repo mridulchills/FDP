@@ -63,13 +63,11 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				// NMIT Brand Colors
-				nmit: {
-					blue: '#2C2E83',
-					yellow: '#FFCC00',
-					gray: '#F5F5F5',
-					white: '#FFFFFF'
-				}
+				// NMIT Brand Colors - using consistent naming
+				'nmit-blue': '#2C2E83',
+				'nmit-yellow': '#FFCC00',
+				'nmit-gray': '#F5F5F5',
+				'nmit-white': '#FFFFFF'
 			},
 			borderRadius: {
 				lg: 'var(--radius)',

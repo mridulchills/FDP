@@ -2,7 +2,8 @@
 import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { User, Bell } from 'lucide-react';
+import { User } from 'lucide-react';
+import { NotificationDropdown } from '@/components/notifications/NotificationDropdown';
 
 export const Header: React.FC = () => {
   const { user, logout } = useAuth();
@@ -12,9 +13,9 @@ export const Header: React.FC = () => {
       <div className="flex items-center justify-between">
         {/* Logo and Title */}
         <div className="flex items-center space-x-4">
-          <div className="bg-gradient-nmit p-2 rounded-lg">
+          <div className="bg-gradient-to-r from-blue-600 to-blue-800 p-2 rounded-lg">
             <div className="w-8 h-8 bg-white rounded flex items-center justify-center">
-              <span className="text-nmit-blue font-bold text-sm">N</span>
+              <span className="text-blue-600 font-bold text-sm">N</span>
             </div>
           </div>
           <div>
@@ -30,12 +31,7 @@ export const Header: React.FC = () => {
         {/* User Menu */}
         <div className="flex items-center space-x-4">
           {/* Notifications */}
-          <Button variant="ghost" size="sm" className="relative">
-            <Bell size={20} />
-            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-              3
-            </span>
-          </Button>
+          <NotificationDropdown />
 
           {/* User Profile */}
           <div className="flex items-center space-x-3">
@@ -45,7 +41,7 @@ export const Header: React.FC = () => {
                 {user?.role} • {user?.department}
               </p>
             </div>
-            <div className="bg-nmit-blue text-white p-2 rounded-full">
+            <div className="bg-blue-600 text-white p-2 rounded-full">
               <User size={16} />
             </div>
           </div>
@@ -55,7 +51,7 @@ export const Header: React.FC = () => {
             onClick={logout}
             variant="outline"
             size="sm"
-            className="nmit-btn-outline"
+            className="border-blue-600 text-blue-600 hover:bg-blue-50"
           >
             Logout
           </Button>

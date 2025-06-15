@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -60,8 +59,23 @@ export const ProgramAttendedForm: React.FC<ProgramAttendedFormProps> = ({
     await onSubmit(finalData);
   };
 
+  const getStepFields = (step: number) => {
+    switch (step) {
+      case 1:
+        return ['title', 'type', 'mode', 'organizingInstitution', 'venue'];
+      case 2:
+        return ['startDate', 'endDate', 'duration', 'durationType', 'domain', 'domainOther'];
+      case 3:
+        return ['objective', 'keyLearnings', 'contribution', 'sponsored', 'sponsorName'];
+      default:
+        return [];
+    }
+  };
+
   const nextStep = async () => {
-    const isValid = await form.trigger();
+    const fieldsToValidate = getStepFields(currentStep);
+    const isValid = await form.trigger(fieldsToValidate as any);
+    
     if (isValid && currentStep < 3) {
       setCurrentStep(currentStep + 1);
     }
