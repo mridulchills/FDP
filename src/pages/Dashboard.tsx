@@ -3,10 +3,11 @@ import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Plus, FileText, Clock, CheckCircle, XCircle, TrendingUp } from 'lucide-react';
-import { AnimatedStatsCard } from '@/components/charts/AnimatedStatsCard';
-import { AnimatedPieChart } from '@/components/charts/AnimatedPieChart';
-import { AnimatedBarChart } from '@/components/charts/AnimatedBarChart';
+import { Plus, FileText, Clock, CheckCircle, XCircle, TrendingUp, Users, Calendar } from 'lucide-react';
+import { ModernStatsCard } from '@/components/dashboard/ModernStatsCard';
+import { ModernPieChart } from '@/components/dashboard/ModernPieChart';
+import { ModernBarChart } from '@/components/dashboard/ModernBarChart';
+import { DashboardSkeleton } from '@/components/dashboard/DashboardSkeleton';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Link } from 'react-router-dom';
@@ -45,78 +46,100 @@ export const Dashboard: React.FC = () => {
         return date >= startOfLastMonth && date <= endOfLastMonth;
       }).length || 0;
 
+      // Module type counts
+      const attended = submissions?.filter(s => s.module_type === 'attended').length || 0;
+      const organized = submissions?.filter(s => s.module_type === 'organized').length || 0;
+      const certification = submissions?.filter(s => s.module_type === 'certification').length || 0;
+
       return {
         totalSubmissions: total,
         pendingApprovals: pending,
         approved,
         rejected,
         thisMonth,
-        lastMonth
+        lastMonth,
+        moduleData: [
+          { name: 'Programs Attended', value: attended },
+          { name: 'Programs Organized', value: organized },
+          { name: 'Certifications', value: certification },
+        ]
       };
     },
     enabled: !!user
   });
 
-  // Enhanced pie data with better colors and labels
+  // Enhanced pie data with specified colors
   const pieData = [
-    { name: 'Approved', value: stats?.approved || 0, color: '#10b981' },
-    { name: 'Pending Review', value: stats?.pendingApprovals || 0, color: '#f59e0b' },
-    { name: 'Rejected', value: stats?.rejected || 0, color: '#ef4444' },
-  ];
-
-  // Enhanced bar data with real module type counts
-  const barData = [
-    { name: 'Programs Attended', value: 12 },
-    { name: 'Programs Organized', value: 8 },
-    { name: 'Certifications', value: 15 },
+    { name: 'Approved', value: stats?.approved || 0, color: '#00C49F' },
+    { name: 'Pending Review', value: stats?.pendingApprovals || 0, color: '#FFBB28' },
+    { name: 'Rejected', value: stats?.rejected || 0, color: '#FF4C4C' },
   ];
 
   const getRoleSpecificContent = () => {
     switch (user?.role) {
       case 'faculty':
         return (
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Plus className="w-5 h-5 text-blue-600" />
+          <div className="grid gap-8 lg:grid-cols-3">
+            {/* Quick Actions Card */}
+            <Card className="lg:col-span-1 shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-0 bg-gradient-to-br from-blue-50 to-indigo-50">
+              <CardHeader className="pb-4">
+                <CardTitle className="flex items-center gap-3 text-xl font-bold text-gray-900">
+                  <div className="p-2 bg-blue-100 rounded-full">
+                    <Plus className="w-5 h-5 text-blue-600" />
+                  </div>
                   Quick Actions
                 </CardTitle>
-                <CardDescription>Manage your submissions</CardDescription>
+                <CardDescription className="text-sm text-muted-foreground">
+                  Manage your submissions
+                </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-3">
+              <CardContent className="space-y-4 pt-0">
                 <Link to="/submissions/new">
-                  <Button className="w-full justify-start bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800">
-                    <FileText className="w-4 h-4 mr-2" />
+                  <Button className="w-full justify-start py-3 px-6 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 transition-all duration-200 transform hover:scale-105 text-white font-medium shadow-md">
+                    <FileText className="w-5 h-5 mr-3" />
                     New Submission
                   </Button>
                 </Link>
                 <Link to="/submissions">
-                  <Button variant="outline" className="w-full justify-start hover:bg-blue-50">
-                    <Clock className="w-4 h-4 mr-2" />
+                  <Button variant="outline" className="w-full justify-start py-3 px-6 rounded-xl hover:bg-blue-50 border-2 border-blue-200 text-blue-700 font-medium transition-all duration-200 transform hover:scale-105">
+                    <Clock className="w-5 h-5 mr-3" />
                     My Submissions
                   </Button>
                 </Link>
               </CardContent>
             </Card>
 
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <CardTitle>Submission Status</CardTitle>
-                <CardDescription>Current status overview</CardDescription>
+            {/* Submission Status Chart */}
+            <Card className="lg:col-span-1 shadow-md hover:shadow-xl transition-all duration-300 border-0">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-xl font-bold text-gray-900">Submission Status</CardTitle>
+                <CardDescription className="text-sm text-muted-foreground">
+                  Current status overview
+                </CardDescription>
               </CardHeader>
-              <CardContent>
-                <AnimatedPieChart data={pieData} title="" height={250} />
+              <CardContent className="pt-0">
+                <ModernPieChart 
+                  data={pieData} 
+                  total={stats?.totalSubmissions || 0}
+                  height={300} 
+                />
               </CardContent>
             </Card>
 
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <CardTitle>Activity by Module</CardTitle>
-                <CardDescription>Your submissions breakdown</CardDescription>
+            {/* Activity by Module Chart */}
+            <Card className="lg:col-span-1 shadow-md hover:shadow-xl transition-all duration-300 border-0">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-xl font-bold text-gray-900">Activity by Module</CardTitle>
+                <CardDescription className="text-sm text-muted-foreground">
+                  Your submissions breakdown
+                </CardDescription>
               </CardHeader>
-              <CardContent>
-                <AnimatedBarChart data={barData} title="" height={250} color="#3b82f6" />
+              <CardContent className="pt-0">
+                <ModernBarChart 
+                  data={stats?.moduleData || []} 
+                  height={300} 
+                  color="#3b82f6" 
+                />
               </CardContent>
             </Card>
           </div>
@@ -124,41 +147,60 @@ export const Dashboard: React.FC = () => {
 
       case 'hod':
         return (
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Clock className="w-5 h-5 text-amber-600" />
+          <div className="grid gap-8 lg:grid-cols-3">
+            {/* Pending Reviews Card */}
+            <Card className="lg:col-span-1 shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-0 bg-gradient-to-br from-amber-50 to-orange-50">
+              <CardHeader className="pb-4">
+                <CardTitle className="flex items-center gap-3 text-xl font-bold text-gray-900">
+                  <div className="p-2 bg-amber-100 rounded-full">
+                    <Clock className="w-5 h-5 text-amber-600" />
+                  </div>
                   Pending Reviews
                 </CardTitle>
-                <CardDescription>Submissions awaiting your approval</CardDescription>
+                <CardDescription className="text-sm text-muted-foreground">
+                  Submissions awaiting your approval
+                </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pt-0">
                 <Link to="/approvals">
-                  <Button className="w-full bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800">
+                  <Button className="w-full py-3 px-6 rounded-xl bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 transition-all duration-200 transform hover:scale-105 text-white font-medium shadow-md">
                     Review Submissions ({stats?.pendingApprovals || 0})
                   </Button>
                 </Link>
               </CardContent>
             </Card>
 
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <CardTitle>Department Overview</CardTitle>
-                <CardDescription>Department submission status</CardDescription>
+            {/* Department Overview Chart */}
+            <Card className="lg:col-span-1 shadow-md hover:shadow-xl transition-all duration-300 border-0">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-xl font-bold text-gray-900">Department Overview</CardTitle>
+                <CardDescription className="text-sm text-muted-foreground">
+                  Department submission status
+                </CardDescription>
               </CardHeader>
-              <CardContent>
-                <AnimatedPieChart data={pieData} title="" height={250} />
+              <CardContent className="pt-0">
+                <ModernPieChart 
+                  data={pieData} 
+                  total={stats?.totalSubmissions || 0}
+                  height={300} 
+                />
               </CardContent>
             </Card>
 
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <CardTitle>Monthly Trends</CardTitle>
-                <CardDescription>Department activity trends</CardDescription>
+            {/* Monthly Trends Chart */}
+            <Card className="lg:col-span-1 shadow-md hover:shadow-xl transition-all duration-300 border-0">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-xl font-bold text-gray-900">Monthly Trends</CardTitle>
+                <CardDescription className="text-sm text-muted-foreground">
+                  Department activity trends
+                </CardDescription>
               </CardHeader>
-              <CardContent>
-                <AnimatedBarChart data={barData} title="" height={250} color="#059669" />
+              <CardContent className="pt-0">
+                <ModernBarChart 
+                  data={stats?.moduleData || []} 
+                  height={300} 
+                  color="#059669" 
+                />
               </CardContent>
             </Card>
           </div>
@@ -166,57 +208,87 @@ export const Dashboard: React.FC = () => {
 
       case 'admin':
         return (
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <CardTitle>System Overview</CardTitle>
-                <CardDescription>Administrative actions</CardDescription>
+          <div className="grid gap-8 lg:grid-cols-4">
+            {/* System Overview Card */}
+            <Card className="shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-0 bg-gradient-to-br from-purple-50 to-indigo-50">
+              <CardHeader className="pb-4">
+                <CardTitle className="flex items-center gap-3 text-lg font-bold text-gray-900">
+                  <div className="p-2 bg-purple-100 rounded-full">
+                    <Users className="w-5 h-5 text-purple-600" />
+                  </div>
+                  System Overview
+                </CardTitle>
+                <CardDescription className="text-sm text-muted-foreground">
+                  Administrative actions
+                </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-3">
+              <CardContent className="space-y-3 pt-0">
                 <Link to="/approvals">
-                  <Button className="w-full justify-start bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800">
+                  <Button className="w-full justify-start py-3 px-4 rounded-xl bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 transition-all duration-200 transform hover:scale-105 text-white font-medium shadow-md text-sm">
                     <Clock className="w-4 h-4 mr-2" />
                     Final Approvals
                   </Button>
                 </Link>
                 <Link to="/users">
-                  <Button variant="outline" className="w-full justify-start hover:bg-purple-50">
-                    <FileText className="w-4 h-4 mr-2" />
+                  <Button variant="outline" className="w-full justify-start py-3 px-4 rounded-xl hover:bg-purple-50 border-2 border-purple-200 text-purple-700 font-medium transition-all duration-200 transform hover:scale-105 text-sm">
+                    <Users className="w-4 h-4 mr-2" />
                     Manage Users
                   </Button>
                 </Link>
               </CardContent>
             </Card>
 
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <CardTitle>All Submissions</CardTitle>
-                <CardDescription>Institution-wide overview</CardDescription>
+            {/* All Submissions Chart */}
+            <Card className="shadow-md hover:shadow-xl transition-all duration-300 border-0">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-lg font-bold text-gray-900">All Submissions</CardTitle>
+                <CardDescription className="text-sm text-muted-foreground">
+                  Institution-wide overview
+                </CardDescription>
               </CardHeader>
-              <CardContent>
-                <AnimatedPieChart data={pieData} title="" height={200} />
+              <CardContent className="pt-0">
+                <ModernPieChart 
+                  data={pieData} 
+                  total={stats?.totalSubmissions || 0}
+                  height={220} 
+                />
               </CardContent>
             </Card>
 
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <CardTitle>Department Activity</CardTitle>
-                <CardDescription>Cross-department trends</CardDescription>
+            {/* Department Activity Chart */}
+            <Card className="shadow-md hover:shadow-xl transition-all duration-300 border-0">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-lg font-bold text-gray-900">Department Activity</CardTitle>
+                <CardDescription className="text-sm text-muted-foreground">
+                  Cross-department trends
+                </CardDescription>
               </CardHeader>
-              <CardContent>
-                <AnimatedBarChart data={barData} title="" height={200} color="#7c3aed" />
+              <CardContent className="pt-0">
+                <ModernBarChart 
+                  data={stats?.moduleData || []} 
+                  height={220} 
+                  color="#7c3aed" 
+                />
               </CardContent>
             </Card>
 
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <CardTitle>System Reports</CardTitle>
-                <CardDescription>Analytics & insights</CardDescription>
+            {/* System Reports Card */}
+            <Card className="shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-0 bg-gradient-to-br from-emerald-50 to-green-50">
+              <CardHeader className="pb-4">
+                <CardTitle className="flex items-center gap-3 text-lg font-bold text-gray-900">
+                  <div className="p-2 bg-emerald-100 rounded-full">
+                    <TrendingUp className="w-5 h-5 text-emerald-600" />
+                  </div>
+                  System Reports
+                </CardTitle>
+                <CardDescription className="text-sm text-muted-foreground">
+                  Analytics & insights
+                </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pt-0">
                 <Link to="/reports">
-                  <Button className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800">
-                    <TrendingUp className="w-4 h-4 mr-2" />
+                  <Button className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 transition-all duration-200 transform hover:scale-105 text-white font-medium shadow-md text-sm">
+                    <Calendar className="w-4 h-4 mr-2" />
                     Generate Reports
                   </Button>
                 </Link>
@@ -231,64 +303,50 @@ export const Dashboard: React.FC = () => {
   };
 
   if (statsLoading) {
-    return (
-      <div className="space-y-8">
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {[...Array(4)].map((_, i) => (
-            <Card key={i} className="animate-pulse">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Loading...</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">-</div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
-    );
+    return <DashboardSkeleton />;
   }
 
   return (
-    <div className="space-y-8">
-      <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 rounded-lg p-6 text-white">
-        <h1 className="text-3xl font-bold tracking-tight">
+    <div className="space-y-8 animate-fade-in">
+      {/* Welcome Header */}
+      <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 rounded-2xl p-8 text-white shadow-xl">
+        <h1 className="text-3xl font-bold tracking-tight mb-2">
           Welcome back, {user?.name}
         </h1>
-        <p className="text-blue-100 mt-2">
+        <p className="text-blue-100 text-sm opacity-90">
           {user?.designation} • {user?.department} • {user?.institution}
         </p>
       </div>
 
       {/* Enhanced Stats Overview */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <AnimatedStatsCard
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <ModernStatsCard
           title="Total Submissions"
           value={stats?.totalSubmissions || 0}
           icon={<FileText className="w-6 h-6 text-white" />}
-          color="bg-gradient-to-r from-blue-500 to-blue-600"
+          gradient="from-blue-500 to-blue-600"
           trend={stats?.thisMonth && stats?.lastMonth ? {
             value: Math.round(((stats.thisMonth - stats.lastMonth) / (stats.lastMonth || 1)) * 100),
             isPositive: stats.thisMonth >= stats.lastMonth
           } : undefined}
         />
-        <AnimatedStatsCard
+        <ModernStatsCard
           title="Pending Approvals"
           value={stats?.pendingApprovals || 0}
           icon={<Clock className="w-6 h-6 text-white" />}
-          color="bg-gradient-to-r from-amber-500 to-orange-500"
+          gradient="from-amber-500 to-orange-500"
         />
-        <AnimatedStatsCard
+        <ModernStatsCard
           title="Approved"
           value={stats?.approved || 0}
           icon={<CheckCircle className="w-6 h-6 text-white" />}
-          color="bg-gradient-to-r from-emerald-500 to-green-500"
+          gradient="from-emerald-500 to-green-500"
         />
-        <AnimatedStatsCard
+        <ModernStatsCard
           title="This Month"
           value={stats?.thisMonth || 0}
           icon={<TrendingUp className="w-6 h-6 text-white" />}
-          color="bg-gradient-to-r from-purple-500 to-indigo-500"
+          gradient="from-purple-500 to-indigo-500"
         />
       </div>
 
