@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User as SupabaseUser, Session } from '@supabase/supabase-js';
 import { User, LoginCredentials } from '@/types';
@@ -37,7 +36,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 .from('users')
                 .select(`
                   *,
-                  department:departments(name)
+                  department:departments!users_department_id_fkey(name)
                 `)
                 .eq('auth_user_id', session.user.id)
                 .single();
