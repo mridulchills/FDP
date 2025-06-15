@@ -40,6 +40,20 @@ export const AllSubmissions: React.FC = () => {
     console.log('Exporting submissions data...');
   };
 
+  const handleView = (submission: Submission) => {
+    setSelectedSubmission(submission);
+  };
+
+  const handleEdit = (submission: Submission) => {
+    // Handle edit logic
+    console.log('Edit submission:', submission.id);
+  };
+
+  const handleDelete = (id: string, status: any) => {
+    // Handle delete logic
+    console.log('Delete submission:', id);
+  };
+
   if (!user || user.role !== 'admin') {
     return (
       <div className="text-center py-20">
@@ -118,10 +132,10 @@ export const AllSubmissions: React.FC = () => {
       {/* Submissions Table */}
       <SubmissionsTable
         submissions={filteredSubmissions}
+        onView={handleView}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
         isLoading={isLoading}
-        onSubmissionSelect={setSelectedSubmission}
-        showActions={true}
-        onRefresh={refetch}
       />
 
       {/* Submission Details Modal */}
@@ -130,7 +144,6 @@ export const AllSubmissions: React.FC = () => {
           submission={selectedSubmission}
           isOpen={!!selectedSubmission}
           onClose={() => setSelectedSubmission(null)}
-          onRefresh={refetch}
         />
       )}
     </div>

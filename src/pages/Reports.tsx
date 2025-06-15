@@ -121,26 +121,30 @@ export const Reports: React.FC = () => {
         <ModernStatsCard
           title="Total Submissions"
           value={totalSubmissions}
-          change={{ value: 12, isPositive: true }}
+          trend={{ value: 12, isPositive: true }}
           icon={<FileText />}
+          gradient="from-blue-500 to-blue-600"
         />
         <ModernStatsCard
           title="Approved"
           value={approvedSubmissions}
-          change={{ value: 8, isPositive: true }}
+          trend={{ value: 8, isPositive: true }}
           icon={<TrendingUp />}
+          gradient="from-green-500 to-green-600"
         />
         <ModernStatsCard
           title="Pending"
           value={pendingSubmissions}
-          change={{ value: 5, isPositive: false }}
+          trend={{ value: 5, isPositive: false }}
           icon={<Calendar />}
+          gradient="from-yellow-500 to-yellow-600"
         />
         <ModernStatsCard
           title="Active Users"
           value={45}
-          change={{ value: 15, isPositive: true }}
+          trend={{ value: 15, isPositive: true }}
           icon={<Users />}
+          gradient="from-purple-500 to-purple-600"
         />
       </div>
 
@@ -152,6 +156,7 @@ export const Reports: React.FC = () => {
         
         <ModernPieChart
           data={statusData}
+          total={totalSubmissions}
         />
       </div>
 
