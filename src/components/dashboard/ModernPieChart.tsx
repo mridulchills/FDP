@@ -17,7 +17,7 @@ interface ModernPieChartProps {
 export const ModernPieChart: React.FC<ModernPieChartProps> = ({
   data,
   total,
-  height = 300
+  height = 400
 }) => {
   const [animatedData, setAnimatedData] = useState<ChartData[]>([]);
   const [isVisible, setIsVisible] = useState(false);
@@ -42,13 +42,13 @@ export const ModernPieChart: React.FC<ModernPieChartProps> = ({
       const data = payload[0];
       const percentage = total > 0 ? ((data.value / total) * 100).toFixed(1) : 0;
       return (
-        <div className="bg-white p-4 border border-gray-200 rounded-xl shadow-lg">
-          <p className="font-semibold text-gray-900">{data.name}</p>
-          <p className="text-gray-600">
-            Count: <span className="font-bold">{data.value}</span>
+        <div className="bg-white p-6 border border-gray-200 rounded-2xl shadow-2xl backdrop-blur-sm">
+          <p className="font-bold text-gray-900 text-lg">{data.name}</p>
+          <p className="text-gray-600 text-base">
+            Count: <span className="font-bold text-gray-900">{data.value}</span>
           </p>
-          <p className="text-gray-600">
-            Percentage: <span className="font-bold">{percentage}%</span>
+          <p className="text-gray-600 text-base">
+            Percentage: <span className="font-bold text-gray-900">{percentage}%</span>
           </p>
         </div>
       );
@@ -58,14 +58,14 @@ export const ModernPieChart: React.FC<ModernPieChartProps> = ({
 
   const CustomLegend = ({ payload }: any) => {
     return (
-      <div className="flex flex-wrap justify-center gap-4 mt-4">
+      <div className="flex flex-wrap justify-center gap-6 mt-6">
         {payload?.map((entry: any, index: number) => (
-          <div key={index} className="flex items-center gap-2">
+          <div key={index} className="flex items-center gap-3 px-4 py-2 bg-gray-50 rounded-xl">
             <div 
-              className="w-3 h-3 rounded-full"
+              className="w-4 h-4 rounded-full shadow-sm"
               style={{ backgroundColor: entry.color }}
             />
-            <span className="text-sm font-medium text-gray-700">{entry.value}</span>
+            <span className="text-base font-semibold text-gray-700">{entry.value}</span>
           </div>
         ))}
       </div>
@@ -75,10 +75,10 @@ export const ModernPieChart: React.FC<ModernPieChartProps> = ({
   const renderCustomLabel = ({ cx, cy }: any) => {
     return (
       <g>
-        <text x={cx} y={cy - 8} textAnchor="middle" className="fill-gray-900 text-lg font-bold">
+        <text x={cx} y={cy - 12} textAnchor="middle" className="fill-gray-900 text-xl font-bold">
           Total
         </text>
-        <text x={cx} y={cy + 12} textAnchor="middle" className="fill-gray-600 text-2xl font-bold">
+        <text x={cx} y={cy + 16} textAnchor="middle" className="fill-gray-600 text-3xl font-bold">
           {total}
         </text>
       </g>
@@ -93,9 +93,9 @@ export const ModernPieChart: React.FC<ModernPieChartProps> = ({
             data={animatedData}
             cx="50%"
             cy="50%"
-            innerRadius={60}
-            outerRadius={100}
-            paddingAngle={2}
+            innerRadius={80}
+            outerRadius={140}
+            paddingAngle={3}
             dataKey="value"
             animationBegin={0}
             animationDuration={1500}
@@ -105,9 +105,9 @@ export const ModernPieChart: React.FC<ModernPieChartProps> = ({
               <Cell 
                 key={`cell-${index}`} 
                 fill={entry.color}
-                className="hover:opacity-80 transition-opacity duration-200 cursor-pointer"
+                className="hover:opacity-80 transition-all duration-200 cursor-pointer hover:scale-105"
                 stroke="white"
-                strokeWidth={2}
+                strokeWidth={3}
               />
             ))}
           </Pie>

@@ -53,20 +53,23 @@ export const ModernStatsCard: React.FC<ModernStatsCardProps> = ({
 
   return (
     <Card className={`
-      shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-0
+      min-h-[160px] min-w-[280px] shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border-0
+      bg-white/80 backdrop-blur-sm
       ${isVisible ? 'animate-fade-in' : 'opacity-0'}
     `}>
-      <CardContent className="p-6">
-        <div className="flex items-center justify-between">
-          <div className="flex-1">
-            <p className="text-sm font-medium text-gray-600 mb-1">{title}</p>
-            <div className="flex items-baseline space-x-2">
-              <p className="text-3xl font-bold text-gray-900">
+      <CardContent className="p-8">
+        <div className="flex items-center justify-between h-full">
+          <div className="flex-1 space-y-3">
+            <p className="text-base font-semibold text-gray-600 tracking-wide">{title}</p>
+            <div className="flex items-baseline space-x-3">
+              <p className="text-4xl font-bold text-gray-900 leading-none">
                 {displayValue.toLocaleString()}
               </p>
               {trend && (
-                <span className={`text-sm flex items-center font-medium ${
-                  trend.isPositive ? 'text-green-600' : 'text-red-600'
+                <span className={`text-sm flex items-center font-semibold px-2 py-1 rounded-full ${
+                  trend.isPositive 
+                    ? 'text-emerald-700 bg-emerald-100' 
+                    : 'text-red-700 bg-red-100'
                 }`}>
                   {trend.isPositive ? '↗' : '↘'} {Math.abs(trend.value)}%
                 </span>
@@ -74,11 +77,13 @@ export const ModernStatsCard: React.FC<ModernStatsCardProps> = ({
             </div>
           </div>
           <div className={`
-            p-4 rounded-full bg-gradient-to-r ${gradient} 
-            transform transition-transform duration-200 hover:scale-110
-            shadow-lg
+            p-5 rounded-2xl bg-gradient-to-br ${gradient} 
+            transform transition-all duration-300 hover:scale-110 hover:rotate-6
+            shadow-xl
           `}>
-            {icon}
+            <div className="w-8 h-8 text-white">
+              {icon}
+            </div>
           </div>
         </div>
       </CardContent>

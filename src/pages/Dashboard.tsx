@@ -79,30 +79,30 @@ export const Dashboard: React.FC = () => {
     switch (user?.role) {
       case 'faculty':
         return (
-          <div className="grid gap-8 lg:grid-cols-3">
+          <div className="grid gap-10 lg:grid-cols-3">
             {/* Quick Actions Card */}
-            <Card className="lg:col-span-1 shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-0 bg-gradient-to-br from-blue-50 to-indigo-50">
-              <CardHeader className="pb-4">
-                <CardTitle className="flex items-center gap-3 text-xl font-bold text-gray-900">
-                  <div className="p-2 bg-blue-100 rounded-full">
-                    <Plus className="w-5 h-5 text-blue-600" />
+            <Card className="lg:col-span-1 min-h-[320px] shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border-0 bg-gradient-to-br from-blue-50 via-white to-indigo-50 backdrop-blur-sm">
+              <CardHeader className="pb-6">
+                <CardTitle className="flex items-center gap-4 text-2xl font-bold text-gray-900">
+                  <div className="p-3 bg-blue-100 rounded-2xl">
+                    <Plus className="w-7 h-7 text-blue-600" />
                   </div>
                   Quick Actions
                 </CardTitle>
-                <CardDescription className="text-sm text-muted-foreground">
-                  Manage your submissions
+                <CardDescription className="text-base text-muted-foreground">
+                  Manage your submissions efficiently
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4 pt-0">
+              <CardContent className="space-y-6 pt-0">
                 <Link to="/submissions/new">
-                  <Button className="w-full justify-start py-3 px-6 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 transition-all duration-200 transform hover:scale-105 text-white font-medium shadow-md">
-                    <FileText className="w-5 h-5 mr-3" />
+                  <Button className="w-full justify-start py-4 px-8 rounded-2xl bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 transition-all duration-200 transform hover:scale-105 text-white font-semibold shadow-lg text-base">
+                    <FileText className="w-6 h-6 mr-4" />
                     New Submission
                   </Button>
                 </Link>
                 <Link to="/submissions">
-                  <Button variant="outline" className="w-full justify-start py-3 px-6 rounded-xl hover:bg-blue-50 border-2 border-blue-200 text-blue-700 font-medium transition-all duration-200 transform hover:scale-105">
-                    <Clock className="w-5 h-5 mr-3" />
+                  <Button variant="outline" className="w-full justify-start py-4 px-8 rounded-2xl hover:bg-blue-50 border-2 border-blue-200 text-blue-700 font-semibold transition-all duration-200 transform hover:scale-105 text-base">
+                    <Clock className="w-6 h-6 mr-4" />
                     My Submissions
                   </Button>
                 </Link>
@@ -110,10 +110,10 @@ export const Dashboard: React.FC = () => {
             </Card>
 
             {/* Submission Status Chart */}
-            <Card className="lg:col-span-1 shadow-md hover:shadow-xl transition-all duration-300 border-0">
-              <CardHeader className="pb-4">
-                <CardTitle className="text-xl font-bold text-gray-900">Submission Status</CardTitle>
-                <CardDescription className="text-sm text-muted-foreground">
+            <Card className="lg:col-span-1 min-h-[500px] shadow-xl hover:shadow-2xl transition-all duration-300 border-0 bg-white/80 backdrop-blur-sm">
+              <CardHeader className="pb-6">
+                <CardTitle className="text-2xl font-bold text-gray-900">Submission Status</CardTitle>
+                <CardDescription className="text-base text-muted-foreground">
                   Current status overview
                 </CardDescription>
               </CardHeader>
@@ -121,23 +121,23 @@ export const Dashboard: React.FC = () => {
                 <ModernPieChart 
                   data={pieData} 
                   total={stats?.totalSubmissions || 0}
-                  height={300} 
+                  height={400} 
                 />
               </CardContent>
             </Card>
 
             {/* Activity by Module Chart */}
-            <Card className="lg:col-span-1 shadow-md hover:shadow-xl transition-all duration-300 border-0">
-              <CardHeader className="pb-4">
-                <CardTitle className="text-xl font-bold text-gray-900">Activity by Module</CardTitle>
-                <CardDescription className="text-sm text-muted-foreground">
+            <Card className="lg:col-span-1 min-h-[500px] shadow-xl hover:shadow-2xl transition-all duration-300 border-0 bg-white/80 backdrop-blur-sm">
+              <CardHeader className="pb-6">
+                <CardTitle className="text-2xl font-bold text-gray-900">Activity by Module</CardTitle>
+                <CardDescription className="text-base text-muted-foreground">
                   Your submissions breakdown
                 </CardDescription>
               </CardHeader>
               <CardContent className="pt-0">
                 <ModernBarChart 
                   data={stats?.moduleData || []} 
-                  height={300} 
+                  height={400} 
                   color="#3b82f6" 
                 />
               </CardContent>
@@ -147,23 +147,23 @@ export const Dashboard: React.FC = () => {
 
       case 'hod':
         return (
-          <div className="grid gap-8 lg:grid-cols-3">
+          <div className="grid gap-10 lg:grid-cols-3">
             {/* Pending Reviews Card */}
-            <Card className="lg:col-span-1 shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-0 bg-gradient-to-br from-amber-50 to-orange-50">
-              <CardHeader className="pb-4">
-                <CardTitle className="flex items-center gap-3 text-xl font-bold text-gray-900">
-                  <div className="p-2 bg-amber-100 rounded-full">
-                    <Clock className="w-5 h-5 text-amber-600" />
+            <Card className="lg:col-span-1 min-h-[320px] shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border-0 bg-gradient-to-br from-amber-50 via-white to-orange-50 backdrop-blur-sm">
+              <CardHeader className="pb-6">
+                <CardTitle className="flex items-center gap-4 text-2xl font-bold text-gray-900">
+                  <div className="p-3 bg-amber-100 rounded-2xl">
+                    <Clock className="w-7 h-7 text-amber-600" />
                   </div>
                   Pending Reviews
                 </CardTitle>
-                <CardDescription className="text-sm text-muted-foreground">
+                <CardDescription className="text-base text-muted-foreground">
                   Submissions awaiting your approval
                 </CardDescription>
               </CardHeader>
               <CardContent className="pt-0">
                 <Link to="/approvals">
-                  <Button className="w-full py-3 px-6 rounded-xl bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 transition-all duration-200 transform hover:scale-105 text-white font-medium shadow-md">
+                  <Button className="w-full py-4 px-8 rounded-2xl bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 transition-all duration-200 transform hover:scale-105 text-white font-semibold shadow-lg text-base">
                     Review Submissions ({stats?.pendingApprovals || 0})
                   </Button>
                 </Link>
@@ -171,10 +171,10 @@ export const Dashboard: React.FC = () => {
             </Card>
 
             {/* Department Overview Chart */}
-            <Card className="lg:col-span-1 shadow-md hover:shadow-xl transition-all duration-300 border-0">
-              <CardHeader className="pb-4">
-                <CardTitle className="text-xl font-bold text-gray-900">Department Overview</CardTitle>
-                <CardDescription className="text-sm text-muted-foreground">
+            <Card className="lg:col-span-1 min-h-[500px] shadow-xl hover:shadow-2xl transition-all duration-300 border-0 bg-white/80 backdrop-blur-sm">
+              <CardHeader className="pb-6">
+                <CardTitle className="text-2xl font-bold text-gray-900">Department Overview</CardTitle>
+                <CardDescription className="text-base text-muted-foreground">
                   Department submission status
                 </CardDescription>
               </CardHeader>
@@ -182,23 +182,23 @@ export const Dashboard: React.FC = () => {
                 <ModernPieChart 
                   data={pieData} 
                   total={stats?.totalSubmissions || 0}
-                  height={300} 
+                  height={400} 
                 />
               </CardContent>
             </Card>
 
             {/* Monthly Trends Chart */}
-            <Card className="lg:col-span-1 shadow-md hover:shadow-xl transition-all duration-300 border-0">
-              <CardHeader className="pb-4">
-                <CardTitle className="text-xl font-bold text-gray-900">Monthly Trends</CardTitle>
-                <CardDescription className="text-sm text-muted-foreground">
+            <Card className="lg:col-span-1 min-h-[500px] shadow-xl hover:shadow-2xl transition-all duration-300 border-0 bg-white/80 backdrop-blur-sm">
+              <CardHeader className="pb-6">
+                <CardTitle className="text-2xl font-bold text-gray-900">Monthly Trends</CardTitle>
+                <CardDescription className="text-base text-muted-foreground">
                   Department activity trends
                 </CardDescription>
               </CardHeader>
               <CardContent className="pt-0">
                 <ModernBarChart 
                   data={stats?.moduleData || []} 
-                  height={300} 
+                  height={400} 
                   color="#059669" 
                 />
               </CardContent>
@@ -208,30 +208,30 @@ export const Dashboard: React.FC = () => {
 
       case 'admin':
         return (
-          <div className="grid gap-8 lg:grid-cols-4">
+          <div className="grid gap-10 lg:grid-cols-4">
             {/* System Overview Card */}
-            <Card className="shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-0 bg-gradient-to-br from-purple-50 to-indigo-50">
-              <CardHeader className="pb-4">
-                <CardTitle className="flex items-center gap-3 text-lg font-bold text-gray-900">
-                  <div className="p-2 bg-purple-100 rounded-full">
-                    <Users className="w-5 h-5 text-purple-600" />
+            <Card className="min-h-[320px] shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border-0 bg-gradient-to-br from-purple-50 via-white to-indigo-50 backdrop-blur-sm">
+              <CardHeader className="pb-6">
+                <CardTitle className="flex items-center gap-4 text-xl font-bold text-gray-900">
+                  <div className="p-3 bg-purple-100 rounded-2xl">
+                    <Users className="w-6 h-6 text-purple-600" />
                   </div>
                   System Overview
                 </CardTitle>
-                <CardDescription className="text-sm text-muted-foreground">
+                <CardDescription className="text-base text-muted-foreground">
                   Administrative actions
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-3 pt-0">
+              <CardContent className="space-y-4 pt-0">
                 <Link to="/approvals">
-                  <Button className="w-full justify-start py-3 px-4 rounded-xl bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 transition-all duration-200 transform hover:scale-105 text-white font-medium shadow-md text-sm">
-                    <Clock className="w-4 h-4 mr-2" />
+                  <Button className="w-full justify-start py-4 px-6 rounded-2xl bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 transition-all duration-200 transform hover:scale-105 text-white font-semibold shadow-lg text-base">
+                    <Clock className="w-5 h-5 mr-3" />
                     Final Approvals
                   </Button>
                 </Link>
                 <Link to="/users">
-                  <Button variant="outline" className="w-full justify-start py-3 px-4 rounded-xl hover:bg-purple-50 border-2 border-purple-200 text-purple-700 font-medium transition-all duration-200 transform hover:scale-105 text-sm">
-                    <Users className="w-4 h-4 mr-2" />
+                  <Button variant="outline" className="w-full justify-start py-4 px-6 rounded-2xl hover:bg-purple-50 border-2 border-purple-200 text-purple-700 font-semibold transition-all duration-200 transform hover:scale-105 text-base">
+                    <Users className="w-5 h-5 mr-3" />
                     Manage Users
                   </Button>
                 </Link>
@@ -239,10 +239,10 @@ export const Dashboard: React.FC = () => {
             </Card>
 
             {/* All Submissions Chart */}
-            <Card className="shadow-md hover:shadow-xl transition-all duration-300 border-0">
-              <CardHeader className="pb-4">
-                <CardTitle className="text-lg font-bold text-gray-900">All Submissions</CardTitle>
-                <CardDescription className="text-sm text-muted-foreground">
+            <Card className="min-h-[500px] shadow-xl hover:shadow-2xl transition-all duration-300 border-0 bg-white/80 backdrop-blur-sm">
+              <CardHeader className="pb-6">
+                <CardTitle className="text-xl font-bold text-gray-900">All Submissions</CardTitle>
+                <CardDescription className="text-base text-muted-foreground">
                   Institution-wide overview
                 </CardDescription>
               </CardHeader>
@@ -250,45 +250,45 @@ export const Dashboard: React.FC = () => {
                 <ModernPieChart 
                   data={pieData} 
                   total={stats?.totalSubmissions || 0}
-                  height={220} 
+                  height={300} 
                 />
               </CardContent>
             </Card>
 
             {/* Department Activity Chart */}
-            <Card className="shadow-md hover:shadow-xl transition-all duration-300 border-0">
-              <CardHeader className="pb-4">
-                <CardTitle className="text-lg font-bold text-gray-900">Department Activity</CardTitle>
-                <CardDescription className="text-sm text-muted-foreground">
+            <Card className="min-h-[500px] shadow-xl hover:shadow-2xl transition-all duration-300 border-0 bg-white/80 backdrop-blur-sm">
+              <CardHeader className="pb-6">
+                <CardTitle className="text-xl font-bold text-gray-900">Department Activity</CardTitle>
+                <CardDescription className="text-base text-muted-foreground">
                   Cross-department trends
                 </CardDescription>
               </CardHeader>
               <CardContent className="pt-0">
                 <ModernBarChart 
                   data={stats?.moduleData || []} 
-                  height={220} 
+                  height={300} 
                   color="#7c3aed" 
                 />
               </CardContent>
             </Card>
 
             {/* System Reports Card */}
-            <Card className="shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-0 bg-gradient-to-br from-emerald-50 to-green-50">
-              <CardHeader className="pb-4">
-                <CardTitle className="flex items-center gap-3 text-lg font-bold text-gray-900">
-                  <div className="p-2 bg-emerald-100 rounded-full">
-                    <TrendingUp className="w-5 h-5 text-emerald-600" />
+            <Card className="min-h-[320px] shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border-0 bg-gradient-to-br from-emerald-50 via-white to-green-50 backdrop-blur-sm">
+              <CardHeader className="pb-6">
+                <CardTitle className="flex items-center gap-4 text-xl font-bold text-gray-900">
+                  <div className="p-3 bg-emerald-100 rounded-2xl">
+                    <TrendingUp className="w-6 h-6 text-emerald-600" />
                   </div>
                   System Reports
                 </CardTitle>
-                <CardDescription className="text-sm text-muted-foreground">
+                <CardDescription className="text-base text-muted-foreground">
                   Analytics & insights
                 </CardDescription>
               </CardHeader>
               <CardContent className="pt-0">
                 <Link to="/reports">
-                  <Button className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 transition-all duration-200 transform hover:scale-105 text-white font-medium shadow-md text-sm">
-                    <Calendar className="w-4 h-4 mr-2" />
+                  <Button className="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 transition-all duration-200 transform hover:scale-105 text-white font-semibold shadow-lg text-base">
+                    <Calendar className="w-5 h-5 mr-3" />
                     Generate Reports
                   </Button>
                 </Link>
@@ -307,23 +307,23 @@ export const Dashboard: React.FC = () => {
   }
 
   return (
-    <div className="space-y-8 animate-fade-in">
+    <div className="space-y-10 animate-fade-in">
       {/* Welcome Header */}
-      <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 rounded-2xl p-8 text-white shadow-xl">
-        <h1 className="text-3xl font-bold tracking-tight mb-2">
+      <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 rounded-3xl p-10 text-white shadow-2xl">
+        <h1 className="text-4xl font-bold tracking-tight mb-3">
           Welcome back, {user?.name}
         </h1>
-        <p className="text-blue-100 text-sm opacity-90">
+        <p className="text-blue-100 text-lg opacity-90 font-medium">
           {user?.designation} • {user?.department} • {user?.institution}
         </p>
       </div>
 
       {/* Enhanced Stats Overview */}
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-8 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
         <ModernStatsCard
           title="Total Submissions"
           value={stats?.totalSubmissions || 0}
-          icon={<FileText className="w-6 h-6 text-white" />}
+          icon={<FileText className="w-8 h-8 text-white" />}
           gradient="from-blue-500 to-blue-600"
           trend={stats?.thisMonth && stats?.lastMonth ? {
             value: Math.round(((stats.thisMonth - stats.lastMonth) / (stats.lastMonth || 1)) * 100),
@@ -333,19 +333,19 @@ export const Dashboard: React.FC = () => {
         <ModernStatsCard
           title="Pending Approvals"
           value={stats?.pendingApprovals || 0}
-          icon={<Clock className="w-6 h-6 text-white" />}
+          icon={<Clock className="w-8 h-8 text-white" />}
           gradient="from-amber-500 to-orange-500"
         />
         <ModernStatsCard
           title="Approved"
           value={stats?.approved || 0}
-          icon={<CheckCircle className="w-6 h-6 text-white" />}
+          icon={<CheckCircle className="w-8 h-8 text-white" />}
           gradient="from-emerald-500 to-green-500"
         />
         <ModernStatsCard
           title="This Month"
           value={stats?.thisMonth || 0}
-          icon={<TrendingUp className="w-6 h-6 text-white" />}
+          icon={<TrendingUp className="w-8 h-8 text-white" />}
           gradient="from-purple-500 to-indigo-500"
         />
       </div>
