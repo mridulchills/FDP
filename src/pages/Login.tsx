@@ -1,126 +1,86 @@
 
 import React, { useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { supabase } from '@/integrations/supabase/client';
-import { useQuery } from '@tanstack/react-query';
+import { Separator } from '@/components/ui/separator';
+import { AlertCircle, GraduationCap } from 'lucide-react';
+import { DemoSetupPanel } from '@/components/demo/DemoSetupPanel';
 
 export const Login: React.FC = () => {
-  const { login, signup, isLoading } = useAuth();
+  const [employeeId, setEmployeeId] = useState('');
+  const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+  const { login } = useAuth();
   const navigate = useNavigate();
-  
-  // Login form state
-  const [loginForm, setLoginForm] = useState({
-    employeeId: '',
-    password: ''
-  });
-  
-  // Signup form state
-  const [signupForm, setSignupForm] = useState({
-    employeeId: '',
-    name: '',
-    designation: '',
-    departmentId: '',
-    password: '',
-    confirmPassword: ''
-  });
+  const location = useLocation();
 
-  // Fetch departments for signup
-  const { data: departments } = useQuery({
-    queryKey: ['departments'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('departments')
-        .select('id, name, code')
-        .order('name');
-      
-      if (error) throw error;
-      return data;
-    }
-  });
+  const from = (location.state as any)?.from?.pathname || '/dashboard';
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!loginForm.employeeId || !loginForm.password) {
-      return;
-    }
+    setError('');
+    setIsLoading(true);
 
-    const success = await login(loginForm);
-    if (success) {
-      navigate('/dashboard');
+    try {
+      const success = await login({ employeeId, password });
+      if (success) {
+        navigate(from, { replace: true });
+      } else {
+        setError('Invalid credentials. Please check your employee ID and password.');
+      }
+    } catch (error) {
+      setError('An error occurred during login. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleSignup = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!signupForm.employeeId || !signupForm.name || !signupForm.designation || 
-        !signupForm.departmentId || !signupForm.password || !signupForm.confirmPassword) {
-      return;
-    }
-
-    if (signupForm.password !== signupForm.confirmPassword) {
-      return;
-    }
-
-    const success = await signup({
-      employeeId: signupForm.employeeId,
-      name: signupForm.name,
-      designation: signupForm.designation,
-      departmentId: signupForm.departmentId,
-      password: signupForm.password
-    });
-
-    if (success) {
-      // Reset form and switch to login tab
-      setSignupForm({
-        employeeId: '',
-        name: '',
-        designation: '',
-        departmentId: '',
-        password: '',
-        confirmPassword: ''
-      });
-    }
+  const fillDemoCredentials = (email: string, pass: string) => {
+    setEmployeeId(email);
+    setPassword(pass);
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900">FDTS</h1>
-          <p className="mt-2 text-gray-600">Faculty Development Tracking System</p>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+      <div className="w-full max-w-4xl">
+        <div className="text-center mb-8">
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <GraduationCap className="h-8 w-8 text-blue-600" />
+            <h1 className="text-3xl font-bold text-gray-900">Faculty Development Portal</h1>
+          </div>
+          <p className="text-gray-600">NMIT - Nitte Meenakshi Institute of Technology</p>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Welcome</CardTitle>
-            <CardDescription>Sign in to your account or create a new one</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Tabs defaultValue="login" className="space-y-4">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="login">Login</TabsTrigger>
-                <TabsTrigger value="signup">Sign Up</TabsTrigger>
-              </TabsList>
+        <Tabs defaultValue="login" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="login">Login</TabsTrigger>
+            <TabsTrigger value="demo">Demo Setup</TabsTrigger>
+          </TabsList>
 
-              <TabsContent value="login">
-                <form onSubmit={handleLogin} className="space-y-4">
+          <TabsContent value="login">
+            <Card>
+              <CardHeader>
+                <CardTitle>Sign In</CardTitle>
+                <CardDescription>
+                  Enter your employee credentials to access the portal
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="employeeId">Employee ID or Email</Label>
+                    <Label htmlFor="employeeId">Employee ID / Email</Label>
                     <Input
                       id="employeeId"
                       type="text"
-                      placeholder="e.g., FAC001 or email@nmit.ac.in"
-                      value={loginForm.employeeId}
-                      onChange={(e) => setLoginForm({ ...loginForm, employeeId: e.target.value })}
+                      value={employeeId}
+                      onChange={(e) => setEmployeeId(e.target.value)}
+                      placeholder="e.g., FAC001 or FAC001@nmit.ac.in"
                       required
                     />
                   </div>
@@ -129,103 +89,61 @@ export const Login: React.FC = () => {
                     <Input
                       id="password"
                       type="password"
-                      value={loginForm.password}
-                      onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Enter your password"
                       required
                     />
                   </div>
+                  
+                  {error && (
+                    <div className="flex items-center gap-2 text-red-600 bg-red-50 p-3 rounded border border-red-200">
+                      <AlertCircle className="h-4 w-4" />
+                      <span className="text-sm">{error}</span>
+                    </div>
+                  )}
+
                   <Button type="submit" className="w-full" disabled={isLoading}>
-                    {isLoading ? 'Signing in...' : 'Sign In'}
+                    {isLoading ? 'Signing In...' : 'Sign In'}
                   </Button>
                 </form>
-              </TabsContent>
 
-              <TabsContent value="signup">
-                <form onSubmit={handleSignup} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="signupEmployeeId">Employee ID</Label>
-                    <Input
-                      id="signupEmployeeId"
-                      type="text"
-                      placeholder="e.g., FAC001"
-                      value={signupForm.employeeId}
-                      onChange={(e) => setSignupForm({ ...signupForm, employeeId: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="name">Full Name</Label>
-                    <Input
-                      id="name"
-                      type="text"
-                      placeholder="Dr. John Doe"
-                      value={signupForm.name}
-                      onChange={(e) => setSignupForm({ ...signupForm, name: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="designation">Designation</Label>
-                    <Input
-                      id="designation"
-                      type="text"
-                      placeholder="Assistant Professor"
-                      value={signupForm.designation}
-                      onChange={(e) => setSignupForm({ ...signupForm, designation: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="department">Department</Label>
-                    <Select
-                      value={signupForm.departmentId}
-                      onValueChange={(value) => setSignupForm({ ...signupForm, departmentId: value })}
-                      required
+                <Separator className="my-6" />
+
+                <div className="space-y-4">
+                  <h4 className="font-medium text-center">Quick Demo Login</h4>
+                  <div className="grid gap-2">
+                    <Button
+                      variant="outline"
+                      onClick={() => fillDemoCredentials('FAC001@nmit.ac.in', 'demo123')}
+                      className="text-blue-600"
                     >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select department" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {departments?.map((dept) => (
-                          <SelectItem key={dept.id} value={dept.id}>
-                            {dept.name} ({dept.code})
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                      Faculty Demo (Dr. John Smith)
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => fillDemoCredentials('HOD001@nmit.ac.in', 'demo123')}
+                      className="text-purple-600"
+                    >
+                      HoD Demo (Dr. Sarah Johnson)
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => fillDemoCredentials('ADM001@nmit.ac.in', 'demo123')}
+                      className="text-red-600"
+                    >
+                      Admin Demo (Dr. Michael Brown)
+                    </Button>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="signupPassword">Password</Label>
-                    <Input
-                      id="signupPassword"
-                      type="password"
-                      value={signupForm.password}
-                      onChange={(e) => setSignupForm({ ...signupForm, password: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="confirmPassword">Confirm Password</Label>
-                    <Input
-                      id="confirmPassword"
-                      type="password"
-                      value={signupForm.confirmPassword}
-                      onChange={(e) => setSignupForm({ ...signupForm, confirmPassword: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <Button type="submit" className="w-full" disabled={isLoading}>
-                    {isLoading ? 'Creating Account...' : 'Create Account'}
-                  </Button>
-                </form>
-              </TabsContent>
-            </Tabs>
-          </CardContent>
-        </Card>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-        <div className="text-center text-sm text-gray-600">
-          <p>For testing purposes, you can create an account or contact admin for credentials.</p>
-        </div>
+          <TabsContent value="demo">
+            <DemoSetupPanel />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
