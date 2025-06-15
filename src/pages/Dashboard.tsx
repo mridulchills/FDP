@@ -83,8 +83,8 @@ export const Dashboard: React.FC = () => {
             {/* Charts Section */}
             <div className="grid gap-8 lg:grid-cols-2">
               {/* Submission Status Chart */}
-              <Card className="bg-white rounded-3xl border-0 shadow-lg hover:shadow-xl transition-all duration-300">
-                <CardHeader className="pb-6">
+              <Card className="bg-white rounded-3xl border-0 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
+                <CardHeader className="pb-4">
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center">
                       <TrendingUp className="w-6 h-6 text-white" />
@@ -95,11 +95,11 @@ export const Dashboard: React.FC = () => {
                     </div>
                   </div>
                 </CardHeader>
-                <CardContent className="pt-0">
+                <CardContent className="pt-0 pb-6">
                   <ModernPieChart 
                     data={pieData} 
                     total={stats?.totalSubmissions || 0}
-                    height={400} 
+                    height={350} 
                   />
                 </CardContent>
               </Card>
@@ -135,8 +135,8 @@ export const Dashboard: React.FC = () => {
             {/* Charts Section */}
             <div className="grid gap-8 lg:grid-cols-2">
               {/* Department Overview Chart */}
-              <Card className="bg-white rounded-3xl border-0 shadow-lg hover:shadow-xl transition-all duration-300">
-                <CardHeader className="pb-6">
+              <Card className="bg-white rounded-3xl border-0 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
+                <CardHeader className="pb-4">
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl flex items-center justify-center">
                       <Users className="w-6 h-6 text-white" />
@@ -147,11 +147,11 @@ export const Dashboard: React.FC = () => {
                     </div>
                   </div>
                 </CardHeader>
-                <CardContent className="pt-0">
+                <CardContent className="pt-0 pb-6">
                   <ModernPieChart 
                     data={pieData} 
                     total={stats?.totalSubmissions || 0}
-                    height={400} 
+                    height={350} 
                   />
                 </CardContent>
               </Card>
@@ -187,8 +187,8 @@ export const Dashboard: React.FC = () => {
             {/* Charts Section */}
             <div className="grid gap-8 lg:grid-cols-3">
               {/* All Submissions Chart */}
-              <Card className="bg-white rounded-3xl border-0 shadow-lg hover:shadow-xl transition-all duration-300">
-                <CardHeader className="pb-6">
+              <Card className="bg-white rounded-3xl border-0 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
+                <CardHeader className="pb-3">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
                       <TrendingUp className="w-5 h-5 text-white" />
@@ -199,11 +199,11 @@ export const Dashboard: React.FC = () => {
                     </div>
                   </div>
                 </CardHeader>
-                <CardContent className="pt-0">
+                <CardContent className="pt-0 pb-4">
                   <ModernPieChart 
                     data={pieData} 
                     total={stats?.totalSubmissions || 0}
-                    height={300} 
+                    height={280} 
                   />
                 </CardContent>
               </Card>
