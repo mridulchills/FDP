@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 
 interface ChartData {
   name: string;
@@ -42,7 +42,7 @@ export const ModernPieChart: React.FC<ModernPieChartProps> = ({
       const data = payload[0];
       const percentage = total > 0 ? ((data.value / total) * 100).toFixed(1) : 0;
       return (
-        <div className="bg-white p-4 border border-gray-200 rounded-xl shadow-lg backdrop-blur-sm">
+        <div className="bg-white p-3 border border-gray-200 rounded-xl shadow-xl backdrop-blur-sm">
           <p className="font-semibold text-gray-900 text-sm">{data.name}</p>
           <p className="text-gray-600 text-sm">
             Count: <span className="font-semibold text-gray-900">{data.value}</span>
@@ -56,33 +56,13 @@ export const ModernPieChart: React.FC<ModernPieChartProps> = ({
     return null;
   };
 
-  const CustomLegend = ({ payload }: any) => {
-    return (
-      <div className="flex flex-wrap justify-center gap-2 mt-2">
-        {payload?.map((entry: any, index: number) => {
-          const percentage = total > 0 ? ((entry.payload.value / total) * 100).toFixed(0) : 0;
-          return (
-            <div key={index} className="flex items-center gap-1.5 px-2.5 py-1 bg-gray-50 rounded-full">
-              <div 
-                className="w-2.5 h-2.5 rounded-full"
-                style={{ backgroundColor: entry.color }}
-              />
-              <span className="text-xs text-gray-700">{entry.value}</span>
-              <span className="text-xs text-gray-500">({percentage}%)</span>
-            </div>
-          );
-        })}
-      </div>
-    );
-  };
-
-  const renderCustomLabel = ({ cx, cy }: any) => {
+  const renderCenterLabel = ({ cx, cy }: any) => {
     return (
       <g>
-        <text x={cx} y={cy - 4} textAnchor="middle" className="fill-gray-900 text-sm font-bold">
+        <text x={cx} y={cy - 6} textAnchor="middle" className="fill-gray-500 text-xs font-medium">
           Total
         </text>
-        <text x={cx} y={cy + 12} textAnchor="middle" className="fill-gray-600 text-xl font-bold">
+        <text x={cx} y={cy + 8} textAnchor="middle" className="fill-gray-900 text-2xl font-bold">
           {total}
         </text>
       </g>
@@ -91,60 +71,74 @@ export const ModernPieChart: React.FC<ModernPieChartProps> = ({
 
   return (
     <div className={`w-full ${isVisible ? 'animate-fade-in' : 'opacity-0'}`}>
-      <div className="flex flex-col items-center justify-center p-4">
-        {/* Chart Container with Fixed Dimensions */}
-        <div className="w-[200px] h-[200px] flex items-center justify-center mb-2">
+      <div className="flex flex-col items-center p-6">
+        {/* Chart Container */}
+        <div className="w-[240px] h-[240px] mb-6 relative">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
+              <defs>
+                {/* Gradient definitions for approved, pending, rejected */}
+                <linearGradient id="approvedGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#10b981" />
+                  <stop offset="100%" stopColor="#059669" />
+                </linearGradient>
+                <linearGradient id="pendingGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#f59e0b" />
+                  <stop offset="100%" stopColor="#d97706" />
+                </linearGradient>
+                <linearGradient id="rejectedGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#ef4444" />
+                  <stop offset="100%" stopColor="#dc2626" />
+                </linearGradient>
+              </defs>
               <Pie
                 data={animatedData}
                 cx="50%"
                 cy="50%"
-                innerRadius={45}
-                outerRadius={75}
-                paddingAngle={2}
+                innerRadius={65}
+                outerRadius={95}
+                paddingAngle={3}
                 dataKey="value"
                 animationBegin={0}
-                animationDuration={1200}
+                animationDuration={1500}
                 animationEasing="ease-out"
               >
-                {animatedData.map((entry, index) => (
-                  <Cell 
-                    key={`cell-${index}`} 
-                    fill={entry.color}
-                    className="hover:opacity-80 transition-all duration-200 cursor-pointer"
-                    stroke="white"
-                    strokeWidth={2}
-                  />
-                ))}
+                {animatedData.map((entry, index) => {
+                  let fillColor = entry.color;
+                  if (entry.name === 'Approved') fillColor = 'url(#approvedGradient)';
+                  else if (entry.name === 'Pending Review') fillColor = 'url(#pendingGradient)';
+                  else if (entry.name === 'Rejected') fillColor = 'url(#rejectedGradient)';
+                  
+                  return (
+                    <Cell 
+                      key={`cell-${index}`} 
+                      fill={fillColor}
+                      className="hover:opacity-90 transition-all duration-300 cursor-pointer drop-shadow-sm"
+                      stroke="white"
+                      strokeWidth={2}
+                    />
+                  );
+                })}
               </Pie>
               <Tooltip content={<CustomTooltip />} />
-              <Legend content={<CustomLegend />} />
-              {total > 0 && <Pie data={[{value: 1}]} cx="50%" cy="50%" innerRadius={0} outerRadius={0} dataKey="value">
-                <Cell fill="transparent" />
-              </Pie>}
-              {total > 0 && renderCustomLabel({ cx: '50%', cy: '50%' })}
+              {total > 0 && renderCenterLabel({ cx: '50%', cy: '50%' })}
             </PieChart>
           </ResponsiveContainer>
         </div>
         
-        {/* Summary Stats */}
-        <div className="w-full mt-4 space-y-2">
+        {/* Horizontal Legend */}
+        <div className="flex flex-wrap justify-center items-center gap-6">
           {data.map((item, index) => {
-            const percentage = total > 0 ? ((item.value / total) * 100).toFixed(1) : 0;
+            const percentage = total > 0 ? ((item.value / total) * 100).toFixed(0) : 0;
             return (
-              <div key={index} className="flex items-center justify-between text-sm">
-                <div className="flex items-center gap-2">
-                  <div 
-                    className="w-3 h-3 rounded-full"
-                    style={{ backgroundColor: item.color }}
-                  />
-                  <span className="text-gray-700">{item.name}</span>
-                </div>
-                <div className="text-right">
-                  <span className="font-semibold text-gray-900">{item.value}</span>
-                  <span className="text-gray-500 ml-1">({percentage}%)</span>
-                </div>
+              <div key={index} className="flex items-center gap-2">
+                <div 
+                  className="w-3 h-3 rounded-full shadow-sm"
+                  style={{ backgroundColor: item.color }}
+                />
+                <span className="text-sm text-gray-700 font-medium">{item.name}</span>
+                <span className="text-sm text-gray-900 font-semibold">{item.value}</span>
+                <span className="text-xs text-gray-500">({percentage}%)</span>
               </div>
             );
           })}
