@@ -2,6 +2,7 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { useSidebar } from '@/contexts/SidebarContext';
 import { 
   User, 
   FileText, 
@@ -10,8 +11,10 @@ import {
   Settings,
   Plus,
   Calendar,
-  Users
+  Users,
+  X
 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface SidebarItem {
   label: string;
@@ -73,6 +76,7 @@ const sidebarItems: SidebarItem[] = [
 
 export const Sidebar: React.FC = () => {
   const { user } = useAuth();
+  const { isOpen, setIsOpen, isMobile } = useSidebar();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -82,28 +86,74 @@ export const Sidebar: React.FC = () => {
 
   const handleNavigation = (path: string) => {
     navigate(path);
+    // Close sidebar on mobile after navigation
+    if (isMobile) {
+      setIsOpen(false);
+    }
   };
 
+  const handleBackdropClick = () => {
+    if (isMobile) {
+      setIsOpen(false);
+    }
+  };
+
+  if (!isOpen) {
+    return null;
+  }
+
   return (
-    <aside className="bg-white w-64 min-h-screen shadow-lg border-r border-gray-200">
-      <div className="p-6">
-        <nav className="space-y-2">
-          {filteredItems.map((item) => {
-            const isActive = location.pathname === item.path;
-            
-            return (
-              <button
-                key={item.path}
-                onClick={() => handleNavigation(item.path)}
-                className={`sidebar-item w-full ${isActive ? 'active' : ''}`}
+    <>
+      {/* Mobile Backdrop */}
+      {isMobile && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          onClick={handleBackdropClick}
+        />
+      )}
+
+      {/* Sidebar */}
+      <aside className={`
+        ${isMobile 
+          ? 'fixed left-0 top-0 z-50 h-full w-64 transform transition-transform duration-300' 
+          : 'w-64 transition-all duration-300'
+        }
+        bg-white shadow-lg border-r border-gray-200
+      `}>
+        <div className="p-6">
+          {/* Mobile Close Button */}
+          {isMobile && (
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-lg font-semibold text-gray-900">Menu</h2>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsOpen(false)}
+                className="p-2"
               >
-                {item.icon}
-                <span className="font-medium">{item.label}</span>
-              </button>
-            );
-          })}
-        </nav>
-      </div>
-    </aside>
+                <X size={20} />
+              </Button>
+            </div>
+          )}
+
+          <nav className="space-y-2">
+            {filteredItems.map((item) => {
+              const isActive = location.pathname === item.path;
+              
+              return (
+                <button
+                  key={item.path}
+                  onClick={() => handleNavigation(item.path)}
+                  className={`sidebar-item w-full ${isActive ? 'active' : ''}`}
+                >
+                  {item.icon}
+                  <span className="font-medium">{item.label}</span>
+                </button>
+              );
+            })}
+          </nav>
+        </div>
+      </aside>
+    </>
   );
 };
