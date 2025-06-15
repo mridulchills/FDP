@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
@@ -6,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Calendar, Clock, MapPin, Building, User, FileText, ExternalLink } from 'lucide-react';
 import { format } from 'date-fns';
+import { useFileUpload } from '@/hooks/useFileUpload';
+import { useToast } from '@/hooks/use-toast';
 import type { Submission, ProgramAttendedData, ProgramOrganizedData, CertificationData } from '@/types';
 
 interface SubmissionDetailsModalProps {
@@ -19,6 +20,9 @@ export const SubmissionDetailsModal: React.FC<SubmissionDetailsModalProps> = ({
   isOpen,
   onClose
 }) => {
+  const { getSignedUrl } = useFileUpload();
+  const { toast } = useToast();
+
   if (!submission) return null;
 
   const getStatusColor = (status: string) => {
@@ -46,6 +50,31 @@ export const SubmissionDetailsModal: React.FC<SubmissionDetailsModalProps> = ({
       return (formData as CertificationData).courseName;
     }
     return 'Submission Details';
+  };
+
+  const handleViewDocument = async () => {
+    if (!submission.documentUrl) return;
+
+    try {
+      // Check if it's already a signed URL or path
+      let signedUrl = submission.documentUrl;
+      
+      // If it's a path (not a full URL), generate a signed URL
+      if (!signedUrl.includes('http')) {
+        const url = await getSignedUrl(signedUrl);
+        if (!url) return;
+        signedUrl = url;
+      }
+      
+      window.open(signedUrl, '_blank');
+    } catch (error) {
+      console.error('Error viewing document:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load document. Please try again later.",
+        variant: "destructive",
+      });
+    }
   };
 
   const renderFormData = () => {
@@ -270,12 +299,10 @@ export const SubmissionDetailsModal: React.FC<SubmissionDetailsModalProps> = ({
             <div>
               <label className="text-sm font-medium text-gray-500">Document</label>
               <div className="mt-1">
-                <Button variant="outline" size="sm" asChild>
-                  <a href={submission.documentUrl} target="_blank" rel="noopener noreferrer">
-                    <FileText className="w-4 h-4 mr-2" />
-                    View Document
-                    <ExternalLink className="w-4 h-4 ml-2" />
-                  </a>
+                <Button variant="outline" size="sm" onClick={handleViewDocument}>
+                  <FileText className="w-4 h-4 mr-2" />
+                  View Document
+                  <ExternalLink className="w-4 h-4 ml-2" />
                 </Button>
               </div>
             </div>

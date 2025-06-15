@@ -8,28 +8,30 @@ import { useFileUpload } from '@/hooks/useFileUpload';
 interface FileUploadProps {
   onFileUpload: (url: string, path: string) => void;
   currentFileUrl?: string;
+  currentFilePath?: string;
   onFileRemoved?: () => void;
   label?: string;
   description?: string;
   accept?: string;
-  folder?: string;
+  submissionId?: string;
 }
 
 export const FileUpload: React.FC<FileUploadProps> = ({
   onFileUpload,
   currentFileUrl,
+  currentFilePath,
   onFileRemoved,
   label = "Upload Document",
   description = "Upload PDF, DOC, DOCX, JPG, or PNG files (max 10MB)",
   accept = ".pdf,.doc,.docx,.jpg,.jpeg,.png",
-  folder = "documents"
+  submissionId
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { uploadFile, deleteFile, uploading } = useFileUpload();
+  const { uploadFile, deleteFile, getSignedUrl, uploading } = useFileUpload();
   const [dragOver, setDragOver] = useState(false);
 
   const handleFileSelect = async (file: File) => {
-    const result = await uploadFile(file, folder);
+    const result = await uploadFile(file, submissionId);
     if (result) {
       onFileUpload(result.url, result.path);
     }
@@ -63,17 +65,35 @@ export const FileUpload: React.FC<FileUploadProps> = ({
   };
 
   const handleRemoveFile = async () => {
-    if (currentFileUrl && onFileRemoved) {
+    if (currentFilePath && onFileRemoved) {
+      const success = await deleteFile(currentFilePath);
+      if (success) {
+        onFileRemoved();
+      }
+    } else if (onFileRemoved) {
       onFileRemoved();
     }
   };
 
-  const getFileName = (url: string) => {
-    const parts = url.split('/');
-    return parts[parts.length - 1];
+  const handleViewFile = async () => {
+    if (currentFilePath) {
+      const signedUrl = await getSignedUrl(currentFilePath);
+      if (signedUrl) {
+        window.open(signedUrl, '_blank');
+      }
+    } else if (currentFileUrl) {
+      // Fallback for existing URLs
+      window.open(currentFileUrl, '_blank');
+    }
   };
 
-  if (currentFileUrl) {
+  const getFileName = (path?: string) => {
+    if (!path) return 'Document';
+    const parts = path.split('/');
+    return parts[parts.length - 1] || 'Document';
+  };
+
+  if (currentFileUrl || currentFilePath) {
     return (
       <Card>
         <CardContent className="p-4">
@@ -81,7 +101,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
             <div className="flex items-center space-x-3">
               <File className="w-8 h-8 text-blue-500" />
               <div>
-                <p className="font-medium">{getFileName(currentFileUrl)}</p>
+                <p className="font-medium">{getFileName(currentFilePath)}</p>
                 <p className="text-sm text-gray-500">File uploaded successfully</p>
               </div>
             </div>
@@ -89,7 +109,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => window.open(currentFileUrl, '_blank')}
+                onClick={handleViewFile}
               >
                 View
               </Button>

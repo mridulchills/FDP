@@ -27,6 +27,7 @@ export const ProgramAttendedForm: React.FC<ProgramAttendedFormProps> = ({
 }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [uploadedFileUrl, setUploadedFileUrl] = useState<string>(initialData?.documentUrl || '');
+  const [uploadedFilePath, setUploadedFilePath] = useState<string>('');
 
   const form = useForm<ProgramAttendedFormData>({
     resolver: zodResolver(programAttendedSchema),
@@ -399,14 +400,18 @@ export const ProgramAttendedForm: React.FC<ProgramAttendedFormProps> = ({
         <FileUpload
           onFileUpload={(url, path) => {
             setUploadedFileUrl(url);
+            setUploadedFilePath(path);
             form.setValue('documentUrl', url);
           }}
           currentFileUrl={uploadedFileUrl}
+          currentFilePath={uploadedFilePath}
           onFileRemoved={() => {
             setUploadedFileUrl('');
+            setUploadedFilePath('');
             form.setValue('documentUrl', '');
           }}
           accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+          submissionId="temp" // Use temp folder for new submissions
         />
         <p className="text-sm text-gray-500">
           Upload certificate, brochure, or any supporting document (Max 10MB)
