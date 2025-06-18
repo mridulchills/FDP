@@ -76,14 +76,12 @@ export const FileUpload: React.FC<FileUploadProps> = ({
   };
 
   const handleViewFile = async () => {
-    if (currentFilePath) {
-      const signedUrl = await getSignedUrl(currentFilePath);
+    const pathToUse = currentFilePath || currentFileUrl;
+    if (pathToUse) {
+      const signedUrl = await getSignedUrl(pathToUse);
       if (signedUrl) {
         window.open(signedUrl, '_blank');
       }
-    } else if (currentFileUrl) {
-      // Fallback for existing URLs
-      window.open(currentFileUrl, '_blank');
     }
   };
 
@@ -101,7 +99,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
             <div className="flex items-center space-x-3">
               <File className="w-8 h-8 text-blue-500" />
               <div>
-                <p className="font-medium">{getFileName(currentFilePath)}</p>
+                <p className="font-medium">{getFileName(currentFilePath || currentFileUrl)}</p>
                 <p className="text-sm text-gray-500">File uploaded successfully</p>
               </div>
             </div>

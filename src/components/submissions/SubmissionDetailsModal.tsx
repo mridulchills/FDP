@@ -53,20 +53,23 @@ export const SubmissionDetailsModal: React.FC<SubmissionDetailsModalProps> = ({
   };
 
   const handleViewDocument = async () => {
-    if (!submission.documentUrl) return;
+    if (!submission.documentUrl) {
+      toast({
+        title: "No Document",
+        description: "No document has been uploaded for this submission.",
+        variant: "destructive",
+      });
+      return;
+    }
 
     try {
-      // Check if it's already a signed URL or path
-      let signedUrl = submission.documentUrl;
+      console.log('Attempting to view document:', submission.documentUrl);
       
-      // If it's a path (not a full URL), generate a signed URL
-      if (!signedUrl.includes('http')) {
-        const url = await getSignedUrl(signedUrl);
-        if (!url) return;
-        signedUrl = url;
+      // Get signed URL for the document
+      const signedUrl = await getSignedUrl(submission.documentUrl);
+      if (signedUrl) {
+        window.open(signedUrl, '_blank');
       }
-      
-      window.open(signedUrl, '_blank');
     } catch (error) {
       console.error('Error viewing document:', error);
       toast({

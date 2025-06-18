@@ -118,31 +118,23 @@ export const ApprovalsDashboard: React.FC = () => {
   };
 
   const handleViewDocument = async (submission: Submission) => {
-    if (!submission.documentUrl) return;
+    if (!submission.documentUrl) {
+      toast({
+        title: "No Document",
+        description: "No document has been uploaded for this submission.",
+        variant: "destructive",
+      });
+      return;
+    }
 
     try {
-      // Extract file path from document URL or use it directly if it's a path
-      let filePath = submission.documentUrl;
+      console.log('Attempting to view document:', submission.documentUrl);
       
-      // If it's a full URL, try to extract path or use signed URL generation
-      if (filePath.includes('supabase.co') || filePath.includes('http')) {
-        // For old URLs, try to extract path or use signed URL generation
-        const signedUrl = await getSignedUrl(filePath);
-        if (signedUrl) {
-          window.open(signedUrl, '_blank');
-          return;
-        }
-      } else {
-        // It's already a path, generate signed URL
-        const signedUrl = await getSignedUrl(filePath);
-        if (signedUrl) {
-          window.open(signedUrl, '_blank');
-          return;
-        }
+      // Get signed URL for the document
+      const signedUrl = await getSignedUrl(submission.documentUrl);
+      if (signedUrl) {
+        window.open(signedUrl, '_blank');
       }
-      
-      // Fallback: try opening the URL directly
-      window.open(submission.documentUrl, '_blank');
     } catch (error) {
       console.error('Error viewing document:', error);
       toast({
