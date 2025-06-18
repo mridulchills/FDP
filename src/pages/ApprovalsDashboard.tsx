@@ -120,7 +120,7 @@ export const ApprovalsDashboard: React.FC = () => {
   const handleViewDocument = async (submission: Submission) => {
     if (!submission.documentUrl) {
       toast({
-        title: "No Document",
+        title: "Document Not Found",
         description: "No document has been uploaded for this submission.",
         variant: "destructive",
       });
@@ -130,16 +130,24 @@ export const ApprovalsDashboard: React.FC = () => {
     try {
       console.log('Attempting to view document:', submission.documentUrl);
       
-      // Get signed URL for the document
+      // Get signed URL for the document using the file path
       const signedUrl = await getSignedUrl(submission.documentUrl);
+      
       if (signedUrl) {
+        console.log('Opening document with signed URL:', signedUrl);
         window.open(signedUrl, '_blank');
+      } else {
+        toast({
+          title: "Access Denied",
+          description: "Document not found or access denied. You may not have permission to view this file.",
+          variant: "destructive",
+        });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error viewing document:', error);
       toast({
-        title: "Error",
-        description: "Failed to load document. Please try again later.",
+        title: "Failed to Load Document",
+        description: error?.message || "Document not found or access denied.",
         variant: "destructive",
       });
     }
