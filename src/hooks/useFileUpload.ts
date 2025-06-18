@@ -65,9 +65,10 @@ export const useFileUpload = () => {
       const fileExt = file.name.split('.').pop();
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
       
-      // Use submissions/{user_id}/{submission_id or temp}/{filename} structure
+      // CRITICAL: Use the correct path structure for RLS policies
+      // Format: {auth_user_id}/{submission_id_or_temp}/{filename}
       const folder = submissionId || 'temp';
-      const filePath = `submissions/${authUser.id}/${folder}/${fileName}`;
+      const filePath = `${authUser.id}/${folder}/${fileName}`;
 
       console.log('Uploading file to path:', filePath);
 
@@ -80,15 +81,13 @@ export const useFileUpload = () => {
         throw uploadError;
       }
 
-      // Return the file path for storage in database
-      // We'll generate signed URLs when needed for viewing
       toast({
         title: "Upload Successful",
         description: "Your file has been uploaded successfully.",
       });
 
       return {
-        url: filePath, // Store the path, not a signed URL
+        url: filePath, // Store the path for database
         path: filePath
       };
     } catch (error: any) {
@@ -106,12 +105,9 @@ export const useFileUpload = () => {
 
   const deleteFile = async (filePath: string): Promise<boolean> => {
     try {
-      // Remove the 'submissions/' prefix if it exists
-      const cleanPath = filePath.startsWith('submissions/') ? filePath : `submissions/${filePath}`;
-      
       const { error } = await supabase.storage
         .from('submissions')
-        .remove([cleanPath]);
+        .remove([filePath]);
 
       if (error) {
         throw error;
@@ -136,17 +132,12 @@ export const useFileUpload = () => {
 
   const getSignedUrl = async (filePath: string): Promise<string | null> => {
     try {
-      // Clean the file path - ensure it doesn't have 'submissions/' prefix for the storage call
-      let cleanPath = filePath;
-      if (cleanPath.startsWith('submissions/')) {
-        cleanPath = cleanPath.substring('submissions/'.length);
-      }
-      
-      console.log('Getting signed URL for path:', cleanPath);
+      console.log('Getting signed URL for path:', filePath);
 
+      // Use the file path as-is since it's already in the correct format
       const { data, error } = await supabase.storage
         .from('submissions')
-        .createSignedUrl(cleanPath, 3600); // 1 hour expiry
+        .createSignedUrl(filePath, 600); // 10 minutes expiry
 
       if (error) {
         console.error('Signed URL error:', error);
@@ -158,7 +149,7 @@ export const useFileUpload = () => {
       console.error('Signed URL error:', error);
       toast({
         title: "Access Failed",
-        description: "Failed to load document. Please try again later.",
+        description: "Failed to load document. You may not have access or the file is missing.",
         variant: "destructive",
       });
       return null;

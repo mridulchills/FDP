@@ -26,13 +26,14 @@ export const submissionService = {
 
       console.log('Creating submission for user:', userData.id);
 
+      // First create the submission to get the submission ID
       const { data: submission, error } = await supabase
         .from('submissions')
         .insert({
           user_id: userData.id,
           module_type: data.moduleType,
           form_data: data.formData,
-          document_url: data.documentUrl || null,
+          document_url: null, // We'll update this after moving the file
           status: 'Pending HoD Approval'
         })
         .select(`
@@ -44,6 +45,53 @@ export const submissionService = {
       if (error) {
         console.error('Submission creation error:', error);
         return { data: null, error };
+      }
+
+      // If there's a document URL, move the file from temp to the submission folder
+      let finalDocumentUrl = data.documentUrl;
+      if (data.documentUrl && data.documentUrl.includes('/temp/')) {
+        try {
+          const { data: { user: authUser } } = await supabase.auth.getUser();
+          if (authUser) {
+            // Extract the filename from the temp path
+            const fileName = data.documentUrl.split('/').pop();
+            const newFilePath = `${authUser.id}/${submission.id}/${fileName}`;
+            
+            // Move the file from temp to submission folder
+            const { error: moveError } = await supabase.storage
+              .from('submissions')
+              .move(data.documentUrl, newFilePath);
+
+            if (!moveError) {
+              finalDocumentUrl = newFilePath;
+            } else {
+              console.warn('Failed to move file, keeping original path:', moveError);
+            }
+          }
+        } catch (moveError) {
+          console.warn('Error moving file:', moveError);
+          // Continue with original path if move fails
+        }
+      }
+
+      // Update the submission with the final document URL
+      if (finalDocumentUrl) {
+        const { data: updatedSubmission, error: updateError } = await supabase
+          .from('submissions')
+          .update({ document_url: finalDocumentUrl })
+          .eq('id', submission.id)
+          .select(`
+            *,
+            user:users(*)
+          `)
+          .single();
+
+        if (!updateError) {
+          return { 
+            data: transformDatabaseSubmission(updatedSubmission as DatabaseSubmission), 
+            error: null 
+          };
+        }
       }
 
       return { 
