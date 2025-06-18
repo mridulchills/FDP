@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User as SupabaseUser, Session } from '@supabase/supabase-js';
 import { User, LoginCredentials } from '@/types';
@@ -207,8 +208,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const logout = async () => {
     try {
+      // Clear local state first to ensure UI updates immediately
+      setUser(null);
+      setSession(null);
+      
+      // Attempt to sign out from Supabase
       const { error } = await supabase.auth.signOut();
-      if (error) {
+      
+      // Don't show error for session not found - this is expected when session is already expired
+      if (error && !error.message.includes('session_not_found') && !error.message.includes('Session not found')) {
         console.error('Logout error:', error);
         toast({
           title: "Logout Error",
@@ -218,18 +226,18 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         return;
       }
       
-      setUser(null);
-      setSession(null);
       toast({
         title: "Logged Out",
         description: "You have been successfully logged out."
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Logout error:', error);
+      // Even if logout fails, clear local state
+      setUser(null);
+      setSession(null);
       toast({
-        title: "Logout Error",
-        description: "An error occurred during logout.",
-        variant: "destructive"
+        title: "Logged Out",
+        description: "You have been logged out."
       });
     }
   };
