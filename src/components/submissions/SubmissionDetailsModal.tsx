@@ -62,19 +62,27 @@ export const SubmissionDetailsModal: React.FC<SubmissionDetailsModalProps> = ({
       return;
     }
 
+    console.log('Attempting to view document for submission:', submission.id);
+    console.log('Document URL/Path:', submission.documentUrl);
+
     try {
-      console.log('Attempting to view document:', submission.documentUrl);
-      
-      // Get signed URL for the document using the file path
+      // Get signed URL for the document
       const signedUrl = await getSignedUrl(submission.documentUrl);
       
       if (signedUrl) {
-        console.log('Opening document with signed URL:', signedUrl);
+        console.log('Successfully generated signed URL, opening document...');
+        // Open the document in a new tab
         window.open(signedUrl, '_blank');
+        
+        toast({
+          title: "Document Opened",
+          description: "The document has been opened in a new tab.",
+        });
       } else {
+        console.error('Failed to generate signed URL - no URL returned');
         toast({
           title: "Access Denied",
-          description: "Document not found or access denied. You may not have permission to view this file.",
+          description: "Unable to access the document. You may not have permission to view this file.",
           variant: "destructive",
         });
       }
@@ -82,7 +90,7 @@ export const SubmissionDetailsModal: React.FC<SubmissionDetailsModalProps> = ({
       console.error('Error viewing document:', error);
       toast({
         title: "Failed to Load Document",
-        description: error?.message || "Document not found or access denied.",
+        description: error?.message || "Could not load the document. Please try again or contact support.",
         variant: "destructive",
       });
     }
@@ -310,10 +318,15 @@ export const SubmissionDetailsModal: React.FC<SubmissionDetailsModalProps> = ({
             <div>
               <label className="text-sm font-medium text-gray-500">Document</label>
               <div className="mt-1">
-                <Button variant="outline" size="sm" onClick={handleViewDocument}>
-                  <FileText className="w-4 h-4 mr-2" />
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handleViewDocument}
+                  className="flex items-center gap-2"
+                >
+                  <FileText className="w-4 h-4" />
                   View Document
-                  <ExternalLink className="w-4 h-4 ml-2" />
+                  <ExternalLink className="w-4 h-4" />
                 </Button>
               </div>
             </div>
