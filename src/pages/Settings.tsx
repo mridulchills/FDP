@@ -1,246 +1,337 @@
 
 import React, { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Switch } from '@/components/ui/switch';
-import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { Settings as SettingsIcon, User, Bell, Shield, Database } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { Settings as SettingsIcon, Plus, Edit, Trash2, Save } from 'lucide-react';
+
+interface ConfigItem {
+  id: string;
+  name: string;
+  description?: string;
+  url?: string;
+  category?: string;
+  is_active: boolean;
+}
 
 export const Settings: React.FC = () => {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState(false);
-  const [notifications, setNotifications] = useState({
-    email: true,
-    push: false,
-    submissions: true,
-    approvals: true
+  const queryClient = useQueryClient();
+  const [activeTab, setActiveTab] = useState('program-types');
+  const [editModal, setEditModal] = useState<{ isOpen: boolean; type: string; item?: ConfigItem }>({ isOpen: false, type: '' });
+  const [deleteDialog, setDeleteDialog] = useState<{ isOpen: boolean; item?: ConfigItem }>({ isOpen: false });
+  const [formData, setFormData] = useState({ name: '', description: '', url: '', category: '' });
+
+  // Fetch configuration data
+  const { data: programTypes = [], isLoading: loadingPrograms } = useQuery({
+    queryKey: ['program-types'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('program_types').select('*').order('name');
+      if (error) throw error;
+      return data;
+    },
   });
 
-  const handleProfileUpdate = async () => {
-    setIsLoading(true);
-    try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      toast({
-        title: "Profile Updated",
-        description: "Your profile has been updated successfully.",
-      });
-    } catch (error) {
-      toast({
-        title: "Update Failed",
-        description: "Failed to update profile. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
+  const { data: platforms = [], isLoading: loadingPlatforms } = useQuery({
+    queryKey: ['certification-platforms'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('certification_platforms').select('*').order('name');
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const { data: domains = [], isLoading: loadingDomains } = useQuery({
+    queryKey: ['domains'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('domains').select('*').order('name');
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  // Mutations for CRUD operations
+  const createMutation = useMutation({
+    mutationFn: async ({ table, data }: { table: string; data: any }) => {
+      const { error } = await supabase.from(table).insert(data);
+      if (error) throw error;
+    },
+    onSuccess: (_, { table }) => {
+      queryClient.invalidateQueries({ queryKey: [table.replace('_', '-')] });
+      toast({ title: "Success", description: "Item created successfully" });
+      setEditModal({ isOpen: false, type: '' });
+    },
+    onError: (error: any) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: async ({ table, id, data }: { table: string; id: string; data: any }) => {
+      const { error } = await supabase.from(table).update(data).eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: (_, { table }) => {
+      queryClient.invalidateQueries({ queryKey: [table.replace('_', '-')] });
+      toast({ title: "Success", description: "Item updated successfully" });
+      setEditModal({ isOpen: false, type: '' });
+    },
+    onError: (error: any) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async ({ table, id }: { table: string; id: string }) => {
+      const { error } = await supabase.from(table).delete().eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: (_, { table }) => {
+      queryClient.invalidateQueries({ queryKey: [table.replace('_', '-')] });
+      toast({ title: "Success", description: "Item deleted successfully" });
+      setDeleteDialog({ isOpen: false });
+    },
+    onError: (error: any) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const handleAdd = (type: string) => {
+    setFormData({ name: '', description: '', url: '', category: '' });
+    setEditModal({ isOpen: true, type });
+  };
+
+  const handleEdit = (type: string, item: ConfigItem) => {
+    setFormData({
+      name: item.name,
+      description: item.description || '',
+      url: item.url || '',
+      category: item.category || ''
+    });
+    setEditModal({ isOpen: true, type, item });
+  };
+
+  const handleSave = () => {
+    const table = editModal.type.replace('-', '_');
+    const data = { name: formData.name };
+    
+    if (editModal.type === 'program-types') {
+      Object.assign(data, { description: formData.description });
+    } else if (editModal.type === 'certification-platforms') {
+      Object.assign(data, { url: formData.url });
+    } else if (editModal.type === 'domains') {
+      Object.assign(data, { category: formData.category });
+    }
+
+    if (editModal.item) {
+      updateMutation.mutate({ table, id: editModal.item.id, data });
+    } else {
+      createMutation.mutate({ table, data });
     }
   };
 
-  const handleNotificationUpdate = async () => {
-    setIsLoading(true);
-    try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      toast({
-        title: "Notifications Updated",
-        description: "Your notification preferences have been saved.",
-      });
-    } catch (error) {
-      toast({
-        title: "Update Failed",
-        description: "Failed to update notifications. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
+  const handleDelete = (item: ConfigItem) => {
+    setDeleteDialog({ isOpen: true, item });
+  };
+
+  const confirmDelete = () => {
+    if (deleteDialog.item) {
+      const table = activeTab.replace('-', '_');
+      deleteMutation.mutate({ table, id: deleteDialog.item.id });
     }
   };
+
+  if (!user || user.role !== 'admin') {
+    return (
+      <div className="text-center py-20">
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">Access Denied</h2>
+        <p className="text-gray-600">You don't have permission to view this page.</p>
+      </div>
+    );
+  }
+
+  const renderConfigSection = (title: string, data: ConfigItem[], isLoading: boolean, type: string) => (
+    <Card>
+      <CardHeader>
+        <div className="flex justify-between items-center">
+          <CardTitle className="flex items-center gap-2">
+            <SettingsIcon size={20} />
+            {title}
+          </CardTitle>
+          <Button onClick={() => handleAdd(type)} className="flex items-center gap-2">
+            <Plus size={16} />
+            Add New
+          </Button>
+        </div>
+      </CardHeader>
+      <CardContent>
+        {isLoading ? (
+          <div className="text-center py-4">Loading...</div>
+        ) : data.length === 0 ? (
+          <div className="text-center py-8 text-gray-500">No items found</div>
+        ) : (
+          <div className="space-y-3">
+            {data.map((item) => (
+              <div key={item.id} className="flex items-center justify-between p-3 border rounded-lg">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <h4 className="font-medium">{item.name}</h4>
+                    <Badge variant={item.is_active ? "default" : "secondary"}>
+                      {item.is_active ? "Active" : "Inactive"}
+                    </Badge>
+                  </div>
+                  {item.description && (
+                    <p className="text-sm text-gray-600 mt-1">{item.description}</p>
+                  )}
+                  {item.url && (
+                    <p className="text-sm text-blue-600 mt-1">{item.url}</p>
+                  )}
+                  {item.category && (
+                    <p className="text-sm text-gray-500 mt-1">Category: {item.category}</p>
+                  )}
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button variant="ghost" size="sm" onClick={() => handleEdit(type, item)}>
+                    <Edit size={14} />
+                  </Button>
+                  <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700" onClick={() => handleDelete(item)}>
+                    <Trash2 size={14} />
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
 
   return (
-    <div className="container mx-auto p-6 max-w-4xl space-y-6">
+    <div className="container mx-auto p-6 space-y-6">
       <div className="flex items-center gap-3">
         <SettingsIcon size={32} className="text-primary" />
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
-          <p className="text-muted-foreground">Manage your account and preferences</p>
+          <h1 className="text-3xl font-bold tracking-tight">Admin Settings</h1>
+          <p className="text-muted-foreground">Manage system configuration and dynamic dropdowns</p>
         </div>
       </div>
 
-      {/* Profile Settings */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <User size={20} />
-            Profile Information
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Full Name</Label>
-              <Input id="name" defaultValue={user?.name} />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" defaultValue={user?.email} />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="employeeId">Employee ID</Label>
-              <Input id="employeeId" defaultValue={user?.employeeId} disabled />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="designation">Designation</Label>
-              <Input id="designation" defaultValue={user?.designation} />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="department">Department</Label>
-              <Input id="department" defaultValue={user?.department} disabled />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="role">Role</Label>
-              <div className="flex items-center gap-2">
-                <Input id="role" defaultValue={user?.role} disabled />
-                <Badge variant="outline">{user?.role?.toUpperCase()}</Badge>
-              </div>
-            </div>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="bio">Bio</Label>
-            <Textarea id="bio" placeholder="Tell us a bit about yourself..." />
-          </div>
-          <Button onClick={handleProfileUpdate} disabled={isLoading}>
-            {isLoading ? 'Updating...' : 'Update Profile'}
-          </Button>
-        </CardContent>
-      </Card>
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="program-types">Program Types</TabsTrigger>
+          <TabsTrigger value="certification-platforms">Platforms</TabsTrigger>
+          <TabsTrigger value="domains">Domains</TabsTrigger>
+        </TabsList>
 
-      {/* Notification Settings */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Bell size={20} />
-            Notification Preferences
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
+        <TabsContent value="program-types" className="space-y-4">
+          {renderConfigSection("Program Types", programTypes, loadingPrograms, "program-types")}
+        </TabsContent>
+
+        <TabsContent value="certification-platforms" className="space-y-4">
+          {renderConfigSection("Certification Platforms", platforms, loadingPlatforms, "certification-platforms")}
+        </TabsContent>
+
+        <TabsContent value="domains" className="space-y-4">
+          {renderConfigSection("Domains", domains, loadingDomains, "domains")}
+        </TabsContent>
+      </Tabs>
+
+      {/* Edit/Create Modal */}
+      <Dialog open={editModal.isOpen} onOpenChange={(open) => setEditModal({ isOpen: open, type: '' })}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {editModal.item ? 'Edit' : 'Create'} {editModal.type.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+            </DialogTitle>
+          </DialogHeader>
           <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <Label>Email Notifications</Label>
-                <p className="text-sm text-muted-foreground">Receive notifications via email</p>
-              </div>
-              <Switch 
-                checked={notifications.email}
-                onCheckedChange={(checked) => setNotifications(prev => ({ ...prev, email: checked }))}
+            <div className="space-y-2">
+              <Label htmlFor="name">Name</Label>
+              <Input
+                id="name"
+                value={formData.name}
+                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                placeholder="Enter name"
               />
             </div>
-            <Separator />
-            <div className="flex items-center justify-between">
-              <div>
-                <Label>Push Notifications</Label>
-                <p className="text-sm text-muted-foreground">Receive browser push notifications</p>
-              </div>
-              <Switch 
-                checked={notifications.push}
-                onCheckedChange={(checked) => setNotifications(prev => ({ ...prev, push: checked }))}
-              />
-            </div>
-            <Separator />
-            <div className="flex items-center justify-between">
-              <div>
-                <Label>Submission Updates</Label>
-                <p className="text-sm text-muted-foreground">Get notified about submission status changes</p>
-              </div>
-              <Switch 
-                checked={notifications.submissions}
-                onCheckedChange={(checked) => setNotifications(prev => ({ ...prev, submissions: checked }))}
-              />
-            </div>
-            <Separator />
-            <div className="flex items-center justify-between">
-              <div>
-                <Label>Approval Requests</Label>
-                <p className="text-sm text-muted-foreground">Get notified about new approvals needed</p>
-              </div>
-              <Switch 
-                checked={notifications.approvals}
-                onCheckedChange={(checked) => setNotifications(prev => ({ ...prev, approvals: checked }))}
-              />
-            </div>
-          </div>
-          <Button onClick={handleNotificationUpdate} disabled={isLoading}>
-            {isLoading ? 'Updating...' : 'Update Notifications'}
-          </Button>
-        </CardContent>
-      </Card>
-
-      {/* System Settings (Admin Only) */}
-      {user?.role === 'admin' && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Shield size={20} />
-              System Settings
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            
+            {editModal.type === 'program-types' && (
               <div className="space-y-2">
-                <Label htmlFor="institutionName">Institution Name</Label>
-                <Input id="institutionName" defaultValue="NMIT" />
+                <Label htmlFor="description">Description</Label>
+                <Textarea
+                  id="description"
+                  value={formData.description}
+                  onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                  placeholder="Enter description"
+                />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="academicYear">Academic Year</Label>
-                <Input id="academicYear" defaultValue="2024-25" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="maxFileSize">Max File Size (MB)</Label>
-                <Input id="maxFileSize" type="number" defaultValue="10" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="approvalWorkflow">Approval Workflow</Label>
-                <Input id="approvalWorkflow" defaultValue="HoD → Admin" disabled />
-              </div>
-            </div>
-            <Button variant="outline">
-              Update System Settings
-            </Button>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Data & Privacy */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Database size={20} />
-            Data & Privacy
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-4">
-            <Button variant="outline" className="w-full justify-start">
-              Download My Data
-            </Button>
-            <Button variant="outline" className="w-full justify-start">
-              Privacy Policy
-            </Button>
-            <Button variant="outline" className="w-full justify-start">
-              Terms of Service
-            </Button>
-            {user?.role === 'admin' && (
-              <Button variant="destructive" className="w-full justify-start">
-                System Backup
-              </Button>
             )}
+
+            {editModal.type === 'certification-platforms' && (
+              <div className="space-y-2">
+                <Label htmlFor="url">URL</Label>
+                <Input
+                  id="url"
+                  value={formData.url}
+                  onChange={(e) => setFormData(prev => ({ ...prev, url: e.target.value }))}
+                  placeholder="Enter URL (optional)"
+                />
+              </div>
+            )}
+
+            {editModal.type === 'domains' && (
+              <div className="space-y-2">
+                <Label htmlFor="category">Category</Label>
+                <Input
+                  id="category"
+                  value={formData.category}
+                  onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
+                  placeholder="Enter category"
+                />
+              </div>
+            )}
+
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setEditModal({ isOpen: false, type: '' })}>
+                Cancel
+              </Button>
+              <Button onClick={handleSave} disabled={!formData.name}>
+                <Save size={16} className="mr-2" />
+                Save
+              </Button>
+            </div>
           </div>
-        </CardContent>
-      </Card>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialog.isOpen} onOpenChange={(open) => setDeleteDialog({ isOpen: open })}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete "{deleteDialog.item?.name}". This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete} className="bg-red-600 hover:bg-red-700">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

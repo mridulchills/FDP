@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -91,10 +90,7 @@ const AppRoutes: React.FC = () => {
         element={
           <ProtectedRoute allowedRoles={['hod', 'admin']}>
             <Layout>
-              <div className="text-center py-20">
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">All Submissions</h2>
-                <p className="text-gray-600">View all submissions in your scope...</p>
-              </div>
+              <AllSubmissions />
             </Layout>
           </ProtectedRoute>
         }
@@ -106,10 +102,7 @@ const AppRoutes: React.FC = () => {
         element={
           <ProtectedRoute allowedRoles={['admin']}>
             <Layout>
-              <div className="text-center py-20">
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">User Management</h2>
-                <p className="text-gray-600">Manage faculty and HoD accounts...</p>
-              </div>
+              <UserManagement />
             </Layout>
           </ProtectedRoute>
         }
@@ -121,10 +114,7 @@ const AppRoutes: React.FC = () => {
         element={
           <ProtectedRoute allowedRoles={['hod', 'admin']}>
             <Layout>
-              <div className="text-center py-20">
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">Reports</h2>
-                <p className="text-gray-600">Generate and export reports...</p>
-              </div>
+              <Reports />
             </Layout>
           </ProtectedRoute>
         }
@@ -133,12 +123,9 @@ const AppRoutes: React.FC = () => {
       <Route
         path="/settings"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute allowedRoles={['admin']}>
             <Layout>
-              <div className="text-center py-20">
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">Settings</h2>
-                <p className="text-gray-600">Manage your profile and preferences...</p>
-              </div>
+              <Settings />
             </Layout>
           </ProtectedRoute>
         }
