@@ -9,10 +9,20 @@ import { Button } from '@/components/ui/button';
 import { SubmissionsTable } from '@/components/submissions/SubmissionsTable';
 import { SubmissionDetailsModal } from '@/components/submissions/SubmissionDetailsModal';
 import { submissionService } from '@/services/submissionService';
+import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { Search, Filter, Download, FileText, Users } from 'lucide-react';
 import type { Submission } from '@/types';
+
+// Helper function to get title from different form data types
+const getSubmissionTitle = (submission: Submission): string => {
+  if (submission.moduleType === 'certification') {
+    return submission.formData?.courseName || 'Certification';
+  } else {
+    return submission.formData?.title || 'Untitled';
+  }
+};
 
 export const AllSubmissions: React.FC = () => {
   const { user } = useAuth();
@@ -34,7 +44,7 @@ export const AllSubmissions: React.FC = () => {
   const { data: departments = [] } = useQuery({
     queryKey: ['departments'],
     queryFn: async (): Promise<any[]> => {
-      const { data, error } = await submissionService.supabase
+      const { data, error } = await supabase
         .from('departments')
         .select('*')
         .order('name');
@@ -56,13 +66,14 @@ export const AllSubmissions: React.FC = () => {
   });
 
   const filteredSubmissions = roleFilteredSubmissions.filter((submission) => {
+    const title = getSubmissionTitle(submission);
     const matchesSearch = submission.user?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          submission.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         (submission.formData?.title && submission.formData.title.toLowerCase().includes(searchTerm.toLowerCase()));
+                         title.toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesStatus = statusFilter === 'all' || submission.status === statusFilter;
     const matchesModule = moduleFilter === 'all' || submission.moduleType === moduleFilter;
-    const matchesDepartment = departmentFilter === 'all' || submission.user?.departmentId === departmentFilter;
+    const matchesDepartment = departmentFilter === 'all' || submission.user?.department_id === departmentFilter;
     
     return matchesSearch && matchesStatus && matchesModule && matchesDepartment;
   });
@@ -72,7 +83,7 @@ export const AllSubmissions: React.FC = () => {
       const csvContent = [
         ['Title', 'Faculty Name', 'Module Type', 'Status', 'Created Date', 'Department'].join(','),
         ...filteredSubmissions.map(submission => [
-          submission.formData?.title || 'N/A',
+          getSubmissionTitle(submission),
           submission.user?.name || 'N/A',
           submission.moduleType,
           submission.status,

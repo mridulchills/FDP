@@ -64,7 +64,7 @@ export const Settings: React.FC = () => {
   // Mutations for CRUD operations
   const createMutation = useMutation({
     mutationFn: async ({ table, data }: { table: string; data: any }) => {
-      const { error } = await supabase.from(table).insert(data);
+      const { error } = await supabase.from(table as any).insert(data);
       if (error) throw error;
     },
     onSuccess: (_, { table }) => {
@@ -79,7 +79,7 @@ export const Settings: React.FC = () => {
 
   const updateMutation = useMutation({
     mutationFn: async ({ table, id, data }: { table: string; id: string; data: any }) => {
-      const { error } = await supabase.from(table).update(data).eq('id', id);
+      const { error } = await supabase.from(table as any).update(data).eq('id', id);
       if (error) throw error;
     },
     onSuccess: (_, { table }) => {
@@ -94,7 +94,7 @@ export const Settings: React.FC = () => {
 
   const deleteMutation = useMutation({
     mutationFn: async ({ table, id }: { table: string; id: string }) => {
-      const { error } = await supabase.from(table).delete().eq('id', id);
+      const { error } = await supabase.from(table as any).delete().eq('id', id);
       if (error) throw error;
     },
     onSuccess: (_, { table }) => {
