@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -73,7 +72,9 @@ export const AllSubmissions: React.FC = () => {
     
     const matchesStatus = statusFilter === 'all' || submission.status === statusFilter;
     const matchesModule = moduleFilter === 'all' || submission.moduleType === moduleFilter;
-    const matchesDepartment = departmentFilter === 'all' || submission.user?.department_id === departmentFilter;
+    // Fixed: Use department name instead of department_id for filtering
+    const matchesDepartment = departmentFilter === 'all' || 
+      departments.find(dept => dept.id === departmentFilter)?.name === submission.user?.department;
     
     return matchesSearch && matchesStatus && matchesModule && matchesDepartment;
   });
