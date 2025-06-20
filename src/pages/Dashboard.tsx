@@ -1,488 +1,378 @@
 
 import React from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Plus, FileText, Clock, CheckCircle, XCircle, TrendingUp, Users, Calendar, ArrowRight } from 'lucide-react';
-import { ModernStatsCard } from '@/components/dashboard/ModernStatsCard';
-import { ModernPieChart } from '@/components/dashboard/ModernPieChart';
-import { ModernBarChart } from '@/components/dashboard/ModernBarChart';
-import { DashboardSkeleton } from '@/components/dashboard/DashboardSkeleton';
 import { useQuery } from '@tanstack/react-query';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { ModernStatsCard } from '@/components/dashboard/ModernStatsCard';
+import { ModernBarChart } from '@/components/dashboard/ModernBarChart';
+import { ModernPieChart } from '@/components/dashboard/ModernPieChart';
+import { submissionService } from '@/services/submissionService';
 import { supabase } from '@/integrations/supabase/client';
-import { Link } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import { 
+  FileText, 
+  TrendingUp, 
+  Clock, 
+  Users,
+  Plus,
+  BarChart3,
+  PieChart,
+  Calendar
+} from 'lucide-react';
+import type { Submission } from '@/types';
 
 export const Dashboard: React.FC = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
 
-  // Fetch dashboard stats
-  const { data: stats, isLoading: statsLoading } = useQuery({
-    queryKey: ['dashboard-stats', user?.id],
+  // Fetch submissions based on user role
+  const { data: submissions = [], isLoading } = useQuery({
+    queryKey: ['dashboard-submissions', user?.role, user?.department],
     queryFn: async () => {
-      if (!user) return null;
+      if (!user) return [];
+      
+      console.log('Fetching dashboard data for:', user.role, user.department);
+      
+      if (user.role === 'faculty') {
+        const response = await submissionService.getMySubmissions();
+        return response.data || [];
+      } else if (user.role === 'hod') {
+        // For HoD, get submissions from their department only
+        const { data, error } = await supabase
+          .from('submissions')
+          .select(`
+            *,
+            user:users!inner(
+              *,
+              department:departments!users_department_id_fkey(name)
+            )
+          `)
+          .eq('users.department.name', user.department)
+          .order('created_at', { ascending: false });
 
-      const { data: submissions, error } = await supabase
-        .from('submissions')
-        .select('status, created_at, module_type')
-        .eq('user_id', user.id);
+        if (error) {
+          console.error('Error fetching HoD dashboard submissions:', error);
+          return [];
+        }
 
-      if (error) throw error;
-
-      const total = submissions?.length || 0;
-      const pending = submissions?.filter(s => s.status === 'Pending HoD Approval').length || 0;
-      const approved = submissions?.filter(s => s.status.includes('Approved')).length || 0;
-      const rejected = submissions?.filter(s => s.status.includes('Rejected')).length || 0;
-
-      // This month submissions
-      const now = new Date();
-      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-      const thisMonth = submissions?.filter(s => new Date(s.created_at) >= startOfMonth).length || 0;
-
-      // Last month submissions
-      const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-      const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0);
-      const lastMonth = submissions?.filter(s => {
-        const date = new Date(s.created_at);
-        return date >= startOfLastMonth && date <= endOfLastMonth;
-      }).length || 0;
-
-      // Module type counts
-      const attended = submissions?.filter(s => s.module_type === 'attended').length || 0;
-      const organized = submissions?.filter(s => s.module_type === 'organized').length || 0;
-      const certification = submissions?.filter(s => s.module_type === 'certification').length || 0;
-
-      return {
-        totalSubmissions: total,
-        pendingApprovals: pending,
-        approved,
-        rejected,
-        thisMonth,
-        lastMonth,
-        moduleData: [
-          { name: 'Programs Attended', value: attended },
-          { name: 'Programs Organized', value: organized },
-          { name: 'Certifications', value: certification },
-        ]
-      };
+        console.log('HoD dashboard submissions fetched:', data?.length);
+        return data?.map(submission => ({
+          id: submission.id,
+          userId: submission.user_id,
+          moduleType: submission.module_type as 'attended' | 'organized' | 'certification',
+          formData: submission.form_data,
+          documentUrl: submission.document_url,
+          status: submission.status,
+          hodComment: submission.hod_comment,
+          adminComment: submission.admin_comment,
+          createdAt: submission.created_at,
+          updatedAt: submission.updated_at,
+          user: submission.user ? {
+            id: submission.user.id,
+            employeeId: submission.user.employee_id,
+            name: submission.user.name,
+            email: submission.user.email,
+            role: submission.user.role as 'faculty' | 'hod' | 'admin',
+            department: submission.user.department?.name || 'Unknown',
+            designation: submission.user.designation,
+            institution: submission.user.institution,
+            createdAt: submission.user.created_at,
+            updatedAt: submission.user.updated_at
+          } : null
+        })) || [];
+      } else if (user.role === 'admin') {
+        const response = await submissionService.getAllSubmissions();
+        return response.data || [];
+      }
+      
+      return [];
     },
-    enabled: !!user
+    enabled: !!user,
   });
 
-  // Enhanced pie data with specified colors
-  const pieData = [
-    { name: 'Approved', value: stats?.approved || 0, color: '#10b981' },
-    { name: 'Pending Review', value: stats?.pendingApprovals || 0, color: '#f59e0b' },
-    { name: 'Rejected', value: stats?.rejected || 0, color: '#ef4444' },
+  // Calculate statistics
+  const totalSubmissions = submissions.length;
+  const approvedSubmissions = submissions.filter(s => s.status === 'Approved by Admin').length;
+  const pendingSubmissions = submissions.filter(s => 
+    s.status === 'Pending HoD Approval' || s.status === 'Approved by HoD'
+  ).length;
+  const rejectedSubmissions = submissions.filter(s => 
+    s.status === 'Rejected by HoD' || s.status === 'Rejected by Admin'
+  ).length;
+
+  // Module distribution data
+  const moduleData = [
+    { 
+      name: 'Programs Attended', 
+      value: submissions.filter(s => s.moduleType === 'attended').length 
+    },
+    { 
+      name: 'Programs Organized', 
+      value: submissions.filter(s => s.moduleType === 'organized').length 
+    },
+    { 
+      name: 'Certifications', 
+      value: submissions.filter(s => s.moduleType === 'certification').length 
+    }
   ];
 
-  const getRoleSpecificContent = () => {
+  // Status distribution for pie chart
+  const statusData = [
+    { name: 'Approved', value: approvedSubmissions, color: '#00C49F' },
+    { name: 'Pending', value: pendingSubmissions, color: '#FFBB28' },
+    { name: 'Rejected', value: rejectedSubmissions, color: '#FF4C4C' }
+  ];
+
+  // Monthly trend data (last 6 months)
+  const monthlyData = React.useMemo(() => {
+    const months = [];
+    const now = new Date();
+    
+    for (let i = 5; i >= 0; i--) {
+      const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const monthName = date.toLocaleDateString('en-US', { month: 'short' });
+      const monthSubmissions = submissions.filter(s => {
+        const subDate = new Date(s.createdAt);
+        return subDate.getMonth() === date.getMonth() && 
+               subDate.getFullYear() === date.getFullYear();
+      }).length;
+      
+      months.push({ name: monthName, value: monthSubmissions });
+    }
+    
+    return months;
+  }, [submissions]);
+
+  const getDashboardTitle = () => {
     switch (user?.role) {
       case 'faculty':
-        return (
-          <div className="space-y-8">
-            {/* Charts Section */}
-            <div className="grid gap-8 lg:grid-cols-2">
-              {/* Submission Status Chart */}
-              <Card className="bg-white rounded-3xl border-0 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
-                <CardHeader className="pb-4">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center">
-                      <TrendingUp className="w-6 h-6 text-white" />
-                    </div>
-                    <div>
-                      <CardTitle className="text-2xl font-bold text-gray-900">Submission Status</CardTitle>
-                      <CardDescription className="text-gray-500">Current status overview</CardDescription>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="pt-0 pb-6">
-                  <ModernPieChart 
-                    data={pieData} 
-                    total={stats?.totalSubmissions || 0}
-                    height={350} 
-                  />
-                </CardContent>
-              </Card>
-
-              {/* Activity by Module Chart */}
-              <Card className="bg-white rounded-3xl border-0 shadow-lg hover:shadow-xl transition-all duration-300">
-                <CardHeader className="pb-6">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center">
-                      <FileText className="w-6 h-6 text-white" />
-                    </div>
-                    <div>
-                      <CardTitle className="text-2xl font-bold text-gray-900">Activity by Module</CardTitle>
-                      <CardDescription className="text-gray-500">Your submissions breakdown</CardDescription>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  <ModernBarChart 
-                    data={stats?.moduleData || []} 
-                    height={400} 
-                    color="#8b5cf6" 
-                  />
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        );
-
+        return 'Faculty Dashboard';
       case 'hod':
-        return (
-          <div className="space-y-8">
-            {/* Charts Section */}
-            <div className="grid gap-8 lg:grid-cols-2">
-              {/* Department Overview Chart */}
-              <Card className="bg-white rounded-3xl border-0 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
-                <CardHeader className="pb-4">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl flex items-center justify-center">
-                      <Users className="w-6 h-6 text-white" />
-                    </div>
-                    <div>
-                      <CardTitle className="text-2xl font-bold text-gray-900">Department Overview</CardTitle>
-                      <CardDescription className="text-gray-500">Department submission status</CardDescription>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="pt-0 pb-6">
-                  <ModernPieChart 
-                    data={pieData} 
-                    total={stats?.totalSubmissions || 0}
-                    height={350} 
-                  />
-                </CardContent>
-              </Card>
-
-              {/* Monthly Trends Chart */}
-              <Card className="bg-white rounded-3xl border-0 shadow-lg hover:shadow-xl transition-all duration-300">
-                <CardHeader className="pb-6">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-gradient-to-br from-amber-500 to-amber-600 rounded-2xl flex items-center justify-center">
-                      <Calendar className="w-6 h-6 text-white" />
-                    </div>
-                    <div>
-                      <CardTitle className="text-2xl font-bold text-gray-900">Monthly Trends</CardTitle>
-                      <CardDescription className="text-gray-500">Department activity trends</CardDescription>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  <ModernBarChart 
-                    data={stats?.moduleData || []} 
-                    height={400} 
-                    color="#f59e0b" 
-                  />
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        );
-
+        return `HoD Dashboard - ${user.department}`;
       case 'admin':
-        return (
-          <div className="space-y-8">
-            {/* Charts Section */}
-            <div className="grid gap-8 lg:grid-cols-3">
-              {/* All Submissions Chart */}
-              <Card className="bg-white rounded-3xl border-0 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
-                <CardHeader className="pb-3">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
-                      <TrendingUp className="w-5 h-5 text-white" />
-                    </div>
-                    <div>
-                      <CardTitle className="text-xl font-bold text-gray-900">All Submissions</CardTitle>
-                      <CardDescription className="text-gray-500">Institution-wide overview</CardDescription>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="pt-0 pb-4">
-                  <ModernPieChart 
-                    data={pieData} 
-                    total={stats?.totalSubmissions || 0}
-                    height={280} 
-                  />
-                </CardContent>
-              </Card>
-
-              {/* Department Activity Chart */}
-              <Card className="bg-white rounded-3xl border-0 shadow-lg hover:shadow-xl transition-all duration-300">
-                <CardHeader className="pb-6">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center">
-                      <Users className="w-5 h-5 text-white" />
-                    </div>
-                    <div>
-                      <CardTitle className="text-xl font-bold text-gray-900">Department Activity</CardTitle>
-                      <CardDescription className="text-gray-500">Cross-department trends</CardDescription>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  <ModernBarChart 
-                    data={stats?.moduleData || []} 
-                    height={300} 
-                    color="#8b5cf6" 
-                  />
-                </CardContent>
-              </Card>
-
-              {/* System Analytics Card */}
-              <Card className="bg-gradient-to-br from-emerald-50 to-blue-50 rounded-3xl border-0 shadow-lg hover:shadow-xl transition-all duration-300">
-                <CardHeader className="pb-6">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center">
-                      <TrendingUp className="w-5 h-5 text-white" />
-                    </div>
-                    <div>
-                      <CardTitle className="text-xl font-bold text-gray-900">System Analytics</CardTitle>
-                      <CardDescription className="text-gray-500">Comprehensive insights</CardDescription>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="pt-0 space-y-6">
-                  <div className="grid gap-4">
-                    <div className="text-center p-6 bg-white/70 backdrop-blur-sm rounded-2xl border border-white/50">
-                      <div className="text-3xl font-bold text-emerald-600 mb-1">{stats?.totalSubmissions || 0}</div>
-                      <div className="text-sm text-gray-600 font-medium">Total Submissions</div>
-                    </div>
-                    <div className="text-center p-6 bg-white/70 backdrop-blur-sm rounded-2xl border border-white/50">
-                      <div className="text-3xl font-bold text-amber-600 mb-1">{stats?.pendingApprovals || 0}</div>
-                      <div className="text-sm text-gray-600 font-medium">Pending Approval</div>
-                    </div>
-                    <div className="text-center p-6 bg-white/70 backdrop-blur-sm rounded-2xl border border-white/50">
-                      <div className="text-3xl font-bold text-blue-600 mb-1">{stats?.thisMonth || 0}</div>
-                      <div className="text-sm text-gray-600 font-medium">This Month</div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        );
-
+        return 'Admin Dashboard';
       default:
-        return null;
+        return 'Dashboard';
     }
   };
 
-  const getQuickActionsFooter = () => {
+  const getDashboardDescription = () => {
     switch (user?.role) {
       case 'faculty':
-        return (
-          <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-3xl border-0 shadow-lg hover:shadow-xl transition-all duration-300">
-            <CardHeader className="pb-6">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center">
-                  <Plus className="w-6 h-6 text-white" />
-                </div>
-                <div>
-                  <CardTitle className="text-2xl font-bold text-gray-900">Quick Actions</CardTitle>
-                  <CardDescription className="text-gray-500">Manage your submissions efficiently</CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <div className="grid gap-4 sm:grid-cols-2">
-                <Link to="/submissions/new" className="group">
-                  <div className="bg-white rounded-2xl p-6 border border-blue-100 hover:border-blue-200 transition-all duration-200 hover:shadow-md group-hover:-translate-y-1">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
-                        <FileText className="w-6 h-6 text-white" />
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-gray-900">New Submission</h3>
-                        <p className="text-sm text-gray-500">Create a new submission</p>
-                      </div>
-                      <ArrowRight className="w-5 h-5 text-gray-400 group-hover:text-blue-600 group-hover:translate-x-1 transition-all duration-200" />
-                    </div>
-                  </div>
-                </Link>
-                <Link to="/submissions" className="group">
-                  <div className="bg-white rounded-2xl p-6 border border-gray-100 hover:border-gray-200 transition-all duration-200 hover:shadow-md group-hover:-translate-y-1">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-gradient-to-br from-gray-500 to-gray-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
-                        <Clock className="w-6 h-6 text-white" />
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-gray-900">My Submissions</h3>
-                        <p className="text-sm text-gray-500">View your submissions</p>
-                      </div>
-                      <ArrowRight className="w-5 h-5 text-gray-400 group-hover:text-gray-600 group-hover:translate-x-1 transition-all duration-200" />
-                    </div>
-                  </div>
-                </Link>
-              </div>
-            </CardContent>
-          </Card>
-        );
-
+        return 'Track your professional development submissions and progress';
       case 'hod':
-        return (
-          <Card className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-3xl border-0 shadow-lg hover:shadow-xl transition-all duration-300">
-            <CardHeader className="pb-6">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-amber-500 to-amber-600 rounded-2xl flex items-center justify-center">
-                  <Clock className="w-6 h-6 text-white" />
-                </div>
-                <div>
-                  <CardTitle className="text-2xl font-bold text-gray-900">Department Management</CardTitle>
-                  <CardDescription className="text-gray-500">Review and manage department submissions</CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <Link to="/approvals" className="group block">
-                <div className="bg-white rounded-2xl p-6 border border-amber-100 hover:border-amber-200 transition-all duration-200 hover:shadow-md group-hover:-translate-y-1">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
-                      <Clock className="w-6 h-6 text-white" />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-gray-900">Review Submissions</h3>
-                      <p className="text-sm text-gray-500">{stats?.pendingApprovals || 0} pending submissions</p>
-                    </div>
-                    <ArrowRight className="w-5 h-5 text-gray-400 group-hover:text-amber-600 group-hover:translate-x-1 transition-all duration-200" />
-                  </div>
-                </div>
-              </Link>
-            </CardContent>
-          </Card>
-        );
-
+        return `Monitor and manage ${user.department} department submissions`;
       case 'admin':
-        return (
-          <Card className="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-3xl border-0 shadow-lg hover:shadow-xl transition-all duration-300">
-            <CardHeader className="pb-6">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center">
-                  <Users className="w-6 h-6 text-white" />
-                </div>
-                <div>
-                  <CardTitle className="text-2xl font-bold text-gray-900">System Administration</CardTitle>
-                  <CardDescription className="text-gray-500">Manage system-wide operations</CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <div className="grid gap-4 sm:grid-cols-3">
-                <Link to="/approvals" className="group">
-                  <div className="bg-white rounded-2xl p-4 border border-purple-100 hover:border-purple-200 transition-all duration-200 hover:shadow-md group-hover:-translate-y-1">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
-                        <Clock className="w-5 h-5 text-white" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-gray-900 text-sm">Final Approvals</h3>
-                        <p className="text-xs text-gray-500 truncate">Review submissions</p>
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-                <Link to="/users" className="group">
-                  <div className="bg-white rounded-2xl p-4 border border-blue-100 hover:border-blue-200 transition-all duration-200 hover:shadow-md group-hover:-translate-y-1">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
-                        <Users className="w-5 h-5 text-white" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-gray-900 text-sm">Manage Users</h3>
-                        <p className="text-xs text-gray-500 truncate">User administration</p>
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-                <Link to="/reports" className="group">
-                  <div className="bg-white rounded-2xl p-4 border border-emerald-100 hover:border-emerald-200 transition-all duration-200 hover:shadow-md group-hover:-translate-y-1">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
-                        <Calendar className="w-5 h-5 text-white" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-gray-900 text-sm">Generate Reports</h3>
-                        <p className="text-xs text-gray-500 truncate">Analytics & reports</p>
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-              </div>
-            </CardContent>
-          </Card>
-        );
-
+        return 'Comprehensive overview of all institutional submissions';
       default:
-        return null;
+        return 'Welcome to your dashboard';
     }
   };
 
-  if (statsLoading) {
-    return <DashboardSkeleton />;
+  if (!user) {
+    return (
+      <div className="text-center py-20">
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">Please log in</h2>
+        <p className="text-gray-600">You need to be logged in to view the dashboard.</p>
+      </div>
+    );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
-      <div className="container mx-auto px-6 py-8 space-y-8 animate-fade-in">
-        {/* Welcome Header */}
-        <div className="relative overflow-hidden bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-800 rounded-3xl p-8 text-white shadow-2xl">
-          <div className="relative z-10">
-            <h1 className="text-4xl font-bold tracking-tight mb-2">
-              Welcome back, {user?.name}
-            </h1>
-            <p className="text-blue-100 text-lg opacity-90 font-medium">
-              {user?.designation} • {user?.department} • {user?.institution}
-            </p>
-          </div>
-          {/* Background decoration */}
-          <div className="absolute top-0 right-0 w-96 h-96 opacity-10 transform translate-x-24 -translate-y-24">
-            <div className="w-full h-full bg-white rounded-full"></div>
-          </div>
+    <div className="container mx-auto p-6 space-y-6">
+      {/* Header */}
+      <div className="flex justify-between items-start">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">{getDashboardTitle()}</h1>
+          <p className="text-muted-foreground mt-2">{getDashboardDescription()}</p>
         </div>
-
-        {/* Enhanced Stats Overview */}
-        <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
-          <ModernStatsCard
-            title="Total Submissions"
-            value={stats?.totalSubmissions || 0}
-            icon={<FileText className="w-7 h-7" />}
-            gradient="from-blue-500 to-blue-600"
-            trend={stats?.thisMonth && stats?.lastMonth ? {
-              value: Math.round(((stats.thisMonth - stats.lastMonth) / (stats.lastMonth || 1)) * 100),
-              isPositive: stats.thisMonth >= stats.lastMonth
-            } : undefined}
-            delay={0}
-          />
-          <ModernStatsCard
-            title="Pending Approvals"
-            value={stats?.pendingApprovals || 0}
-            icon={<Clock className="w-7 h-7" />}
-            gradient="from-amber-500 to-orange-500"
-            delay={100}
-          />
-          <ModernStatsCard
-            title="Approved"
-            value={stats?.approved || 0}
-            icon={<CheckCircle className="w-7 h-7" />}
-            gradient="from-emerald-500 to-green-500"
-            delay={200}
-          />
-          <ModernStatsCard
-            title="This Month"
-            value={stats?.thisMonth || 0}
-            icon={<TrendingUp className="w-7 h-7" />}
-            gradient="from-purple-500 to-indigo-500"
-            delay={300}
-          />
+        <div className="flex gap-2">
+          {user.role === 'faculty' && (
+            <Button onClick={() => navigate('/new-submission')} className="flex items-center gap-2">
+              <Plus size={16} />
+              New Submission
+            </Button>
+          )}
+          {(['hod', 'admin'].includes(user.role)) && (
+            <Button 
+              variant="outline" 
+              onClick={() => navigate('/reports')} 
+              className="flex items-center gap-2"
+            >
+              <BarChart3 size={16} />
+              View Reports
+            </Button>
+          )}
         </div>
-
-        {/* Role-specific content */}
-        {getRoleSpecificContent()}
-
-        {/* Quick Actions Footer */}
-        {getQuickActionsFooter()}
       </div>
+
+      {/* Debug Info */}
+      <Card className="bg-blue-50 border-blue-200">
+        <CardContent className="pt-6">
+          <p className="text-sm">
+            Debug: Found {totalSubmissions} submissions for {user.role} - {user.department}
+            (Approved: {approvedSubmissions}, Pending: {pendingSubmissions}, Rejected: {rejectedSubmissions})
+          </p>
+        </CardContent>
+      </Card>
+
+      {/* Loading State */}
+      {isLoading ? (
+        <Card>
+          <CardContent className="p-8">
+            <div className="flex items-center justify-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+              <span className="ml-3">Loading dashboard...</span>
+            </div>
+          </CardContent>
+        </Card>
+      ) : (
+        <>
+          {/* Stats Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <ModernStatsCard
+              title="Total Submissions"
+              value={totalSubmissions}
+              trend={{ value: 12, isPositive: true }}
+              icon={<FileText />}
+              gradient="from-blue-500 to-blue-600"
+            />
+            <ModernStatsCard
+              title="Approved"
+              value={approvedSubmissions}
+              trend={{ value: 8, isPositive: true }}
+              icon={<TrendingUp />}
+              gradient="from-green-500 to-green-600"
+            />
+            <ModernStatsCard
+              title="Pending Review"
+              value={pendingSubmissions}
+              trend={{ value: 5, isPositive: false }}
+              icon={<Clock />}
+              gradient="from-yellow-500 to-yellow-600"
+            />
+            <ModernStatsCard
+              title={user.role === 'faculty' ? 'Rejected' : 'Active Users'}
+              value={user.role === 'faculty' ? rejectedSubmissions : new Set(submissions.map(s => s.user?.id)).size}
+              trend={{ value: 3, isPositive: false }}
+              icon={<Users />}
+              gradient="from-red-500 to-red-600"
+            />
+          </div>
+
+          {/* Charts */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <BarChart3 size={20} />
+                  Monthly Activity
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ModernBarChart data={monthlyData} />
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <PieChart size={20} />
+                  Status Overview
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ModernPieChart
+                  data={statusData}
+                  total={totalSubmissions}
+                />
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Module Distribution */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Module Distribution</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {moduleData.map((module) => (
+                  <div key={module.name} className="text-center p-6 border rounded-lg hover:shadow-md transition-shadow">
+                    <h3 className="text-2xl font-bold text-primary mb-2">{module.value}</h3>
+                    <p className="text-muted-foreground">{module.name}</p>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Recent Activity */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Calendar size={20} />
+                Recent Submissions
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {submissions.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  <FileText size={48} className="mx-auto mb-4 opacity-50" />
+                  <p>No submissions found</p>
+                  {user.role === 'faculty' && (
+                    <Button 
+                      className="mt-4" 
+                      onClick={() => navigate('/new-submission')}
+                    >
+                      Create Your First Submission
+                    </Button>
+                  )}
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {submissions.slice(0, 5).map((submission) => (
+                    <div key={submission.id} className="flex items-center justify-between p-3 border rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <FileText size={16} className="text-muted-foreground" />
+                        <div>
+                          <p className="font-medium">
+                            {submission.moduleType === 'certification' 
+                              ? submission.formData?.courseName || 'Certification'
+                              : submission.formData?.title || 'Untitled'
+                            }
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            {submission.user?.name} • {new Date(submission.createdAt).toLocaleDateString()}
+                          </p>
+                        </div>
+                      </div>
+                      <Badge variant={
+                        submission.status === 'Approved by Admin' ? 'default' :
+                        submission.status.includes('Pending') ? 'secondary' : 'destructive'
+                      }>
+                        {submission.status}
+                      </Badge>
+                    </div>
+                  ))}
+                  {submissions.length > 5 && (
+                    <div className="text-center pt-4">
+                      <Button 
+                        variant="outline" 
+                        onClick={() => navigate(user.role === 'faculty' ? '/my-submissions' : '/all-submissions')}
+                      >
+                        View All Submissions
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </>
+      )}
     </div>
   );
 };

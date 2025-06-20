@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -21,13 +20,64 @@ export const Reports: React.FC = () => {
   const [timeframe, setTimeframe] = useState('month');
   const [selectedDepartment, setSelectedDepartment] = useState('all');
 
-  // Fetch all submissions
+  // Fetch all submissions with proper department filtering
   const { data: allSubmissions = [], isLoading: loadingSubmissions } = useQuery({
-    queryKey: ['reports-submissions'],
+    queryKey: ['reports-submissions', user?.role, user?.department],
     queryFn: async () => {
-      const response = await submissionService.getAllSubmissions();
-      return response.data || [];
+      console.log('Fetching submissions for user:', user?.role, user?.department);
+      
+      if (user?.role === 'hod') {
+        // For HoD, get only submissions from their department
+        const { data, error } = await supabase
+          .from('submissions')
+          .select(`
+            *,
+            user:users!inner(
+              *,
+              department:departments!users_department_id_fkey(name)
+            )
+          `)
+          .eq('users.department.name', user.department)
+          .order('created_at', { ascending: false });
+
+        if (error) {
+          console.error('Error fetching HoD submissions:', error);
+          return [];
+        }
+
+        console.log('HoD submissions fetched:', data?.length);
+        return data?.map(submission => ({
+          id: submission.id,
+          userId: submission.user_id,
+          moduleType: submission.module_type as 'attended' | 'organized' | 'certification',
+          formData: submission.form_data,
+          documentUrl: submission.document_url,
+          status: submission.status,
+          hodComment: submission.hod_comment,
+          adminComment: submission.admin_comment,
+          createdAt: submission.created_at,
+          updatedAt: submission.updated_at,
+          user: submission.user ? {
+            id: submission.user.id,
+            employeeId: submission.user.employee_id,
+            name: submission.user.name,
+            email: submission.user.email,
+            role: submission.user.role as 'faculty' | 'hod' | 'admin',
+            department: submission.user.department?.name || 'Unknown',
+            designation: submission.user.designation,
+            institution: submission.user.institution,
+            createdAt: submission.user.created_at,
+            updatedAt: submission.user.updated_at
+          } : null
+        })) || [];
+      } else {
+        // For admin, get all submissions
+        const response = await submissionService.getAllSubmissions();
+        console.log('Admin submissions fetched:', response.data?.length);
+        return response.data || [];
+      }
     },
+    enabled: !!user && ['hod', 'admin'].includes(user.role),
   });
 
   // Fetch departments for admin dropdown
@@ -48,8 +98,8 @@ export const Reports: React.FC = () => {
   // Filter submissions based on role and selected department
   const filteredSubmissions = allSubmissions.filter((submission: Submission) => {
     if (user?.role === 'hod') {
-      // HoD can only see their department's data
-      return submission.user?.department === user.department;
+      // HoD submissions are already filtered at query level
+      return true;
     } else if (user?.role === 'admin') {
       // Admin can see all or filter by selected department
       if (selectedDepartment === 'all') {
@@ -61,6 +111,9 @@ export const Reports: React.FC = () => {
     }
     return false;
   });
+
+  console.log('Filtered submissions count:', filteredSubmissions.length);
+  console.log('User role:', user?.role, 'Department:', user?.department);
 
   // Filter by timeframe
   const timeFilteredSubmissions = filteredSubmissions.filter((submission: Submission) => {
@@ -141,6 +194,7 @@ export const Reports: React.FC = () => {
     return months;
   }, [timeFilteredSubmissions]);
 
+  // Export report function
   const handleExport = () => {
     try {
       const csvContent = [
@@ -210,6 +264,19 @@ export const Reports: React.FC = () => {
           Export Report
         </Button>
       </div>
+
+      {/* Debug Info - Remove in production */}
+      <Card className="bg-yellow-50 border-yellow-200">
+        <CardContent className="pt-6">
+          <p className="text-sm">
+            Debug: Total submissions found: {totalSubmissions}, 
+            User: {user.role} - {user.department}, 
+            Approved: {approvedSubmissions}, 
+            Pending: {pendingSubmissions}, 
+            Rejected: {rejectedSubmissions}
+          </p>
+        </CardContent>
+      </Card>
 
       {/* Filters */}
       <Card>
