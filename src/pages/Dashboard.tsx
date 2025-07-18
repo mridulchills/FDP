@@ -102,6 +102,55 @@ export const Dashboard: React.FC = () => {
     s.status === 'Rejected by HoD' || s.status === 'Rejected by Admin'
   ).length;
 
+  // Calculate current and previous month's statistics for trend calculation
+  const now = new Date();
+  const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const previousMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  
+  const currentMonthSubmissions = submissions.filter(s => {
+    const date = new Date(s.createdAt);
+    return date >= currentMonthStart && date < now;
+  });
+  
+  const previousMonthSubmissions = submissions.filter(s => {
+    const date = new Date(s.createdAt);
+    return date >= previousMonthStart && date < currentMonthStart;
+  });
+
+  // Calculate trends (percentage change from previous month)
+  const calculateTrend = (currentCount: number, previousCount: number): number => {
+    if (previousCount === 0) return currentCount > 0 ? 100 : 0;
+    return Math.round(((currentCount - previousCount) / previousCount) * 100);
+  };
+
+  const totalTrend = calculateTrend(
+    currentMonthSubmissions.length,
+    previousMonthSubmissions.length
+  );
+
+  const approvedTrend = calculateTrend(
+    currentMonthSubmissions.filter(s => s.status === 'Approved by Admin').length,
+    previousMonthSubmissions.filter(s => s.status === 'Approved by Admin').length
+  );
+
+  const pendingTrend = calculateTrend(
+    currentMonthSubmissions.filter(s => 
+      s.status === 'Pending HoD Approval' || s.status === 'Approved by HoD'
+    ).length,
+    previousMonthSubmissions.filter(s => 
+      s.status === 'Pending HoD Approval' || s.status === 'Approved by HoD'
+    ).length
+  );
+
+  const rejectedTrend = calculateTrend(
+    currentMonthSubmissions.filter(s => 
+      s.status === 'Rejected by HoD' || s.status === 'Rejected by Admin'
+    ).length,
+    previousMonthSubmissions.filter(s => 
+      s.status === 'Rejected by HoD' || s.status === 'Rejected by Admin'
+    ).length
+  );
+
   // Module distribution data
   const moduleData = [
     { 
@@ -190,7 +239,7 @@ export const Dashboard: React.FC = () => {
         </div>
         <div className="flex gap-2">
           {user.role === 'faculty' && (
-            <Button onClick={() => navigate('/new-submission')} className="flex items-center gap-2">
+            <Button onClick={() => navigate('/submissions/new')} className="flex items-center gap-2">
               <Plus size={16} />
               New Submission
             </Button>
@@ -208,15 +257,22 @@ export const Dashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Debug Info */}
-      <Card className="bg-blue-50 border-blue-200">
-        <CardContent className="pt-6">
-          <p className="text-sm">
-            Debug: Found {totalSubmissions} submissions for {user.role} - {user.department}
-            (Approved: {approvedSubmissions}, Pending: {pendingSubmissions}, Rejected: {rejectedSubmissions})
-          </p>
-        </CardContent>
-      </Card>
+      {/* Login Welcome Message */}
+              <Card className="bg-blue-50 border-blue-200">
+          <CardContent className="pt-6 flex items-center justify-between">
+            <div>
+              <h3 className="text-xl font-semibold text-blue-900 mb-2">Welcome back, {user.name}!</h3>
+              <p className="text-blue-700">
+                {user.role === 'faculty' 
+                  ? "Track your professional development journey and submit new activities."
+                  : user.role === 'hod'
+                  ? `Manage and review submissions from the ${user.department} department.`
+                  : "Monitor and manage institutional professional development activities."}
+              </p>
+            </div>
+            <Calendar className="h-12 w-12 text-blue-500" />
+          </CardContent>
+        </Card>
 
       {/* Loading State */}
       {isLoading ? (
@@ -235,28 +291,28 @@ export const Dashboard: React.FC = () => {
             <ModernStatsCard
               title="Total Submissions"
               value={totalSubmissions}
-              trend={{ value: 12, isPositive: true }}
+              trend={{ value: totalTrend, isPositive: totalTrend >= 0 }}
               icon={<FileText />}
               gradient="from-blue-500 to-blue-600"
             />
             <ModernStatsCard
               title="Approved"
               value={approvedSubmissions}
-              trend={{ value: 8, isPositive: true }}
+              trend={{ value: approvedTrend, isPositive: approvedTrend >= 0 }}
               icon={<TrendingUp />}
               gradient="from-green-500 to-green-600"
             />
             <ModernStatsCard
               title="Pending Review"
               value={pendingSubmissions}
-              trend={{ value: 5, isPositive: false }}
+              trend={{ value: pendingTrend, isPositive: pendingTrend < 0 }}
               icon={<Clock />}
               gradient="from-yellow-500 to-yellow-600"
             />
             <ModernStatsCard
               title={user.role === 'faculty' ? 'Rejected' : 'Active Users'}
               value={user.role === 'faculty' ? rejectedSubmissions : new Set(submissions.map(s => s.user?.id)).size}
-              trend={{ value: 3, isPositive: false }}
+              trend={{ value: user.role === 'faculty' ? rejectedTrend : 0, isPositive: user.role === 'faculty' ? rejectedTrend < 0 : true }}
               icon={<Users />}
               gradient="from-red-500 to-red-600"
             />
@@ -361,7 +417,7 @@ export const Dashboard: React.FC = () => {
                     <div className="text-center pt-4">
                       <Button 
                         variant="outline" 
-                        onClick={() => navigate(user.role === 'faculty' ? '/my-submissions' : '/all-submissions')}
+                        onClick={() => navigate(user.role === 'faculty' ? '/submissions' : '/all-submissions')}
                       >
                         View All Submissions
                       </Button>
