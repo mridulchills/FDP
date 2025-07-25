@@ -70,7 +70,7 @@ const sidebarItems: SidebarItem[] = [
     label: 'Settings',
     icon: <Settings size={20} />,
     path: '/settings',
-    roles: [ 'hod', 'admin']
+    roles: ['admin']
   }
 ];
 

@@ -55,13 +55,8 @@ export const AllSubmissions: React.FC = () => {
 
   // Filter submissions based on user role
   const roleFilteredSubmissions = submissions.filter((submission) => {
-    if (user?.role === 'admin') {
-      return true; // Admin can see all submissions
-    } else if (user?.role === 'hod') {
-      // HoD can only see submissions from their department
-      return submission.user?.department === user.department;
-    }
-    return false; // Other roles shouldn't access this page
+    // No need for additional role filtering since it's handled in the service
+    return true;
   });
 
   const filteredSubmissions = roleFilteredSubmissions.filter((submission) => {
@@ -72,9 +67,8 @@ export const AllSubmissions: React.FC = () => {
     
     const matchesStatus = statusFilter === 'all' || submission.status === statusFilter;
     const matchesModule = moduleFilter === 'all' || submission.moduleType === moduleFilter;
-    // Fixed: Use department name instead of department_id for filtering
     const matchesDepartment = departmentFilter === 'all' || 
-      departments.find(dept => dept.id === departmentFilter)?.name === submission.user?.department;
+                             submission.user?.department?.id === departmentFilter;
     
     return matchesSearch && matchesStatus && matchesModule && matchesDepartment;
   });

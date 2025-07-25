@@ -39,49 +39,8 @@ export const Dashboard: React.FC = () => {
         const response = await submissionService.getMySubmissions();
         return response.data || [];
       } else if (user.role === 'hod') {
-        // For HoD, get submissions from their department only
-        const { data, error } = await supabase
-          .from('submissions')
-          .select(`
-            *,
-            user:users!inner(
-              *,
-              department:departments!users_department_id_fkey(name)
-            )
-          `)
-          .eq('users.department.name', user.department)
-          .order('created_at', { ascending: false });
-
-        if (error) {
-          console.error('Error fetching HoD dashboard submissions:', error);
-          return [];
-        }
-
-        console.log('HoD dashboard submissions fetched:', data?.length);
-        return data?.map(submission => ({
-          id: submission.id,
-          userId: submission.user_id,
-          moduleType: submission.module_type as 'attended' | 'organized' | 'certification',
-          formData: submission.form_data,
-          documentUrl: submission.document_url,
-          status: submission.status,
-          hodComment: submission.hod_comment,
-          adminComment: submission.admin_comment,
-          createdAt: submission.created_at,
-          updatedAt: submission.updated_at,
-          user: submission.user ? {
-            id: submission.user.id,
-            employeeId: submission.user.employee_id,
-            name: submission.user.name,
-            email: submission.user.email,
-            role: submission.user.role as 'faculty' | 'hod' | 'admin',
-            department: submission.user.department?.name || 'Unknown',
-            designation: submission.user.designation,
-            institution: submission.user.institution,
-            createdAt: submission.user.created_at,
-            updatedAt: submission.user.updated_at
-          } : null
-        })) || [];
+        const response = await submissionService.getDepartmentSubmissions();
+        return response.data || [];
       } else if (user.role === 'admin') {
         const response = await submissionService.getAllSubmissions();
         return response.data || [];

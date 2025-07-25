@@ -78,7 +78,7 @@ export const UserManagement: React.FC = () => {
                          u.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          u.employee_id.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesRole = roleFilter === 'all' || u.role === roleFilter;
-    const matchesDepartment = departmentFilter === 'all' || u.department_id === departmentFilter;
+    const matchesDepartment = departmentFilter === 'all' || u.department?.id === departmentFilter;
     
     return matchesSearch && matchesRole && matchesDepartment;
   });
@@ -157,31 +157,35 @@ export const UserManagement: React.FC = () => {
               />
             </div>
             
-            <Select value={roleFilter} onValueChange={setRoleFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="Filter by role" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Roles</SelectItem>
-                <SelectItem value="faculty">Faculty</SelectItem>
-                <SelectItem value="hod">Head of Department</SelectItem>
-                <SelectItem value="admin">Administrator</SelectItem>
-              </SelectContent>
-            </Select>
+            {user.role === 'admin' && (
+              <>
+                <Select value={roleFilter} onValueChange={setRoleFilter}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Filter by role" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Roles</SelectItem>
+                    <SelectItem value="faculty">Faculty</SelectItem>
+                    <SelectItem value="hod">Head of Department</SelectItem>
+                    <SelectItem value="admin">Administrator</SelectItem>
+                  </SelectContent>
+                </Select>
 
-            <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="Filter by department" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Departments</SelectItem>
-                {departments.map((dept) => (
-                  <SelectItem key={dept.id} value={dept.id}>
-                    {dept.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+                <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Filter by department" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Departments</SelectItem>
+                    {departments.map((dept) => (
+                      <SelectItem key={dept.id} value={dept.id}>
+                        {dept.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </>
+            )}
 
             <div className="flex items-center gap-2">
               <Badge variant="outline">{filteredUsers.length} Users</Badge>
@@ -193,7 +197,9 @@ export const UserManagement: React.FC = () => {
       {/* Users Table */}
       <Card>
         <CardHeader>
-          <CardTitle>All Users</CardTitle>
+          <CardTitle>
+            {user.role === 'admin' ? 'All Users' : 'Faculty Members'}
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
@@ -202,8 +208,8 @@ export const UserManagement: React.FC = () => {
                 <TableHead>Name</TableHead>
                 <TableHead>Employee ID</TableHead>
                 <TableHead>Email</TableHead>
-                <TableHead>Role</TableHead>
-                <TableHead>Department</TableHead>
+                {user.role === 'admin' && <TableHead>Role</TableHead>}
+                {user.role === 'admin' && <TableHead>Department</TableHead>}
                 <TableHead>Designation</TableHead>
                 <TableHead>Created</TableHead>
                 <TableHead>Actions</TableHead>
@@ -235,12 +241,16 @@ export const UserManagement: React.FC = () => {
                     <TableCell className="font-medium">{u.name}</TableCell>
                     <TableCell className="font-mono text-sm">{u.employee_id}</TableCell>
                     <TableCell>{u.email}</TableCell>
-                    <TableCell>
-                      <Badge className={getRoleBadgeColor(u.role)}>
-                        {u.role.toUpperCase()}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>{u.department?.name || 'N/A'}</TableCell>
+                    {user.role === 'admin' && (
+                      <TableCell>
+                        <Badge className={getRoleBadgeColor(u.role)}>
+                          {u.role.toUpperCase()}
+                        </Badge>
+                      </TableCell>
+                    )}
+                    {user.role === 'admin' && (
+                      <TableCell>{u.department?.name || 'N/A'}</TableCell>
+                    )}
                     <TableCell>{u.designation}</TableCell>
                     <TableCell className="text-sm text-gray-500">
                       {new Date(u.created_at).toLocaleDateString()}
