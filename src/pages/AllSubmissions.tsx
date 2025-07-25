@@ -13,6 +13,17 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { Search, Filter, Download, FileText, Users } from 'lucide-react';
 import type { Submission } from '@/types';
+import { SubmissionStatus } from '@/types';
+
+// Database types
+interface DatabaseDepartment {
+  id: string;
+  name: string;
+  code: string;
+  hod_user_id: string | null;
+  created_at: string;
+  updated_at: string;
+}
 
 // Helper function to get title from different form data types
 const getSubmissionTitle = (submission: Submission): string => {
@@ -40,9 +51,9 @@ export const AllSubmissions: React.FC = () => {
     },
   });
 
-  const { data: departments = [] } = useQuery({
+  const { data: departments = [] } = useQuery<DatabaseDepartment[]>({
     queryKey: ['departments'],
-    queryFn: async (): Promise<any[]> => {
+    queryFn: async () => {
       const { data, error } = await supabase
         .from('departments')
         .select('*')
@@ -53,13 +64,8 @@ export const AllSubmissions: React.FC = () => {
     },
   });
 
-  // Filter submissions based on user role
-  const roleFilteredSubmissions = submissions.filter((submission) => {
-    // No need for additional role filtering since it's handled in the service
-    return true;
-  });
-
-  const filteredSubmissions = roleFilteredSubmissions.filter((submission) => {
+  // No need for role filtering since it's handled in the service
+  const filteredSubmissions = submissions.filter((submission) => {
     const title = getSubmissionTitle(submission);
     const matchesSearch = submission.user?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          submission.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -68,7 +74,7 @@ export const AllSubmissions: React.FC = () => {
     const matchesStatus = statusFilter === 'all' || submission.status === statusFilter;
     const matchesModule = moduleFilter === 'all' || submission.moduleType === moduleFilter;
     const matchesDepartment = departmentFilter === 'all' || 
-                             submission.user?.department?.id === departmentFilter;
+                             departments.find(dept => dept.id === departmentFilter)?.id === submission.user?.department;
     
     return matchesSearch && matchesStatus && matchesModule && matchesDepartment;
   });
@@ -83,7 +89,7 @@ export const AllSubmissions: React.FC = () => {
           submission.moduleType,
           submission.status,
           new Date(submission.createdAt).toLocaleDateString(),
-          submission.user?.department || 'N/A'
+          departments.find(dept => dept.id === submission.user?.department)?.name || 'N/A'
         ].map(field => `"${field}"`).join(','))
       ].join('\n');
 
@@ -123,7 +129,7 @@ export const AllSubmissions: React.FC = () => {
     });
   };
 
-  const handleDelete = (id: string, status: any) => {
+  const handleDelete = (id: string, status: SubmissionStatus) => {
     console.log('Delete submission:', id);
     toast({
       title: "Feature Coming Soon",

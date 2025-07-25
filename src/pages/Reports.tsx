@@ -24,8 +24,6 @@ export const Reports: React.FC = () => {
   const { data: allSubmissions = [], isLoading: loadingSubmissions } = useQuery({
     queryKey: ['reports-submissions', user?.role, user?.department],
     queryFn: async () => {
-      console.log('Fetching submissions for user:', user?.role, user?.department);
-      
       if (user?.role === 'hod') {
         // For HoD, get only submissions from their department
         const { data, error } = await supabase
@@ -41,11 +39,9 @@ export const Reports: React.FC = () => {
           .order('created_at', { ascending: false });
 
         if (error) {
-          console.error('Error fetching HoD submissions:', error);
           return [];
         }
 
-        console.log('HoD submissions fetched:', data?.length);
         return data?.map(submission => ({
           id: submission.id,
           userId: submission.user_id,
@@ -73,7 +69,6 @@ export const Reports: React.FC = () => {
       } else {
         // For admin, get all submissions
         const response = await submissionService.getAllSubmissions();
-        console.log('Admin submissions fetched:', response.data?.length);
         return response.data || [];
       }
     },
@@ -111,9 +106,6 @@ export const Reports: React.FC = () => {
     }
     return false;
   });
-
-  console.log('Filtered submissions count:', filteredSubmissions.length);
-  console.log('User role:', user?.role, 'Department:', user?.department);
 
   // Filter by timeframe
   const timeFilteredSubmissions = filteredSubmissions.filter((submission: Submission) => {
@@ -264,19 +256,6 @@ export const Reports: React.FC = () => {
           Export Report
         </Button>
       </div>
-
-      {/* Debug Info - Remove in production */}
-      <Card className="bg-yellow-50 border-yellow-200">
-        <CardContent className="pt-6">
-          <p className="text-sm">
-            Debug: Total submissions found: {totalSubmissions}, 
-            User: {user.role} - {user.department}, 
-            Approved: {approvedSubmissions}, 
-            Pending: {pendingSubmissions}, 
-            Rejected: {rejectedSubmissions}
-          </p>
-        </CardContent>
-      </Card>
 
       {/* Filters */}
       <Card>

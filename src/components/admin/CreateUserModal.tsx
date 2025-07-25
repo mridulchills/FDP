@@ -41,70 +41,28 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({ isOpen, onClos
   const createUserMutation = useMutation({
     mutationFn: async (userData: any) => {
       if (editUser) {
-        // Update existing user
         const { error } = await supabase
           .from('users')
-          .update({
-            name: userData.name,
-            email: userData.email,
-            employee_id: userData.employee_id,
-            role: userData.role,
-            department_id: userData.department_id,
-            designation: userData.designation,
-            institution: userData.institution,
-            updated_at: new Date().toISOString()
-          })
+          .update(userData)
           .eq('id', editUser.id);
-
         if (error) throw error;
       } else {
-        // Create new auth user first
-        const { data: authData, error: authError } = await supabase.auth.signUp({
-          email: userData.email,
-          password: userData.employee_id, // Using employee_id as initial password
-          options: {
-            data: {
-              name: userData.name,
-              role: userData.role
-            }
-          }
-        });
-
-        if (authError) throw authError;
-
-        // Create database user
-        const { error: dbError } = await supabase.from('users').insert({
-          auth_user_id: authData.user?.id,
-          name: userData.name,
-          email: userData.email,
-          employee_id: userData.employee_id,
-          role: userData.role,
-          department_id: userData.department_id,
-          designation: userData.designation,
-          institution: userData.institution
-        });
-
-        if (dbError) {
-          // If database insert fails, we should clean up the auth user
-          await supabase.auth.admin.deleteUser(authData.user?.id || '');
-          throw dbError;
-        }
+        const { error } = await supabase.from('users').insert(userData);
+        if (error) throw error;
       }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['all-users'] });
       toast({
         title: editUser ? "User Updated" : "User Created",
-        description: editUser 
-          ? "User has been updated successfully."
-          : "User has been created successfully. Initial password is their Employee ID.",
+        description: `User has been ${editUser ? 'updated' : 'created'} successfully.`,
       });
       onClose();
     },
     onError: (error: any) => {
       toast({
         title: "Error",
-        description: error.message || "An error occurred while saving the user.",
+        description: error.message,
         variant: "destructive",
       });
     },

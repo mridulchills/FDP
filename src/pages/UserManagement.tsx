@@ -29,19 +29,11 @@ export const UserManagement: React.FC = () => {
   const { data: users = [], isLoading, refetch } = useQuery({
     queryKey: ['all-users'],
     queryFn: async () => {
-      // First get the current user's auth ID
-      const { data: { user: authUser } } = await supabase.auth.getUser();
-      if (!authUser) throw new Error('Not authenticated');
-
-      // Fetch all users with their department information
       const { data, error } = await supabase
         .from('users')
         .select(`
           *,
-          department:departments!users_department_id_fkey(
-            id,
-            name
-          )
+          department:departments!users_department_id_fkey(*)
         `)
         .order('created_at', { ascending: false });
       
@@ -50,11 +42,8 @@ export const UserManagement: React.FC = () => {
         throw error;
       }
 
-      // Transform the data to match the expected format
-      return data.map(user => ({
-        ...user,
-        department: user.department || { id: null, name: 'N/A' }
-      }));
+      console.log('Fetched users:', data);
+      return data || [];
     },
   });
 
