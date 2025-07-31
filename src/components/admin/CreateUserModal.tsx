@@ -26,8 +26,10 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({ isOpen, onClos
     role: editUser?.role || 'faculty',
     department_id: editUser?.department_id || '',
     designation: editUser?.designation || '',
-    institution: editUser?.institution || 'NMIT'
+    institution: editUser?.institution || 'NMIT',
+    password: '', // Only used for new users
   });
+  const [showPassword, setShowPassword] = useState<string | null>(null);
 
   const { data: departments = [] } = useQuery({
     queryKey: ['departments'],
@@ -41,29 +43,51 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({ isOpen, onClos
   const createUserMutation = useMutation({
     mutationFn: async (userData: any) => {
       if (editUser) {
+        // Update existing user (do not update password or auth_user_id)
         const { error } = await supabase
           .from('users')
-          .update(userData)
+          .update({
+            name: userData.name,
+            email: userData.email,
+            employee_id: userData.employee_id,
+            role: userData.role,
+            department_id: userData.department_id,
+            designation: userData.designation,
+            institution: userData.institution,
+          })
           .eq('id', editUser.id);
         if (error) throw error;
       } else {
-        const { error } = await supabase.from('users').insert(userData);
-        if (error) throw error;
+        // Call backend API to create user securely
+        const response = await fetch('http://localhost:4000/api/create-user', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(userData),
+        });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || 'Failed to create user');
+        setShowPassword(userData.password);
       }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['all-users'] });
       toast({
-        title: editUser ? "User Updated" : "User Created",
-        description: `User has been ${editUser ? 'updated' : 'created'} successfully.`,
+        title: editUser ? 'User Updated' : 'User Created',
+        description: editUser
+          ? 'User has been updated successfully.'
+          : showPassword
+            ? `User has been created successfully. Password: ${showPassword}`
+            : 'User has been created successfully.',
+        duration: 8000,
       });
+      setShowPassword(null);
       onClose();
     },
     onError: (error: any) => {
       toast({
-        title: "Error",
+        title: 'Error',
         description: error.message,
-        variant: "destructive",
+        variant: 'destructive',
       });
     },
   });
@@ -86,7 +110,8 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({ isOpen, onClos
         role: editUser.role || 'faculty',
         department_id: editUser.department_id || '',
         designation: editUser.designation || '',
-        institution: editUser.institution || 'NMIT'
+        institution: editUser.institution || 'NMIT',
+        password: '', // Always blank for edit
       });
     } else {
       setFormData({
@@ -96,7 +121,8 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({ isOpen, onClos
         role: 'faculty',
         department_id: '',
         designation: '',
-        institution: 'NMIT'
+        institution: 'NMIT',
+        password: '',
       });
     }
   }, [editUser, isOpen]);
@@ -109,7 +135,6 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({ isOpen, onClos
             {editUser ? 'Edit User' : 'Create New User'}
           </DialogTitle>
         </DialogHeader>
-        
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -121,7 +146,6 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({ isOpen, onClos
                 required
               />
             </div>
-            
             <div className="space-y-2">
               <Label htmlFor="employee_id">Employee ID</Label>
               <Input
@@ -132,7 +156,6 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({ isOpen, onClos
               />
             </div>
           </div>
-
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input
@@ -143,7 +166,19 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({ isOpen, onClos
               required
             />
           </div>
-
+          {/* Password field only for new users */}
+          {!editUser && (
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                type="password"
+                value={formData.password}
+                onChange={(e) => handleInputChange('password', e.target.value)}
+                required
+              />
+            </div>
+          )}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="role">Role</Label>
@@ -158,7 +193,6 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({ isOpen, onClos
                 </SelectContent>
               </Select>
             </div>
-
             <div className="space-y-2">
               <Label htmlFor="department">Department</Label>
               <Select value={formData.department_id} onValueChange={(value) => handleInputChange('department_id', value)}>
@@ -175,7 +209,6 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({ isOpen, onClos
               </Select>
             </div>
           </div>
-
           <div className="space-y-2">
             <Label htmlFor="designation">Designation</Label>
             <Input
@@ -186,7 +219,6 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({ isOpen, onClos
               required
             />
           </div>
-
           <div className="flex justify-end gap-2 pt-4">
             <Button type="button" variant="outline" onClick={onClose}>
               <X size={16} className="mr-2" />
