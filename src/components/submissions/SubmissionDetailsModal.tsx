@@ -62,15 +62,14 @@ export const SubmissionDetailsModal: React.FC<SubmissionDetailsModalProps> = ({
       return;
     }
 
-    console.log('Attempting to view document for submission:', submission.id);
-    console.log('Document URL/Path:', submission.documentUrl);
+
 
     try {
       // Get signed URL for the document
       const signedUrl = await getSignedUrl(submission.documentUrl);
       
       if (signedUrl) {
-        console.log('Successfully generated signed URL, opening document...');
+
         // Open the document in a new tab
         window.open(signedUrl, '_blank');
         

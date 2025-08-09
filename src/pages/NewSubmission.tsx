@@ -78,7 +78,7 @@ export const NewSubmission: React.FC = () => {
 
       navigate('/submissions');
     } catch (error: any) {
-      console.error('Submission error:', error);
+
       toast({
         title: "Submission Failed",
         description: error.message || "Failed to create submission. Please try again.",

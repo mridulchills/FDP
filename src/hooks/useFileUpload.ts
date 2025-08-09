@@ -70,14 +70,14 @@ export const useFileUpload = () => {
       const folder = submissionId || 'temp';
       const filePath = `${authUser.id}/${folder}/${fileName}`;
 
-      console.log('Uploading file to path:', filePath);
+
 
       const { error: uploadError } = await supabase.storage
         .from('submissions')
         .upload(filePath, file);
 
       if (uploadError) {
-        console.error('Upload error:', uploadError);
+
         throw uploadError;
       }
 
@@ -91,7 +91,7 @@ export const useFileUpload = () => {
         path: filePath
       };
     } catch (error: any) {
-      console.error('Upload error:', error);
+
       toast({
         title: "Upload Failed",
         description: error.message || "Failed to upload file. Please try again.",
@@ -120,7 +120,7 @@ export const useFileUpload = () => {
 
       return true;
     } catch (error: any) {
-      console.error('Delete error:', error);
+
       toast({
         title: "Delete Failed",
         description: error.message || "Failed to delete file. Please try again.",
@@ -132,7 +132,7 @@ export const useFileUpload = () => {
 
   const getSignedUrl = async (filePath: string): Promise<string | null> => {
     try {
-      console.log('Getting signed URL for path:', filePath);
+
 
       // Use the file path as-is since it's already in the correct format
       const { data, error } = await supabase.storage
@@ -140,13 +140,13 @@ export const useFileUpload = () => {
         .createSignedUrl(filePath, 600); // 10 minutes expiry
 
       if (error) {
-        console.error('Signed URL error:', error);
+
         throw error;
       }
 
       return data.signedUrl;
     } catch (error: any) {
-      console.error('Signed URL error:', error);
+
       toast({
         title: "Access Failed",
         description: "Failed to load document. You may not have access or the file is missing.",
