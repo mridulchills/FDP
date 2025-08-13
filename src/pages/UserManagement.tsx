@@ -33,12 +33,17 @@ export const UserManagement: React.FC = () => {
         .from('users')
         .select(`
           *,
-          department:departments(name)
+          department:departments!users_department_id_fkey(*)
         `)
         .order('created_at', { ascending: false });
       
-      if (error) throw error;
-      return data;
+      if (error) {
+        console.error('Error fetching users:', error);
+        throw error;
+      }
+
+      console.log('Fetched users:', data);
+      return data || [];
     },
   });
 
@@ -78,7 +83,7 @@ export const UserManagement: React.FC = () => {
                          u.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          u.employee_id.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesRole = roleFilter === 'all' || u.role === roleFilter;
-    const matchesDepartment = departmentFilter === 'all' || u.department_id === departmentFilter;
+    const matchesDepartment = departmentFilter === 'all' || u.department?.id === departmentFilter;
     
     return matchesSearch && matchesRole && matchesDepartment;
   });

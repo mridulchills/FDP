@@ -142,15 +142,27 @@ export const submissionService = {
 
   async getDepartmentSubmissions(): Promise<{ data: Submission[] | null; error: any }> {
     try {
+      // Get current user's department first
+      const { data: userData, error: userError } = await supabase
+        .from('users')
+        .select('department_id')
+        .eq('auth_user_id', (await supabase.auth.getUser()).data.user?.id)
+        .single();
+
+      if (userError || !userData) {
+        throw new Error('User not found');
+      }
+
       const { data, error } = await supabase
         .from('submissions')
         .select(`
           *,
-          user:users(
+          user:users!inner(
             *,
             department:departments!users_department_id_fkey(*)
           )
         `)
+        .eq('users.department_id', userData.department_id)
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -170,7 +182,18 @@ export const submissionService = {
 
   async getAllSubmissions(): Promise<{ data: Submission[] | null; error: any }> {
     try {
-      const { data, error } = await supabase
+      // Get current user's role and department
+      const { data: userData, error: userError } = await supabase
+        .from('users')
+        .select('role, department_id')
+        .eq('auth_user_id', (await supabase.auth.getUser()).data.user?.id)
+        .single();
+
+      if (userError || !userData) {
+        throw new Error('User not found');
+      }
+
+      let query = supabase
         .from('submissions')
         .select(`
           *,
@@ -180,6 +203,13 @@ export const submissionService = {
           )
         `)
         .order('created_at', { ascending: false });
+
+      // If user is HoD, filter by their department
+      if (userData.role === 'hod') {
+        query = query.eq('users.department_id', userData.department_id);
+      }
+
+      const { data, error } = await query;
 
       if (error) {
         return { data: null, error };
