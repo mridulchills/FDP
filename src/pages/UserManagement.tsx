@@ -33,7 +33,7 @@ export const UserManagement: React.FC = () => {
         .from('users')
         .select(`
           *,
-          department:departments!users_department_id_fkey(name)
+          department:departments!users_department_id_fkey(id, name)
         `)
         .order('created_at', { ascending: false });
       
