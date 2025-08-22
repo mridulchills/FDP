@@ -107,6 +107,8 @@ export const Reports: React.FC = () => {
     return false;
   });
 
+
+
   // Filter by timeframe
   const timeFilteredSubmissions = filteredSubmissions.filter((submission: Submission) => {
     const submissionDate = new Date(submission.createdAt);

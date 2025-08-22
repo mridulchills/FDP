@@ -64,8 +64,17 @@ export const AllSubmissions: React.FC = () => {
     },
   });
 
-  // No need for role filtering since it's handled in the service
-  const filteredSubmissions = submissions.filter((submission) => {
+  // Filter submissions based on user role
+  const roleFilteredSubmissions = submissions.filter((submission) => {
+    if (user?.role === 'admin') {
+      return true; // Admin can see all submissions
+    } else if (user?.role === 'hod') {
+      return true; // HoD can see all submissions from all departments
+    }
+    return false; // Other roles shouldn't access this page
+  });
+
+  const filteredSubmissions = roleFilteredSubmissions.filter((submission) => {
     const title = getSubmissionTitle(submission);
     const matchesSearch = submission.user?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          submission.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -122,15 +131,15 @@ export const AllSubmissions: React.FC = () => {
   };
 
   const handleEdit = (submission: Submission) => {
-    console.log('Edit submission:', submission.id);
+
     toast({
       title: "Feature Coming Soon",
       description: "Edit functionality will be available in the next update.",
     });
   };
 
-  const handleDelete = (id: string, status: SubmissionStatus) => {
-    console.log('Delete submission:', id);
+  const handleDelete = (id: string, status: any) => {
+
     toast({
       title: "Feature Coming Soon",
       description: "Delete functionality will be available in the next update.",
@@ -156,7 +165,7 @@ export const AllSubmissions: React.FC = () => {
             <p className="text-muted-foreground">
               {user.role === 'admin' 
                 ? 'View and manage all faculty submissions' 
-                : 'View submissions from your department'
+                : 'View all faculty submissions across departments'
               }
             </p>
           </div>
@@ -213,7 +222,7 @@ export const AllSubmissions: React.FC = () => {
               </SelectContent>
             </Select>
 
-            {user.role === 'admin' && (
+            {(user.role === 'admin' || user.role === 'hod') && (
               <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
                 <SelectTrigger>
                   <SelectValue placeholder="Filter by department" />

@@ -33,13 +33,20 @@ export const Dashboard: React.FC = () => {
     queryFn: async () => {
       if (!user) return [];
       
-      console.log('Fetching dashboard data for:', user.role, user.department);
+
       
       if (user.role === 'faculty') {
         const response = await submissionService.getMySubmissions();
         return response.data || [];
       } else if (user.role === 'hod') {
-        const response = await submissionService.getDepartmentSubmissions();
+        // For HoD, get all submissions from all departments
+        const response = await submissionService.getAllSubmissions();
+        if (response.error) {
+          console.error('Error fetching HoD dashboard submissions:', response.error);
+          return [];
+        }
+
+
         return response.data || [];
       } else if (user.role === 'admin') {
         const response = await submissionService.getAllSubmissions();
@@ -171,7 +178,7 @@ export const Dashboard: React.FC = () => {
       case 'faculty':
         return 'Track your professional development submissions and progress';
       case 'hod':
-        return `Monitor and manage ${user.department} department submissions`;
+        return 'Monitor and manage all faculty submissions across departments';
       case 'admin':
         return 'Comprehensive overview of all institutional submissions';
       default:
@@ -225,7 +232,7 @@ export const Dashboard: React.FC = () => {
                 {user.role === 'faculty' 
                   ? "Track your professional development journey and submit new activities."
                   : user.role === 'hod'
-                  ? `Manage and review submissions from the ${user.department} department.`
+                  ? "Manage and review all faculty submissions across departments."
                   : "Monitor and manage institutional professional development activities."}
               </p>
             </div>
