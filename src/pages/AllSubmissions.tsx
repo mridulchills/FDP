@@ -82,7 +82,7 @@ export const AllSubmissions: React.FC = () => {
     
     const matchesStatus = statusFilter === 'all' || submission.status === statusFilter;
     const matchesModule = moduleFilter === 'all' || submission.moduleType === moduleFilter;
-    const matchesDepartment = departmentFilter === 'all' || 
+    const matchesDepartment = user?.role === 'hod' || departmentFilter === 'all' || 
                              departments.find(dept => dept.id === departmentFilter)?.id === submission.user?.department;
     
     return matchesSearch && matchesStatus && matchesModule && matchesDepartment;
@@ -185,7 +185,7 @@ export const AllSubmissions: React.FC = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="relative">
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
@@ -222,7 +222,7 @@ export const AllSubmissions: React.FC = () => {
               </SelectContent>
             </Select>
 
-            {(user.role === 'admin' || user.role === 'hod') && (
+            {user.role === 'admin' && (
               <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
                 <SelectTrigger>
                   <SelectValue placeholder="Filter by department" />
@@ -265,7 +265,7 @@ export const AllSubmissions: React.FC = () => {
               <FileText size={48} className="mx-auto mb-4 opacity-50" />
               <h3 className="text-lg font-medium mb-2">No submissions found</h3>
               <p className="text-sm">
-                {searchTerm || statusFilter !== 'all' || moduleFilter !== 'all' || departmentFilter !== 'all'
+                {searchTerm || statusFilter !== 'all' || moduleFilter !== 'all' || (user?.role === 'admin' && departmentFilter !== 'all')
                   ? 'Try adjusting your search criteria'
                   : 'No submissions have been made yet'
                 }
