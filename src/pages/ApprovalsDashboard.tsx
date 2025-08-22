@@ -26,9 +26,7 @@ export const ApprovalsDashboard: React.FC = () => {
   const loadSubmissions = async () => {
     try {
       let result;
-      if (user?.role === 'hod') {
-        result = await submissionService.getDepartmentSubmissions();
-      } else if (user?.role === 'admin') {
+      if (user?.role === 'hod' || user?.role === 'admin') {
         result = await submissionService.getAllSubmissions();
       } else {
         return;
@@ -128,13 +126,13 @@ export const ApprovalsDashboard: React.FC = () => {
     }
 
     try {
-      console.log('Attempting to view document:', submission.documentUrl);
+      
       
       // Get signed URL for the document using the file path
       const signedUrl = await getSignedUrl(submission.documentUrl);
       
       if (signedUrl) {
-        console.log('Opening document with signed URL:', signedUrl);
+
         window.open(signedUrl, '_blank');
       } else {
         toast({

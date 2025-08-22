@@ -20,11 +20,11 @@ export const submissionService = {
         .single();
 
       if (userError || !userData) {
-        console.error('User not found:', userError);
+
         throw new Error('User not found');
       }
 
-      console.log('Creating submission for user:', userData.id);
+
 
       // First create the submission to get the submission ID
       const { data: submission, error } = await supabase
@@ -43,7 +43,7 @@ export const submissionService = {
         .single();
 
       if (error) {
-        console.error('Submission creation error:', error);
+
         return { data: null, error };
       }
 
@@ -65,11 +65,11 @@ export const submissionService = {
             if (!moveError) {
               finalDocumentUrl = newFilePath;
             } else {
-              console.warn('Failed to move file, keeping original path:', moveError);
+
             }
           }
         } catch (moveError) {
-          console.warn('Error moving file:', moveError);
+
           // Continue with original path if move fails
         }
       }
@@ -99,7 +99,7 @@ export const submissionService = {
         error: null 
       };
     } catch (error) {
-      console.error('Error creating submission:', error);
+
       return { data: null, error };
     }
   },
@@ -135,7 +135,7 @@ export const submissionService = {
 
       return { data: transformedSubmissions, error: null };
     } catch (error) {
-      console.error('Error fetching submissions:', error);
+
       return { data: null, error };
     }
   },
@@ -163,7 +163,7 @@ export const submissionService = {
 
       return { data: transformedSubmissions, error: null };
     } catch (error) {
-      console.error('Error fetching department submissions:', error);
+
       return { data: null, error };
     }
   },
@@ -191,7 +191,7 @@ export const submissionService = {
 
       return { data: transformedSubmissions, error: null };
     } catch (error) {
-      console.error('Error fetching all submissions:', error);
+
       return { data: null, error };
     }
   },
@@ -225,7 +225,7 @@ export const submissionService = {
         error: null 
       };
     } catch (error) {
-      console.error('Error updating submission:', error);
+
       return { data: null, error };
     }
   },
@@ -239,7 +239,7 @@ export const submissionService = {
 
       return { error };
     } catch (error) {
-      console.error('Error deleting submission:', error);
+
       return { error };
     }
   },
@@ -264,7 +264,7 @@ export const submissionService = {
         error: null 
       };
     } catch (error) {
-      console.error('Error fetching submission:', error);
+
       return { data: null, error };
     }
   }

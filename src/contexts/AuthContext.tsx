@@ -26,7 +26,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('Auth state changed:', event, session);
+
         setSession(session);
         
         if (session?.user) {
@@ -43,7 +43,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 .single();
 
               if (error && error.code !== 'PGRST116') {
-                console.error('Error fetching user profile:', error);
+
                 toast({
                   title: "Error",
                   description: "Failed to load user profile",
@@ -81,7 +81,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     // Check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log('Initial session:', session);
+
       // Auth state change handler will handle the rest
     });
 

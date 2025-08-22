@@ -33,55 +33,21 @@ export const Dashboard: React.FC = () => {
     queryFn: async () => {
       if (!user) return [];
       
-      console.log('Fetching dashboard data for:', user.role, user.department);
+
       
       if (user.role === 'faculty') {
         const response = await submissionService.getMySubmissions();
         return response.data || [];
       } else if (user.role === 'hod') {
-        // For HoD, get submissions from their department only
-        const { data, error } = await supabase
-          .from('submissions')
-          .select(`
-            *,
-            user:users!inner(
-              *,
-              department:departments!users_department_id_fkey(name)
-            )
-          `)
-          .eq('users.department.name', user.department)
-          .order('created_at', { ascending: false });
-
-        if (error) {
-          console.error('Error fetching HoD dashboard submissions:', error);
+        // For HoD, get all submissions from all departments
+        const response = await submissionService.getAllSubmissions();
+        if (response.error) {
+          console.error('Error fetching HoD dashboard submissions:', response.error);
           return [];
         }
 
-        console.log('HoD dashboard submissions fetched:', data?.length);
-        return data?.map(submission => ({
-          id: submission.id,
-          userId: submission.user_id,
-          moduleType: submission.module_type as 'attended' | 'organized' | 'certification',
-          formData: submission.form_data,
-          documentUrl: submission.document_url,
-          status: submission.status,
-          hodComment: submission.hod_comment,
-          adminComment: submission.admin_comment,
-          createdAt: submission.created_at,
-          updatedAt: submission.updated_at,
-          user: submission.user ? {
-            id: submission.user.id,
-            employeeId: submission.user.employee_id,
-            name: submission.user.name,
-            email: submission.user.email,
-            role: submission.user.role as 'faculty' | 'hod' | 'admin',
-            department: submission.user.department?.name || 'Unknown',
-            designation: submission.user.designation,
-            institution: submission.user.institution,
-            createdAt: submission.user.created_at,
-            updatedAt: submission.user.updated_at
-          } : null
-        })) || [];
+
+        return response.data || [];
       } else if (user.role === 'admin') {
         const response = await submissionService.getAllSubmissions();
         return response.data || [];
@@ -212,7 +178,7 @@ export const Dashboard: React.FC = () => {
       case 'faculty':
         return 'Track your professional development submissions and progress';
       case 'hod':
-        return `Monitor and manage ${user.department} department submissions`;
+        return 'Monitor and manage all faculty submissions across departments';
       case 'admin':
         return 'Comprehensive overview of all institutional submissions';
       default:
@@ -266,7 +232,7 @@ export const Dashboard: React.FC = () => {
                 {user.role === 'faculty' 
                   ? "Track your professional development journey and submit new activities."
                   : user.role === 'hod'
-                  ? `Manage and review submissions from the ${user.department} department.`
+                  ? "Manage and review all faculty submissions across departments."
                   : "Monitor and manage institutional professional development activities."}
               </p>
             </div>

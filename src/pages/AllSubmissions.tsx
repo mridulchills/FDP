@@ -58,8 +58,7 @@ export const AllSubmissions: React.FC = () => {
     if (user?.role === 'admin') {
       return true; // Admin can see all submissions
     } else if (user?.role === 'hod') {
-      // HoD can only see submissions from their department
-      return submission.user?.department === user.department;
+      return true; // HoD can see all submissions from all departments
     }
     return false; // Other roles shouldn't access this page
   });
@@ -122,7 +121,7 @@ export const AllSubmissions: React.FC = () => {
   };
 
   const handleEdit = (submission: Submission) => {
-    console.log('Edit submission:', submission.id);
+
     toast({
       title: "Feature Coming Soon",
       description: "Edit functionality will be available in the next update.",
@@ -130,7 +129,7 @@ export const AllSubmissions: React.FC = () => {
   };
 
   const handleDelete = (id: string, status: any) => {
-    console.log('Delete submission:', id);
+
     toast({
       title: "Feature Coming Soon",
       description: "Delete functionality will be available in the next update.",
@@ -156,7 +155,7 @@ export const AllSubmissions: React.FC = () => {
             <p className="text-muted-foreground">
               {user.role === 'admin' 
                 ? 'View and manage all faculty submissions' 
-                : 'View submissions from your department'
+                : 'View all faculty submissions across departments'
               }
             </p>
           </div>
@@ -213,7 +212,7 @@ export const AllSubmissions: React.FC = () => {
               </SelectContent>
             </Select>
 
-            {user.role === 'admin' && (
+            {(user.role === 'admin' || user.role === 'hod') && (
               <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
                 <SelectTrigger>
                   <SelectValue placeholder="Filter by department" />

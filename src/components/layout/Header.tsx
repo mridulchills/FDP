@@ -43,21 +43,19 @@ export const Header: React.FC = () => {
           </div>
         </div>
 
-        {/* Desktop Menu Button */}
-        <div className="hidden lg:block">
+        {/* User Menu */}
+        <div className="flex items-center space-x-4">
+          {/* Desktop Menu Button */}
           <Button
             variant="ghost"
             size="sm"
             onClick={toggleSidebar}
-            className="p-2"
+            className="hidden lg:block p-2"
             aria-label="Toggle sidebar"
           >
             <Menu size={20} />
           </Button>
-        </div>
-
-        {/* User Menu */}
-        <div className="flex items-center space-x-4">
+          
           {/* Notifications */}
           <NotificationDropdown />
 
