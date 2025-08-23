@@ -1,0 +1,108 @@
+groups:
+  - name: fdts_alerts
+    rules:
+      # Application Health
+      - alert: FDTSApplicationDown
+        expr: up{job="fdts-app"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "FDTS application is down"
+          description: "The FDTS application has been down for more than 1 minute."
+
+      # Database Alerts
+      - alert: DatabaseConnectionFailure
+        expr: fdts_database_connections_failed_total > 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Database connection failures detected"
+          description: "Database connection failures have been detected in the last 5 minutes."
+
+      - alert: DatabaseHighLatency
+        expr: fdts_database_query_duration_seconds{quantile="0.95"} > 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High database query latency"
+          description: "95th percentile database query latency is above 1 second."
+
+      # API Performance
+      - alert: HighAPILatency
+        expr: fdts_http_request_duration_seconds{quantile="0.95"} > 2
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High API response latency"
+          description: "95th percentile API response time is above 2 seconds."
+
+      - alert: HighErrorRate
+        expr: rate(fdts_http_requests_total{status=~"5.."}[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High API error rate"
+          description: "API error rate is above 10% for the last 5 minutes."
+
+      # Authentication Alerts
+      - alert: HighFailedLoginRate
+        expr: rate(fdts_auth_failed_attempts_total[5m]) > 0.5
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High failed login attempt rate"
+          description: "Failed login attempt rate is above 0.5 per second."
+
+      # File System Alerts
+      - alert: DiskSpaceLow
+        expr: (node_filesystem_avail_bytes / node_filesystem_size_bytes) * 100 < 10
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Low disk space"
+          description: "Disk space is below 10% on {{ $labels.mountpoint }}."
+
+      - alert: HighFileUploadFailures
+        expr: rate(fdts_file_upload_failures_total[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High file upload failure rate"
+          description: "File upload failure rate is above 0.1 per second."
+
+      # Memory and CPU
+      - alert: HighMemoryUsage
+        expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes * 100 > 90
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage"
+          description: "Memory usage is above 90%."
+
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage"
+          description: "CPU usage is above 80%."
+
+      # Backup Alerts
+      - alert: BackupFailure
+        expr: time() - fdts_last_successful_backup_timestamp > 86400 * 2
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Backup failure"
+          description: "No successful backup in the last 2 days."

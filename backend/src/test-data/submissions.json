@@ -1,0 +1,26 @@
+[
+  {
+    "id": "sub-1",
+    "user_id": "user-1",
+    "module_type": "attended",
+    "status": "pending",
+    "form_data": "{\"title\":\"Machine Learning Workshop\",\"organizer\":\"IEEE\",\"duration\":\"3 days\",\"startDate\":\"2024-01-15\",\"endDate\":\"2024-01-17\"}",
+    "document_url": null,
+    "hod_comment": null,
+    "admin_comment": null,
+    "created_at": "2024-01-10T00:00:00Z",
+    "updated_at": "2024-01-10T00:00:00Z"
+  },
+  {
+    "id": "sub-2",
+    "user_id": "user-1",
+    "module_type": "organized",
+    "status": "approved",
+    "form_data": "{\"title\":\"Data Science Seminar\",\"organizer\":\"University\",\"duration\":\"1 day\",\"startDate\":\"2024-02-01\",\"endDate\":\"2024-02-01\"}",
+    "document_url": "/uploads/submissions/user-1/certificate.pdf",
+    "hod_comment": "Excellent initiative",
+    "admin_comment": "Approved for professional development",
+    "created_at": "2024-01-20T00:00:00Z",
+    "updated_at": "2024-01-25T00:00:00Z"
+  }
+]

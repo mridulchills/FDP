@@ -1,0 +1,35 @@
+# Backup service Dockerfile
+FROM alpine:latest
+
+# Install required packages
+RUN apk add --no-cache \
+    sqlite \
+    tar \
+    gzip \
+    curl \
+    dcron \
+    bash
+
+# Create backup user
+RUN adduser -D -s /bin/bash backup
+
+# Create directories
+RUN mkdir -p /app/scripts /app/backups /external_backups
+RUN chown -R backup:backup /app
+
+# Copy backup scripts
+COPY deployment/scripts/backup.sh /app/scripts/
+COPY deployment/scripts/restore.sh /app/scripts/
+COPY deployment/scripts/cleanup.sh /app/scripts/
+
+# Make scripts executable
+RUN chmod +x /app/scripts/*.sh
+
+# Switch to backup user
+USER backup
+
+# Set working directory
+WORKDIR /app
+
+# Start cron daemon and run backup script
+CMD ["/app/scripts/backup-daemon.sh"]

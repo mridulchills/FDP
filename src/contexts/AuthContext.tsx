@@ -1,121 +1,71 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { User as SupabaseUser, Session } from '@supabase/supabase-js';
 import { User, LoginCredentials } from '@/types';
-import { supabase } from '@/integrations/supabase/client';
+import { authApi, getAccessToken, getRefreshToken, clearTokens } from '@/services/api';
 import { toast } from '@/hooks/use-toast';
 
 interface AuthContextType {
   user: User | null;
-  session: Session | null;
   isLoading: boolean;
   login: (credentials: LoginCredentials) => Promise<boolean>;
-  signup: (credentials: LoginCredentials & { name: string; designation: string; departmentId: string }) => Promise<boolean>;
-  logout: () => void;
+  logout: () => Promise<void>;
   updateUser: (user: User) => void;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Check for existing token and load user on mount
   useEffect(() => {
-    // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-
-        setSession(session);
-        
-        if (session?.user) {
-          // Fetch user profile from our users table
-          setTimeout(async () => {
-            try {
-              const { data: userProfile, error } = await supabase
-                .from('users')
-                .select(`
-                  *,
-                  department:departments!users_department_id_fkey(name)
-                `)
-                .eq('auth_user_id', session.user.id)
-                .single();
-
-              if (error && error.code !== 'PGRST116') {
-
-                toast({
-                  title: "Error",
-                  description: "Failed to load user profile",
-                  variant: "destructive"
-                });
-                return;
-              }
-
-              if (userProfile) {
-                const mappedUser: User = {
-                  id: userProfile.id,
-                  employeeId: userProfile.employee_id,
-                  name: userProfile.name,
-                  email: userProfile.email,
-                  role: userProfile.role as 'faculty' | 'hod' | 'admin',
-                  department: userProfile.department?.name || 'Unknown',
-                  designation: userProfile.designation,
-                  institution: userProfile.institution,
-                  createdAt: userProfile.created_at,
-                  updatedAt: userProfile.updated_at
-                };
-                setUser(mappedUser);
-              }
-            } catch (error) {
-              console.error('Error in auth state change:', error);
-            }
-          }, 0);
-        } else {
-          setUser(null);
+    const initializeAuth = async () => {
+      const token = getAccessToken();
+      
+      if (token) {
+        try {
+          const response = await authApi.getCurrentUser();
+          if (response.success && response.data) {
+            setUser(response.data);
+          } else {
+            // Token is invalid, clear it
+            clearTokens();
+          }
+        } catch (error) {
+          console.error('Failed to load user profile:', error);
+          clearTokens();
         }
-        
-        setIsLoading(false);
       }
-    );
+      
+      setIsLoading(false);
+    };
 
-    // Check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-
-      // Auth state change handler will handle the rest
-    });
-
-    return () => subscription.unsubscribe();
+    initializeAuth();
   }, []);
 
   const login = async (credentials: LoginCredentials): Promise<boolean> => {
     setIsLoading(true);
     
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: credentials.employeeId.includes('@') ? credentials.employeeId : `${credentials.employeeId}@nmit.ac.in`,
-        password: credentials.password,
-      });
+      const response = await authApi.login(credentials);
 
-      if (error) {
-        console.error('Login error:', error);
-        toast({
-          title: "Login Failed",
-          description: error.message,
-          variant: "destructive"
-        });
-        return false;
-      }
-
-      if (data.user) {
+      if (response.success && response.data) {
+        setUser(response.data.user);
         toast({
           title: "Login Successful",
           description: "Welcome back!"
         });
         return true;
+      } else {
+        toast({
+          title: "Login Failed",
+          description: response.error || "Invalid credentials",
+          variant: "destructive"
+        });
+        return false;
       }
-
-      return false;
     } catch (error) {
       console.error('Login error:', error);
       toast({
@@ -129,102 +79,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
-  const signup = async (credentials: LoginCredentials & { name: string; designation: string; departmentId: string }): Promise<boolean> => {
-    setIsLoading(true);
-    
-    try {
-      const email = credentials.employeeId.includes('@') ? credentials.employeeId : `${credentials.employeeId}@nmit.ac.in`;
-      const redirectUrl = `${window.location.origin}/`;
-      
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password: credentials.password,
-        options: {
-          emailRedirectTo: redirectUrl,
-          data: {
-            employee_id: credentials.employeeId,
-            name: credentials.name,
-            designation: credentials.designation,
-            department_id: credentials.departmentId
-          }
-        }
-      });
+  // Note: Signup functionality will be handled by admin users through the user management interface
+  // This is removed as per the new backend architecture
 
-      if (error) {
-        console.error('Signup error:', error);
-        toast({
-          title: "Signup Failed",
-          description: error.message,
-          variant: "destructive"
-        });
-        return false;
-      }
-
-      if (data.user) {
-        // Create user profile in our users table
-        const { error: profileError } = await supabase
-          .from('users')
-          .insert({
-            auth_user_id: data.user.id,
-            employee_id: credentials.employeeId,
-            name: credentials.name,
-            email: email,
-            role: 'faculty', // Default role
-            department_id: credentials.departmentId,
-            designation: credentials.designation,
-            institution: 'NMIT'
-          });
-
-        if (profileError) {
-          console.error('Profile creation error:', profileError);
-          toast({
-            title: "Profile Creation Failed",
-            description: "Account created but profile setup failed. Please contact admin.",
-            variant: "destructive"
-          });
-          return false;
-        }
-
-        toast({
-          title: "Account Created",
-          description: "Please check your email to confirm your account.",
-        });
-        return true;
-      }
-
-      return false;
-    } catch (error) {
-      console.error('Signup error:', error);
-      toast({
-        title: "Signup Error",
-        description: "An error occurred during signup. Please try again.",
-        variant: "destructive"
-      });
-      return false;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const logout = async () => {
+  const logout = async (): Promise<void> => {
     try {
       // Clear local state first to ensure UI updates immediately
       setUser(null);
-      setSession(null);
       
-      // Attempt to sign out from Supabase
-      const { error } = await supabase.auth.signOut();
-      
-      // Don't show error for session not found - this is expected when session is already expired
-      if (error && !error.message.includes('session_not_found') && !error.message.includes('Session not found')) {
-        console.error('Logout error:', error);
-        toast({
-          title: "Logout Error",
-          description: error.message,
-          variant: "destructive"
-        });
-        return;
-      }
+      // Attempt to logout from backend
+      await authApi.logout();
       
       toast({
         title: "Logged Out",
@@ -232,9 +96,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       });
     } catch (error: any) {
       console.error('Logout error:', error);
-      // Even if logout fails, clear local state
+      // Even if logout fails, clear local state and tokens
       setUser(null);
-      setSession(null);
+      clearTokens();
       toast({
         title: "Logged Out",
         description: "You have been logged out."
@@ -246,14 +110,24 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setUser(updatedUser);
   };
 
+  const refreshUser = async (): Promise<void> => {
+    try {
+      const response = await authApi.getCurrentUser();
+      if (response.success && response.data) {
+        setUser(response.data);
+      }
+    } catch (error) {
+      console.error('Failed to refresh user:', error);
+    }
+  };
+
   const value = {
     user,
-    session,
     isLoading,
     login,
-    signup,
     logout,
-    updateUser
+    updateUser,
+    refreshUser
   };
 
   return (

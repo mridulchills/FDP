@@ -6,17 +6,20 @@ export interface User {
   name: string;
   email: string;
   role: 'faculty' | 'hod' | 'admin';
-  department: string;
+  departmentId: string;
   designation: string;
   institution: string;
   createdAt: string;
   updatedAt: string;
+  // Optional fields for display purposes
+  department?: string;
 }
 
 export interface Department {
   id: string;
   name: string;
-  hodUserId: string;
+  code: string;
+  hodUserId: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -158,20 +161,25 @@ export interface FormErrors {
   [key: string]: string | undefined;
 }
 
-// API Response types
+// API Response types - Updated to match backend format
 export interface ApiResponse<T = any> {
   success: boolean;
   data?: T;
   message?: string;
   error?: string;
+  timestamp: string;
+  requestId?: string;
 }
 
-export interface PaginatedResponse<T> {
-  data: T[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
+export interface PaginatedResponse<T> extends ApiResponse<T[]> {
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+    hasNext: boolean;
+    hasPrev: boolean;
+  };
 }
 
 // Authentication types
@@ -182,7 +190,7 @@ export interface LoginCredentials {
 
 export interface AuthResponse {
   user: User;
-  token: string;
+  accessToken: string;
   refreshToken: string;
 }
 

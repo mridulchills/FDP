@@ -1,0 +1,38 @@
+[
+  {
+    "id": "user-1",
+    "employee_id": "EMP001",
+    "name": "John Doe",
+    "email": "john.doe@example.com",
+    "role": "faculty",
+    "department_id": "dept-1",
+    "designation": "Professor",
+    "institution": "Test University",
+    "created_at": "2024-01-01T00:00:00Z",
+    "updated_at": "2024-01-01T00:00:00Z"
+  },
+  {
+    "id": "user-2",
+    "employee_id": "EMP002",
+    "name": "Jane Smith",
+    "email": "jane.smith@example.com",
+    "role": "hod",
+    "department_id": "dept-1",
+    "designation": "Head of Department",
+    "institution": "Test University",
+    "created_at": "2024-01-01T00:00:00Z",
+    "updated_at": "2024-01-01T00:00:00Z"
+  },
+  {
+    "id": "user-3",
+    "employee_id": "ADMIN001",
+    "name": "Admin User",
+    "email": "admin@example.com",
+    "role": "admin",
+    "department_id": "dept-1",
+    "designation": "Administrator",
+    "institution": "Test University",
+    "created_at": "2024-01-01T00:00:00Z",
+    "updated_at": "2024-01-01T00:00:00Z"
+  }
+]
