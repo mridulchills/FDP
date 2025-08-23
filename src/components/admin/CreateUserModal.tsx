@@ -58,44 +58,22 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({ isOpen, onClos
           .eq('id', editUser.id);
         if (error) throw error;
       } else {
-        // Create new user directly in Supabase
-        const { data: authData, error: authError } = await supabase.auth.admin.createUser({
-          email: userData.email,
-          password: userData.password,
-          email_confirm: true,
-        });
-        
-        if (authError) throw authError;
-
-        // Insert user record in users table
-        const { error: dbError } = await supabase.from('users').insert({
-          name: userData.name,
-          email: userData.email,
-          employee_id: userData.employee_id,
-          role: userData.role,
-          department_id: userData.department_id,
-          designation: userData.designation,
-          institution: userData.institution,
-          auth_user_id: authData.user.id,
-        });
-        
-        if (dbError) throw dbError;
-
-        // Send credentials email
-        const { error: emailError } = await supabase.functions.invoke('send-user-credentials', {
+        // Create new user using Edge Function
+        const { data, error } = await supabase.functions.invoke('create-user', {
           body: {
             name: userData.name,
             email: userData.email,
             employee_id: userData.employee_id,
-            password: userData.password,
             role: userData.role,
+            department_id: userData.department_id,
+            designation: userData.designation,
+            institution: userData.institution,
+            password: userData.password,
           },
         });
 
-        if (emailError) {
-          console.warn('Failed to send credentials email:', emailError);
-          // Don't throw error for email failure, just log it
-        }
+        if (error) throw error;
+        if (data.error) throw new Error(data.error);
 
         setShowPassword(userData.password);
       }
