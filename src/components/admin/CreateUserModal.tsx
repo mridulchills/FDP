@@ -58,27 +58,56 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({ isOpen, onClos
           .eq('id', editUser.id);
         if (error) throw error;
       } else {
-        // Call backend API to create user securely
-        const response = await fetch('http://localhost:4000/api/create-user', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(userData),
+        // Create new user directly in Supabase
+        const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+          email: userData.email,
+          password: userData.password,
+          email_confirm: true,
         });
-        const result = await response.json();
-        if (!response.ok) throw new Error(result.error || 'Failed to create user');
+        
+        if (authError) throw authError;
+
+        // Insert user record in users table
+        const { error: dbError } = await supabase.from('users').insert({
+          name: userData.name,
+          email: userData.email,
+          employee_id: userData.employee_id,
+          role: userData.role,
+          department_id: userData.department_id,
+          designation: userData.designation,
+          institution: userData.institution,
+          auth_user_id: authData.user.id,
+        });
+        
+        if (dbError) throw dbError;
+
+        // Send credentials email
+        const { error: emailError } = await supabase.functions.invoke('send-user-credentials', {
+          body: {
+            name: userData.name,
+            email: userData.email,
+            employee_id: userData.employee_id,
+            password: userData.password,
+            role: userData.role,
+          },
+        });
+
+        if (emailError) {
+          console.warn('Failed to send credentials email:', emailError);
+          // Don't throw error for email failure, just log it
+        }
+
         setShowPassword(userData.password);
       }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['all-users'] });
       toast({
-        title: editUser ? 'User Updated' : 'User Created',
+        title: editUser ? 'User Updated' : 'User Created Successfully',
         description: editUser
           ? 'User has been updated successfully.'
-          : showPassword
-            ? `User has been created successfully. Password: ${showPassword}`
-            : 'User has been created successfully.',
-        duration: 8000,
+          : 'User has been created and login credentials have been sent via email.',
+        duration: 5000,
       });
       setShowPassword(null);
       onClose();
@@ -190,6 +219,7 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({ isOpen, onClos
                   <SelectItem value="faculty">Faculty</SelectItem>
                   <SelectItem value="hod">Head of Department</SelectItem>
                   <SelectItem value="admin">Administrator</SelectItem>
+                  <SelectItem value="accounts">Accounts</SelectItem>
                 </SelectContent>
               </Select>
             </div>

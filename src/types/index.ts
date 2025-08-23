@@ -5,7 +5,7 @@ export interface User {
   employeeId: string;
   name: string;
   email: string;
-  role: 'faculty' | 'hod' | 'admin';
+  role: 'faculty' | 'hod' | 'admin' | 'accounts';
   department: string;
   designation: string;
   institution: string;
@@ -22,11 +22,16 @@ export interface Department {
 }
 
 export type SubmissionStatus = 
+  | 'Pending Admin Approval'
+  | 'Approved by Admin'
+  | 'Rejected by Admin'
   | 'Pending HoD Approval'
   | 'Approved by HoD'
   | 'Rejected by HoD'
-  | 'Approved by Admin'
-  | 'Rejected by Admin';
+  | 'Pending Accounts Approval'
+  | 'Approved by Accounts'
+  | 'Rejected by Accounts'
+  | 'Completed';
 
 export type ModuleType = 'attended' | 'organized' | 'certification';
 
@@ -38,6 +43,7 @@ export interface BaseSubmission {
   documentUrl?: string;
   hodComment?: string;
   adminComment?: string;
+  accountsComment?: string;
   createdAt: string;
   updatedAt: string;
   user?: User;

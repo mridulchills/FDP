@@ -93,6 +93,7 @@ export const UserManagement: React.FC = () => {
       case 'admin': return 'bg-red-100 text-red-800';
       case 'hod': return 'bg-blue-100 text-blue-800';
       case 'faculty': return 'bg-green-100 text-green-800';
+      case 'accounts': return 'bg-purple-100 text-purple-800';
       default: return 'bg-gray-100 text-gray-800';
     }
   };
@@ -166,12 +167,13 @@ export const UserManagement: React.FC = () => {
               <SelectTrigger>
                 <SelectValue placeholder="Filter by role" />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Roles</SelectItem>
-                <SelectItem value="faculty">Faculty</SelectItem>
-                <SelectItem value="hod">Head of Department</SelectItem>
-                <SelectItem value="admin">Administrator</SelectItem>
-              </SelectContent>
+                <SelectContent>
+                  <SelectItem value="all">All Roles</SelectItem>
+                  <SelectItem value="faculty">Faculty</SelectItem>
+                  <SelectItem value="hod">Head of Department</SelectItem>
+                  <SelectItem value="admin">Administrator</SelectItem>
+                  <SelectItem value="accounts">Accounts</SelectItem>
+                </SelectContent>
             </Select>
 
             <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
