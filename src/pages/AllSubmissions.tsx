@@ -202,11 +202,15 @@ export const AllSubmissions: React.FC = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Statuses</SelectItem>
+                <SelectItem value="Pending Faculty Development Cell Approval">Pending Faculty Development Cell Approval</SelectItem>
+                <SelectItem value="Approved by Faculty Development Cell">Approved by Faculty Development Cell</SelectItem>
+                <SelectItem value="Rejected by Faculty Development Cell">Rejected by Faculty Development Cell</SelectItem>
                 <SelectItem value="Pending HoD Approval">Pending HoD Approval</SelectItem>
                 <SelectItem value="Approved by HoD">Approved by HoD</SelectItem>
                 <SelectItem value="Rejected by HoD">Rejected by HoD</SelectItem>
-                <SelectItem value="Approved by Admin">Approved by Admin</SelectItem>
-                <SelectItem value="Rejected by Admin">Rejected by Admin</SelectItem>
+                <SelectItem value="Pending Accounts Approval">Pending Accounts Approval</SelectItem>
+                <SelectItem value="Approved by Accounts">Approved by Accounts</SelectItem>
+                <SelectItem value="Rejected by Accounts">Rejected by Accounts</SelectItem>
               </SelectContent>
             </Select>
 

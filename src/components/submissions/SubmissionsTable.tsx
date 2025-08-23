@@ -17,15 +17,23 @@ interface SubmissionsTableProps {
 
 const getStatusColor = (status: SubmissionStatus) => {
   switch (status) {
+    case 'Pending Faculty Development Cell Approval':
+      return 'bg-blue-100 text-blue-800 border-blue-200';
+    case 'Approved by Faculty Development Cell':
+      return 'bg-blue-100 text-blue-900 border-blue-200';
+    case 'Rejected by Faculty Development Cell':
+      return 'bg-red-100 text-red-800 border-red-200';
     case 'Pending HoD Approval':
       return 'bg-yellow-100 text-yellow-800 border-yellow-200';
     case 'Approved by HoD':
-      return 'bg-blue-100 text-blue-800 border-blue-200';
+      return 'bg-green-100 text-green-800 border-green-200';
     case 'Rejected by HoD':
       return 'bg-red-100 text-red-800 border-red-200';
-    case 'Approved by Admin':
-      return 'bg-green-100 text-green-800 border-green-200';
-    case 'Rejected by Admin':
+    case 'Pending Accounts Approval':
+      return 'bg-purple-100 text-purple-800 border-purple-200';
+    case 'Approved by Accounts':
+      return 'bg-green-100 text-green-900 border-green-200';
+    case 'Rejected by Accounts':
       return 'bg-red-100 text-red-800 border-red-200';
     default:
       return 'bg-gray-100 text-gray-800 border-gray-200';
@@ -139,7 +147,7 @@ export const SubmissionsTable: React.FC<SubmissionsTableProps> = ({
                       variant="ghost"
                       size="sm"
                       onClick={() => onEdit(submission)}
-                      disabled={submission.status !== 'Pending HoD Approval'}
+                      disabled={submission.status !== 'Pending Faculty Development Cell Approval'}
                       className="h-8 w-8 p-0"
                     >
                       <Edit className="w-4 h-4" />
@@ -148,7 +156,7 @@ export const SubmissionsTable: React.FC<SubmissionsTableProps> = ({
                       variant="ghost"
                       size="sm"
                       onClick={() => onDelete(submission.id, submission.status)}
-                      disabled={submission.status !== 'Pending HoD Approval' || isLoading}
+                      disabled={submission.status !== 'Pending Faculty Development Cell Approval' || isLoading}
                       className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
                     >
                       <Trash2 className="w-4 h-4" />

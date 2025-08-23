@@ -93,7 +93,18 @@ export const UserManagement: React.FC = () => {
       case 'admin': return 'bg-red-100 text-red-800';
       case 'hod': return 'bg-blue-100 text-blue-800';
       case 'faculty': return 'bg-green-100 text-green-800';
+      case 'accounts': return 'bg-purple-100 text-purple-800';
       default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getRoleDisplayName = (role: string) => {
+    switch (role) {
+      case 'admin': return 'Faculty Development Cell';
+      case 'hod': return 'Head of Department';
+      case 'faculty': return 'Faculty';
+      case 'accounts': return 'Accounts';
+      default: return role.toUpperCase();
     }
   };
 
@@ -117,7 +128,7 @@ export const UserManagement: React.FC = () => {
     setEditingUser(null);
   };
 
-  if (!user || user.role !== 'admin') {
+  if (!user || user.role !== 'hod') {
     return (
       <div className="text-center py-20">
         <h2 className="text-2xl font-bold text-gray-900 mb-4">Access Denied</h2>
@@ -170,7 +181,8 @@ export const UserManagement: React.FC = () => {
                 <SelectItem value="all">All Roles</SelectItem>
                 <SelectItem value="faculty">Faculty</SelectItem>
                 <SelectItem value="hod">Head of Department</SelectItem>
-                <SelectItem value="admin">Administrator</SelectItem>
+                <SelectItem value="admin">Faculty Development Cell</SelectItem>
+                <SelectItem value="accounts">Accounts</SelectItem>
               </SelectContent>
             </Select>
 
@@ -242,7 +254,7 @@ export const UserManagement: React.FC = () => {
                     <TableCell>{u.email}</TableCell>
                     <TableCell>
                       <Badge className={getRoleBadgeColor(u.role)}>
-                        {u.role.toUpperCase()}
+                        {getRoleDisplayName(u.role)}
                       </Badge>
                     </TableCell>
                     <TableCell>{u.department?.name || 'N/A'}</TableCell>

@@ -26,7 +26,7 @@ export const ApprovalsDashboard: React.FC = () => {
   const loadSubmissions = async () => {
     try {
       let result;
-      if (user?.role === 'hod' || user?.role === 'admin') {
+      if (user?.role === 'hod' || user?.role === 'admin' || user?.role === 'accounts') {
         result = await submissionService.getAllSubmissions();
       } else {
         return;
@@ -41,9 +41,13 @@ export const ApprovalsDashboard: React.FC = () => {
       
       if (user?.role === 'hod') {
         filteredSubmissions = filteredSubmissions.filter(s => 
-          s.status === 'Pending HoD Approval'
+          s.status === 'Approved by Faculty Development Cell'
         );
       } else if (user?.role === 'admin') {
+        filteredSubmissions = filteredSubmissions.filter(s => 
+          s.status === 'Pending Faculty Development Cell Approval'
+        );
+      } else if (user?.role === 'accounts') {
         filteredSubmissions = filteredSubmissions.filter(s => 
           s.status === 'Approved by HoD'
         );
@@ -73,8 +77,11 @@ export const ApprovalsDashboard: React.FC = () => {
         newStatus = approved ? 'Approved by HoD' : 'Rejected by HoD';
         commentField = 'hodComment';
       } else if (user?.role === 'admin') {
-        newStatus = approved ? 'Approved by Admin' : 'Rejected by Admin';
-        commentField = 'adminComment';
+        newStatus = approved ? 'Approved by Faculty Development Cell' : 'Rejected by Faculty Development Cell';
+        commentField = 'facultyDevelopmentCellComment';
+      } else if (user?.role === 'accounts') {
+        newStatus = approved ? 'Approved by Accounts' : 'Rejected by Accounts';
+        commentField = 'accountsComment';
       } else {
         throw new Error('Unauthorized');
       }
@@ -153,15 +160,24 @@ export const ApprovalsDashboard: React.FC = () => {
 
   const getStatusIcon = (status: string) => {
     switch (status) {
+      case 'Pending Faculty Development Cell Approval':
+        return <Clock className="w-4 h-4 text-blue-500" />;
+      case 'Approved by Faculty Development Cell':
+        return <CheckCircle className="w-4 h-4 text-blue-600" />;
+      case 'Rejected by Faculty Development Cell':
+        return <XCircle className="w-4 h-4 text-red-500" />;
       case 'Pending HoD Approval':
         return <Clock className="w-4 h-4 text-yellow-500" />;
       case 'Approved by HoD':
         return <CheckCircle className="w-4 h-4 text-green-500" />;
       case 'Rejected by HoD':
-      case 'Rejected by Admin':
         return <XCircle className="w-4 h-4 text-red-500" />;
-      case 'Approved by Admin':
+      case 'Pending Accounts Approval':
+        return <Clock className="w-4 h-4 text-purple-500" />;
+      case 'Approved by Accounts':
         return <CheckCircle className="w-4 h-4 text-green-600" />;
+      case 'Rejected by Accounts':
+        return <XCircle className="w-4 h-4 text-red-500" />;
       default:
         return <FileText className="w-4 h-4 text-gray-500" />;
     }
@@ -169,15 +185,24 @@ export const ApprovalsDashboard: React.FC = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
+      case 'Pending Faculty Development Cell Approval':
+        return 'bg-blue-100 text-blue-800';
+      case 'Approved by Faculty Development Cell':
+        return 'bg-blue-100 text-blue-900';
+      case 'Rejected by Faculty Development Cell':
+        return 'bg-red-100 text-red-800';
       case 'Pending HoD Approval':
         return 'bg-yellow-100 text-yellow-800';
       case 'Approved by HoD':
         return 'bg-green-100 text-green-800';
       case 'Rejected by HoD':
-      case 'Rejected by Admin':
         return 'bg-red-100 text-red-800';
-      case 'Approved by Admin':
+      case 'Pending Accounts Approval':
+        return 'bg-purple-100 text-purple-800';
+      case 'Approved by Accounts':
         return 'bg-green-100 text-green-900';
+      case 'Rejected by Accounts':
+        return 'bg-red-100 text-red-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
@@ -245,7 +270,9 @@ export const ApprovalsDashboard: React.FC = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">
-          {user?.role === 'hod' ? 'Pending HoD Approvals' : 'Pending Admin Approvals'}
+          {user?.role === 'hod' ? 'Pending HoD Approvals' : 
+           user?.role === 'admin' ? 'Pending Faculty Development Cell Approvals' :
+           user?.role === 'accounts' ? 'Pending Accounts Approvals' : 'Pending Approvals'}
         </h1>
         <Badge variant="secondary">
           {submissions.length} pending
@@ -336,7 +363,9 @@ export const ApprovalsDashboard: React.FC = () => {
                   <div className="space-y-3 pt-4 border-t">
                     <div>
                       <label className="text-sm font-medium">
-                        {user?.role === 'hod' ? 'HoD Comment' : 'Admin Comment'}:
+                        {user?.role === 'hod' ? 'HoD Comment' : 
+                         user?.role === 'admin' ? 'Faculty Development Cell Comment' :
+                         user?.role === 'accounts' ? 'Accounts Comment' : 'Comment'}:
                       </label>
                       <Textarea
                         placeholder={`Add your comment${user?.role === 'hod' ? ' (optional)' : ''}...`}

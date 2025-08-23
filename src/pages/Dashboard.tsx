@@ -51,6 +51,9 @@ export const Dashboard: React.FC = () => {
       } else if (user.role === 'admin') {
         const response = await submissionService.getAllSubmissions();
         return response.data || [];
+      } else if (user.role === 'accounts') {
+        const response = await submissionService.getAllSubmissions();
+        return response.data || [];
       }
       
       return [];
@@ -60,12 +63,18 @@ export const Dashboard: React.FC = () => {
 
   // Calculate statistics
   const totalSubmissions = submissions.length;
-  const approvedSubmissions = submissions.filter(s => s.status === 'Approved by Admin').length;
+  const approvedSubmissions = submissions.filter(s => s.status === 'Approved by Accounts').length;
   const pendingSubmissions = submissions.filter(s => 
-    s.status === 'Pending HoD Approval' || s.status === 'Approved by HoD'
+    s.status === 'Pending Faculty Development Cell Approval' ||
+    s.status === 'Approved by Faculty Development Cell' ||
+    s.status === 'Pending HoD Approval' || 
+    s.status === 'Approved by HoD' ||
+    s.status === 'Pending Accounts Approval'
   ).length;
   const rejectedSubmissions = submissions.filter(s => 
-    s.status === 'Rejected by HoD' || s.status === 'Rejected by Admin'
+    s.status === 'Rejected by Faculty Development Cell' ||
+    s.status === 'Rejected by HoD' || 
+    s.status === 'Rejected by Accounts'
   ).length;
 
   // Calculate current and previous month's statistics for trend calculation
@@ -95,8 +104,8 @@ export const Dashboard: React.FC = () => {
   );
 
   const approvedTrend = calculateTrend(
-    currentMonthSubmissions.filter(s => s.status === 'Approved by Admin').length,
-    previousMonthSubmissions.filter(s => s.status === 'Approved by Admin').length
+    currentMonthSubmissions.filter(s => s.status === 'Approved by Accounts').length,
+    previousMonthSubmissions.filter(s => s.status === 'Approved by Accounts').length
   );
 
   const pendingTrend = calculateTrend(

@@ -58,7 +58,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                   employeeId: userProfile.employee_id,
                   name: userProfile.name,
                   email: userProfile.email,
-                  role: userProfile.role as 'faculty' | 'hod' | 'admin',
+                  role: userProfile.role as 'faculty' | 'hod' | 'admin' | 'accounts',
                   department: userProfile.department?.name || 'Unknown',
                   designation: userProfile.designation,
                   institution: userProfile.institution,

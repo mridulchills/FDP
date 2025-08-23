@@ -6,8 +6,9 @@ export interface DatabaseSubmission {
   module_type: string;
   status: string;
   document_url: string | null;
+  faculty_development_cell_comment: string | null;
   hod_comment: string | null;
-  admin_comment: string | null;
+  accounts_comment: string | null;
   form_data: any;
   created_at: string;
   updated_at: string;

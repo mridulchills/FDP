@@ -34,7 +34,7 @@ export const submissionService = {
           module_type: data.moduleType,
           form_data: data.formData,
           document_url: null, // We'll update this after moving the file
-          status: 'Pending HoD Approval'
+          status: 'Pending Faculty Development Cell Approval'
         })
         .select(`
           *,
@@ -231,8 +231,9 @@ export const submissionService = {
       // Convert camelCase updates back to snake_case for database
       const dbUpdates: any = {};
       if (updates.status) dbUpdates.status = updates.status;
+      if (updates.facultyDevelopmentCellComment !== undefined) dbUpdates.faculty_development_cell_comment = updates.facultyDevelopmentCellComment;
       if (updates.hodComment !== undefined) dbUpdates.hod_comment = updates.hodComment;
-      if (updates.adminComment !== undefined) dbUpdates.admin_comment = updates.adminComment;
+      if (updates.accountsComment !== undefined) dbUpdates.accounts_comment = updates.accountsComment;
       if (updates.documentUrl !== undefined) dbUpdates.document_url = updates.documentUrl;
       if (updates.formData) dbUpdates.form_data = updates.formData;
 

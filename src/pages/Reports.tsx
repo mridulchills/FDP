@@ -49,8 +49,9 @@ export const Reports: React.FC = () => {
           formData: submission.form_data,
           documentUrl: submission.document_url,
           status: submission.status,
+          facultyDevelopmentCellComment: submission.faculty_development_cell_comment || submission.admin_comment,
           hodComment: submission.hod_comment,
-          adminComment: submission.admin_comment,
+          accountsComment: submission.accounts_comment,
           createdAt: submission.created_at,
           updatedAt: submission.updated_at,
           user: submission.user ? {
@@ -134,12 +135,18 @@ export const Reports: React.FC = () => {
 
   // Calculate statistics from real data
   const totalSubmissions = timeFilteredSubmissions.length;
-  const approvedSubmissions = timeFilteredSubmissions.filter(s => s.status === 'Approved by Admin').length;
+  const approvedSubmissions = timeFilteredSubmissions.filter(s => s.status === 'Approved by Accounts').length;
   const pendingSubmissions = timeFilteredSubmissions.filter(s => 
-    s.status === 'Pending HoD Approval' || s.status === 'Approved by HoD'
+    s.status === 'Pending Faculty Development Cell Approval' || 
+    s.status === 'Approved by Faculty Development Cell' ||
+    s.status === 'Pending HoD Approval' ||
+    s.status === 'Approved by HoD' ||
+    s.status === 'Pending Accounts Approval'
   ).length;
   const rejectedSubmissions = timeFilteredSubmissions.filter(s => 
-    s.status === 'Rejected by HoD' || s.status === 'Rejected by Admin'
+    s.status === 'Rejected by Faculty Development Cell' ||
+    s.status === 'Rejected by HoD' || 
+    s.status === 'Rejected by Accounts'
   ).length;
 
   // Active users count (unique users who have submitted)

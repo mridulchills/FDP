@@ -6,7 +6,7 @@ import { PageLoader } from '@/components/common/LoadingSpinner';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  allowedRoles?: ('faculty' | 'hod' | 'admin')[];
+  allowedRoles?: ('faculty' | 'hod' | 'admin' | 'accounts')[];
 }
 
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 

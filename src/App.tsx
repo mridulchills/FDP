@@ -73,11 +73,11 @@ const AppRoutes: React.FC = () => {
         }
       />
 
-      {/* HoD and Admin Routes */}
+      {/* HoD, Admin, and Accounts Routes */}
       <Route
         path="/approvals"
         element={
-          <ProtectedRoute allowedRoles={['hod', 'admin']}>
+          <ProtectedRoute allowedRoles={['hod', 'admin', 'accounts']}>
             <Layout>
               <ApprovalsDashboard />
             </Layout>
@@ -88,7 +88,7 @@ const AppRoutes: React.FC = () => {
       <Route
         path="/all-submissions"
         element={
-          <ProtectedRoute allowedRoles={['hod', 'admin']}>
+          <ProtectedRoute allowedRoles={['hod', 'admin', 'accounts']}>
             <Layout>
               <AllSubmissions />
             </Layout>
@@ -96,11 +96,11 @@ const AppRoutes: React.FC = () => {
         }
       />
 
-      {/* Admin Only Routes */}
+      {/* HoD Only Routes */}
       <Route
         path="/users"
         element={
-          <ProtectedRoute allowedRoles={['admin']}>
+          <ProtectedRoute allowedRoles={['hod']}>
             <Layout>
               <UserManagement />
             </Layout>

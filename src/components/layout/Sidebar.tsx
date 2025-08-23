@@ -20,7 +20,7 @@ interface SidebarItem {
   label: string;
   icon: React.ReactNode;
   path: string;
-  roles: ('faculty' | 'hod' | 'admin')[];
+  roles: ('faculty' | 'hod' | 'admin' | 'accounts')[];
 }
 
 const sidebarItems: SidebarItem[] = [
@@ -28,7 +28,7 @@ const sidebarItems: SidebarItem[] = [
     label: 'Dashboard',
     icon: <User size={20} />,
     path: '/dashboard',
-    roles: ['faculty', 'hod', 'admin']
+    roles: ['faculty', 'hod', 'admin', 'accounts']
   },
   {
     label: 'New Submission',
@@ -46,19 +46,19 @@ const sidebarItems: SidebarItem[] = [
     label: 'Pending Approvals',
     icon: <Clock size={20} />,
     path: '/approvals',
-    roles: ['hod', 'admin']
+    roles: ['hod', 'admin', 'accounts']
   },
   {
     label: 'All Submissions',
     icon: <CheckCircle size={20} />,
     path: '/all-submissions',
-    roles: ['hod', 'admin']
+    roles: ['hod', 'admin', 'accounts']
   },
   {
     label: 'User Management',
     icon: <Users size={20} />,
     path: '/users',
-    roles: ['admin']
+    roles: ['hod']
   },
   {
     label: 'Reports',

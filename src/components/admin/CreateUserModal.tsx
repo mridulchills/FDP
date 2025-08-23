@@ -189,7 +189,8 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({ isOpen, onClos
                 <SelectContent>
                   <SelectItem value="faculty">Faculty</SelectItem>
                   <SelectItem value="hod">Head of Department</SelectItem>
-                  <SelectItem value="admin">Administrator</SelectItem>
+                  <SelectItem value="admin">Faculty Development Cell</SelectItem>
+                  <SelectItem value="accounts">Accounts</SelectItem>
                 </SelectContent>
               </Select>
             </div>
