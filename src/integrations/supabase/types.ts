@@ -262,6 +262,7 @@ export type Database = {
       }
       submissions: {
         Row: {
+          accounts_comment: string | null
           admin_comment: string | null
           created_at: string
           document_url: string | null
@@ -274,6 +275,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          accounts_comment?: string | null
           admin_comment?: string | null
           created_at?: string
           document_url?: string | null
@@ -286,6 +288,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          accounts_comment?: string | null
           admin_comment?: string | null
           created_at?: string
           document_url?: string | null
