@@ -43,7 +43,7 @@ app.set('trust proxy', 1);
 // Security middleware
 app.use(securityHeaders);
 app.use(cors({
-  origin: config.CORS_ORIGIN,
+  origin: config.CORS_ORIGIN.split(',').map(origin => origin.trim()),
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
