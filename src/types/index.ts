@@ -30,7 +30,8 @@ export type SubmissionStatus =
   | 'Rejected by HoD'
   | 'Pending Accounts Approval'
   | 'Approved by Accounts'
-  | 'Rejected by Accounts';
+  | 'Rejected by Accounts'
+  | 'Completed';
 
 export type ModuleType = 'attended' | 'organized' | 'certification';
 
@@ -42,6 +43,7 @@ export interface BaseSubmission {
   documentUrl?: string;
   facultyDevelopmentCellComment?: string;
   hodComment?: string;
+  adminComment?: string;
   accountsComment?: string;
   createdAt: string;
   updatedAt: string;

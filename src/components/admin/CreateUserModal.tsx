@@ -58,27 +58,34 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({ isOpen, onClos
           .eq('id', editUser.id);
         if (error) throw error;
       } else {
-        // Call backend API to create user securely
-        const response = await fetch('http://localhost:4000/api/create-user', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(userData),
+        // Create new user using Edge Function
+        const { data, error } = await supabase.functions.invoke('create-user', {
+          body: {
+            name: userData.name,
+            email: userData.email,
+            employee_id: userData.employee_id,
+            role: userData.role,
+            department_id: userData.department_id,
+            designation: userData.designation,
+            institution: userData.institution,
+            password: userData.password,
+          },
         });
-        const result = await response.json();
-        if (!response.ok) throw new Error(result.error || 'Failed to create user');
+
+        if (error) throw error;
+        if (data.error) throw new Error(data.error);
+
         setShowPassword(userData.password);
       }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['all-users'] });
       toast({
-        title: editUser ? 'User Updated' : 'User Created',
+        title: editUser ? 'User Updated' : 'User Created Successfully',
         description: editUser
           ? 'User has been updated successfully.'
-          : showPassword
-            ? `User has been created successfully. Password: ${showPassword}`
-            : 'User has been created successfully.',
-        duration: 8000,
+          : 'User has been created and login credentials have been sent via email.',
+        duration: 5000,
       });
       setShowPassword(null);
       onClose();

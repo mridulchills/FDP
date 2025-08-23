@@ -177,13 +177,13 @@ export const UserManagement: React.FC = () => {
               <SelectTrigger>
                 <SelectValue placeholder="Filter by role" />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Roles</SelectItem>
-                <SelectItem value="faculty">Faculty</SelectItem>
-                <SelectItem value="hod">Head of Department</SelectItem>
-                <SelectItem value="admin">Faculty Development Cell</SelectItem>
-                <SelectItem value="accounts">Accounts</SelectItem>
-              </SelectContent>
+                <SelectContent>
+                  <SelectItem value="all">All Roles</SelectItem>
+                  <SelectItem value="faculty">Faculty</SelectItem>
+                  <SelectItem value="hod">Head of Department</SelectItem>
+                  <SelectItem value="admin">Administrator</SelectItem>
+                  <SelectItem value="accounts">Accounts</SelectItem>
+                </SelectContent>
             </Select>
 
             <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
