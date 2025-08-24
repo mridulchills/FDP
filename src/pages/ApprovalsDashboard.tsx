@@ -245,7 +245,7 @@ export const ApprovalsDashboard: React.FC = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">
-          {user?.role === 'hod' ? 'Pending HoD Approvals' : 'Pending Admin Approvals'}
+          {user?.role === 'hod' ? 'Pending HoD Approvals' : 'Pending FDC Approvals'}
         </h1>
         <Badge variant="secondary">
           {submissions.length} pending
@@ -336,7 +336,7 @@ export const ApprovalsDashboard: React.FC = () => {
                   <div className="space-y-3 pt-4 border-t">
                     <div>
                       <label className="text-sm font-medium">
-                        {user?.role === 'hod' ? 'HoD Comment' : 'Admin Comment'}:
+                        {user?.role === 'hod' ? 'HoD Comment' : 'FDC Comment'}:
                       </label>
                       <Textarea
                         placeholder={`Add your comment${user?.role === 'hod' ? ' (optional)' : ''}...`}

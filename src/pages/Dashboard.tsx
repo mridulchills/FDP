@@ -167,7 +167,7 @@ export const Dashboard: React.FC = () => {
       case 'hod':
         return `HoD Dashboard - ${user.department}`;
       case 'admin':
-        return 'Admin Dashboard';
+        return 'Faculty Development Cell Dashboard';
       default:
         return 'Dashboard';
     }

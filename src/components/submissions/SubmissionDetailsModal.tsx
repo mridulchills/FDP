@@ -353,7 +353,7 @@ export const SubmissionDetailsModal: React.FC<SubmissionDetailsModalProps> = ({
                 )}
                 {submission.adminComment && (
                   <div className="bg-green-50 p-4 rounded-lg">
-                    <label className="text-sm font-medium text-green-800">Admin Comment</label>
+                    <label className="text-sm font-medium text-green-800">FDC Comment</label>
                     <p className="mt-1 text-green-700">{submission.adminComment}</p>
                   </div>
                 )}

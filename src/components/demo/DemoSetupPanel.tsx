@@ -158,7 +158,7 @@ export const DemoSetupPanel: React.FC = () => {
                   </div>
 
                   <div>
-                    <h5 className="font-medium text-red-600 mb-2">Admin Account</h5>
+                    <h5 className="font-medium text-red-600 mb-2">Faculty Development Cell</h5>
                     {credentials.admin.map((cred, index) => (
                       <div key={index} className="bg-gray-50 p-3 rounded border">
                         <div className="flex items-center justify-between">
@@ -178,6 +178,30 @@ export const DemoSetupPanel: React.FC = () => {
                       </div>
                     ))}
                   </div>
+
+                  {credentials.accounts && (
+                    <div>
+                      <h5 className="font-medium text-orange-600 mb-2">Accounts Department</h5>
+                      {credentials.accounts.map((cred, index) => (
+                        <div key={index} className="bg-gray-50 p-3 rounded border">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <div className="font-medium">{cred.name}</div>
+                              <div className="text-sm text-gray-600">Email: {cred.email}</div>
+                              <div className="text-sm text-gray-600">Password: {cred.password}</div>
+                            </div>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => copyToClipboard(`${cred.email}\n${cred.password}`)}
+                            >
+                              <Copy className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 <div className="bg-blue-50 p-4 rounded border border-blue-200">
@@ -185,8 +209,9 @@ export const DemoSetupPanel: React.FC = () => {
                   <ol className="text-sm text-blue-700 space-y-1">
                     <li>1. Login as Faculty (FAC001) to create new submissions</li>
                     <li>2. Login as HoD (HOD001) to approve/reject faculty submissions</li>
-                    <li>3. Login as Admin (ADM001) for final approvals</li>
-                    <li>4. Check existing sample submissions in the system</li>
+                    <li>3. Login as Faculty Development Cell (ADM001) for admin approval</li>
+                    <li>4. Login as HoD (HOD001) for HoD approval</li>
+                    <li>5. Login as Accounts (ACC001) for final approval</li>
                   </ol>
                 </div>
               </div>

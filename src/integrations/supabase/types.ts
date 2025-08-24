@@ -266,6 +266,7 @@ export type Database = {
           admin_comment: string | null
           created_at: string
           document_url: string | null
+          faculty_development_cell_comment: string | null
           form_data: Json
           hod_comment: string | null
           id: string
@@ -279,6 +280,7 @@ export type Database = {
           admin_comment?: string | null
           created_at?: string
           document_url?: string | null
+          faculty_development_cell_comment?: string | null
           form_data: Json
           hod_comment?: string | null
           id?: string
@@ -292,6 +294,7 @@ export type Database = {
           admin_comment?: string | null
           created_at?: string
           document_url?: string | null
+          faculty_development_cell_comment?: string | null
           form_data?: Json
           hod_comment?: string | null
           id?: string
@@ -404,7 +407,19 @@ export type Database = {
       }
     }
     Enums: {
-      [_ in never]: never
+      module_type: "attended" | "organized" | "certification"
+      submission_status:
+        | "Pending Admin Approval"
+        | "Approved by Admin"
+        | "Rejected by Admin"
+        | "Pending HoD Approval"
+        | "Approved by HoD"
+        | "Rejected by HoD"
+        | "Pending Accounts Approval"
+        | "Approved by Accounts"
+        | "Rejected by Accounts"
+        | "Completed"
+      user_role: "faculty" | "hod" | "admin" | "accounts"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -531,6 +546,21 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      module_type: ["attended", "organized", "certification"],
+      submission_status: [
+        "Pending Admin Approval",
+        "Approved by Admin",
+        "Rejected by Admin",
+        "Pending HoD Approval",
+        "Approved by HoD",
+        "Rejected by HoD",
+        "Pending Accounts Approval",
+        "Approved by Accounts",
+        "Rejected by Accounts",
+        "Completed",
+      ],
+      user_role: ["faculty", "hod", "admin", "accounts"],
+    },
   },
 } as const

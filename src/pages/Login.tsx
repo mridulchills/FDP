@@ -132,7 +132,7 @@ export const Login: React.FC = () => {
                       onClick={() => fillDemoCredentials('ADM001@nmit.ac.in', 'demo123')}
                       className="text-red-600"
                     >
-                      Admin Demo (Dr. Michael Brown)
+                      Faculty Development Cell Demo (Dr. Michael Brown)
                     </Button>
                   </div>
                 </div>

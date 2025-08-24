@@ -22,11 +22,15 @@ serve(async (req) => {
 
     console.log('Creating user with email:', email)
 
-    // 1. Create Auth user
+    // 1. Create Auth user with email confirmation bypassed
     const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
       email,
       password,
-      email_confirm: true,
+      email_confirm: true, // This bypasses email confirmation
+      user_metadata: {
+        employee_id: employee_id,
+        name: name
+      }
     })
 
     if (authError) {
