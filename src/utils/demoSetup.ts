@@ -50,6 +50,14 @@ export const DEMO_USERS: DemoUser[] = [
     name: 'Dr. Robert Wilson',
     role: 'hod',
     designation: 'Professor & Head'
+  },
+  {
+    employeeId: 'ACC001',
+    email: 'ACC001@nmit.ac.in',
+    password: 'demo123',
+    name: 'Dr. Jennifer Wilson',
+    role: 'accounts',
+    designation: 'Accounts Officer'
   }
 ];
 
@@ -107,7 +115,10 @@ export const getDemoCredentialsInfo = () => {
       { email: 'HOD002@nmit.ac.in', password: 'demo123', name: 'Dr. Robert Wilson (ECE HoD)' }
     ],
     admin: [
-      { email: 'ADM001@nmit.ac.in', password: 'demo123', name: 'Dr. Michael Brown (Admin)' }
+      { email: 'ADM001@nmit.ac.in', password: 'demo123', name: 'Dr. Michael Brown (Faculty Development Cell)' }
+    ],
+    accounts: [
+      { email: 'ACC001@nmit.ac.in', password: 'demo123', name: 'Dr. Jennifer Wilson (Accounts)' }
     ]
   };
 };
