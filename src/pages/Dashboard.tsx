@@ -48,7 +48,7 @@ export const Dashboard: React.FC = () => {
 
 
         return response.data || [];
-      } else if (user.role === 'admin') {
+      } else if (user.role === 'admin' || user.role === 'accounts') {
         const response = await submissionService.getAllSubmissions();
         return response.data || [];
       }
@@ -60,12 +60,14 @@ export const Dashboard: React.FC = () => {
 
   // Calculate statistics
   const totalSubmissions = submissions.length;
-  const approvedSubmissions = submissions.filter(s => s.status === 'Approved by Admin').length;
+  const approvedSubmissions = submissions.filter(s => 
+    s.status === 'Approved by FDC' || s.status === 'Approved by HoD' || s.status === 'Approved by Accounts'
+  ).length;
   const pendingSubmissions = submissions.filter(s => 
-    s.status === 'Pending HoD Approval' || s.status === 'Approved by HoD'
+    s.status === 'Pending FDC Approval' || s.status === 'Pending HoD Approval' || s.status === 'Pending Accounts Approval'
   ).length;
   const rejectedSubmissions = submissions.filter(s => 
-    s.status === 'Rejected by HoD' || s.status === 'Rejected by Admin'
+    s.status === 'Rejected by FDC' || s.status === 'Rejected by HoD' || s.status === 'Rejected by Accounts'
   ).length;
 
   // Calculate current and previous month's statistics for trend calculation
@@ -95,25 +97,29 @@ export const Dashboard: React.FC = () => {
   );
 
   const approvedTrend = calculateTrend(
-    currentMonthSubmissions.filter(s => s.status === 'Approved by Admin').length,
-    previousMonthSubmissions.filter(s => s.status === 'Approved by Admin').length
+    currentMonthSubmissions.filter(s => 
+      s.status === 'Approved by FDC' || s.status === 'Approved by HoD' || s.status === 'Approved by Accounts'
+    ).length,
+    previousMonthSubmissions.filter(s => 
+      s.status === 'Approved by FDC' || s.status === 'Approved by HoD' || s.status === 'Approved by Accounts'
+    ).length
   );
 
   const pendingTrend = calculateTrend(
     currentMonthSubmissions.filter(s => 
-      s.status === 'Pending HoD Approval' || s.status === 'Approved by HoD'
+      s.status === 'Pending FDC Approval' || s.status === 'Pending HoD Approval' || s.status === 'Pending Accounts Approval'
     ).length,
     previousMonthSubmissions.filter(s => 
-      s.status === 'Pending HoD Approval' || s.status === 'Approved by HoD'
+      s.status === 'Pending FDC Approval' || s.status === 'Pending HoD Approval' || s.status === 'Pending Accounts Approval'
     ).length
   );
 
   const rejectedTrend = calculateTrend(
     currentMonthSubmissions.filter(s => 
-      s.status === 'Rejected by HoD' || s.status === 'Rejected by Admin'
+      s.status === 'Rejected by FDC' || s.status === 'Rejected by HoD' || s.status === 'Rejected by Accounts'
     ).length,
     previousMonthSubmissions.filter(s => 
-      s.status === 'Rejected by HoD' || s.status === 'Rejected by Admin'
+      s.status === 'Rejected by FDC' || s.status === 'Rejected by HoD' || s.status === 'Rejected by Accounts'
     ).length
   );
 
@@ -168,6 +174,8 @@ export const Dashboard: React.FC = () => {
         return `HoD Dashboard - ${user.department}`;
       case 'admin':
         return 'Faculty Development Cell Dashboard';
+      case 'accounts':
+        return 'Accounts Dashboard';
       default:
         return 'Dashboard';
     }
@@ -181,6 +189,8 @@ export const Dashboard: React.FC = () => {
         return 'Monitor and manage all faculty submissions across departments';
       case 'admin':
         return 'Comprehensive overview of all institutional submissions';
+      case 'accounts':
+        return 'Review and approve final submissions for financial processing';
       default:
         return 'Welcome to your dashboard';
     }
@@ -210,7 +220,7 @@ export const Dashboard: React.FC = () => {
               New Submission
             </Button>
           )}
-          {(['hod', 'admin'].includes(user.role)) && (
+          {(['hod', 'admin', 'accounts'].includes(user.role)) && (
             <Button 
               variant="outline" 
               onClick={() => navigate('/reports')} 
@@ -233,6 +243,8 @@ export const Dashboard: React.FC = () => {
                   ? "Track your professional development journey and submit new activities."
                   : user.role === 'hod'
                   ? "Manage and review all faculty submissions across departments."
+                  : user.role === 'accounts'
+                  ? "Review and approve final submissions for financial processing."
                   : "Monitor and manage institutional professional development activities."}
               </p>
             </div>
@@ -372,7 +384,7 @@ export const Dashboard: React.FC = () => {
                         </div>
                       </div>
                       <Badge variant={
-                        submission.status === 'Approved by Admin' ? 'default' :
+                        submission.status.includes('Approved') ? 'default' :
                         submission.status.includes('Pending') ? 'secondary' : 'destructive'
                       }>
                         {submission.status}

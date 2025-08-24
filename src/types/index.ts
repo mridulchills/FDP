@@ -22,9 +22,9 @@ export interface Department {
 }
 
 export type SubmissionStatus = 
-  | 'Pending Admin Approval'
-  | 'Approved by Admin'
-  | 'Rejected by Admin'
+  | 'Pending FDC Approval'
+  | 'Approved by FDC'
+  | 'Rejected by FDC'
   | 'Pending HoD Approval'
   | 'Approved by HoD'
   | 'Rejected by HoD'

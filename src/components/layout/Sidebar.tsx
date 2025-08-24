@@ -28,7 +28,7 @@ const sidebarItems: SidebarItem[] = [
     label: 'Dashboard',
     icon: <User size={20} />,
     path: '/dashboard',
-    roles: ['faculty', 'hod', 'admin']
+    roles: ['faculty', 'hod', 'admin', 'accounts']
   },
   {
     label: 'New Submission',
