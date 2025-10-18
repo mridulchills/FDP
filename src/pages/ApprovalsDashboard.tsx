@@ -39,11 +39,18 @@ export const ApprovalsDashboard: React.FC = () => {
       // Filter submissions based on role and status
       let filteredSubmissions = result.data || [];
       
-      if (user?.role === 'hod') {
+      if (user?.role === 'admin') {
+        // FDC sees submissions pending FDC approval
         filteredSubmissions = filteredSubmissions.filter(s => 
-          s.status === 'Pending HoD Approval'
+          s.status === 'Pending FDC Approval'
         );
-      } else if (user?.role === 'admin') {
+      } else if (user?.role === 'hod') {
+        // HoD sees submissions approved by FDC
+        filteredSubmissions = filteredSubmissions.filter(s => 
+          s.status === 'Approved by FDC'
+        );
+      } else if (user?.role === 'accounts') {
+        // Accounts sees submissions approved by HoD
         filteredSubmissions = filteredSubmissions.filter(s => 
           s.status === 'Approved by HoD'
         );
@@ -69,12 +76,15 @@ export const ApprovalsDashboard: React.FC = () => {
       let newStatus;
       let commentField;
       
-      if (user?.role === 'hod') {
+      if (user?.role === 'admin') {
+        newStatus = approved ? 'Approved by FDC' : 'Rejected by FDC';
+        commentField = 'faculty_development_cell_comment';
+      } else if (user?.role === 'hod') {
         newStatus = approved ? 'Approved by HoD' : 'Rejected by HoD';
         commentField = 'hodComment';
-      } else if (user?.role === 'admin') {
-        newStatus = approved ? 'Approved by Admin' : 'Rejected by Admin';
-        commentField = 'adminComment';
+      } else if (user?.role === 'accounts') {
+        newStatus = approved ? 'Approved by Accounts' : 'Rejected by Accounts';
+        commentField = 'accountsComment';
       } else {
         throw new Error('Unauthorized');
       }
@@ -245,7 +255,9 @@ export const ApprovalsDashboard: React.FC = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">
-          {user?.role === 'hod' ? 'Pending HoD Approvals' : 'Pending FDC Approvals'}
+          {user?.role === 'admin' ? 'Pending FDC Approvals' : 
+           user?.role === 'hod' ? 'Pending HoD Approvals' : 
+           'Pending Accounts Approvals'}
         </h1>
         <Badge variant="secondary">
           {submissions.length} pending
@@ -336,10 +348,12 @@ export const ApprovalsDashboard: React.FC = () => {
                   <div className="space-y-3 pt-4 border-t">
                     <div>
                       <label className="text-sm font-medium">
-                        {user?.role === 'hod' ? 'HoD Comment' : 'FDC Comment'}:
+                        {user?.role === 'admin' ? 'FDC Comment' : 
+                         user?.role === 'hod' ? 'HoD Comment' : 
+                         'Accounts Comment'}:
                       </label>
                       <Textarea
-                        placeholder={`Add your comment${user?.role === 'hod' ? ' (optional)' : ''}...`}
+                        placeholder="Add your comment (optional)..."
                         value={comments[submission.id] || ''}
                         onChange={(e) => setComments(prev => ({
                           ...prev,
