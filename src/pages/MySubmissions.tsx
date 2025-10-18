@@ -66,10 +66,10 @@ export const MySubmissions: React.FC = () => {
   };
 
   const handleDelete = (id: string, status: SubmissionStatus) => {
-    if (status !== 'Pending HoD Approval') {
+    if (status !== 'Pending FDC Approval') {
       toast({
         title: "Cannot Delete",
-        description: "Only pending submissions can be deleted.",
+        description: "Only pending FDC approval submissions can be deleted.",
         variant: "destructive",
       });
       return;
@@ -150,11 +150,15 @@ export const MySubmissions: React.FC = () => {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Status</SelectItem>
+            <SelectItem value="Pending FDC Approval">Pending FDC Approval</SelectItem>
+            <SelectItem value="Approved by FDC">Approved by FDC</SelectItem>
+            <SelectItem value="Rejected by FDC">Rejected by FDC</SelectItem>
             <SelectItem value="Pending HoD Approval">Pending HoD Approval</SelectItem>
             <SelectItem value="Approved by HoD">Approved by HoD</SelectItem>
             <SelectItem value="Rejected by HoD">Rejected by HoD</SelectItem>
-            <SelectItem value="Approved by Admin">Approved by Admin</SelectItem>
-            <SelectItem value="Rejected by Admin">Rejected by Admin</SelectItem>
+            <SelectItem value="Pending Accounts Approval">Pending Accounts Approval</SelectItem>
+            <SelectItem value="Approved by Accounts">Approved by Accounts</SelectItem>
+            <SelectItem value="Rejected by Accounts">Rejected by Accounts</SelectItem>
           </SelectContent>
         </Select>
       </div>

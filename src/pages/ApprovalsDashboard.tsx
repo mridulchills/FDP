@@ -26,7 +26,7 @@ export const ApprovalsDashboard: React.FC = () => {
   const loadSubmissions = async () => {
     try {
       let result;
-      if (user?.role === 'hod' || user?.role === 'admin') {
+      if (user?.role === 'hod' || user?.role === 'admin' || user?.role === 'accounts') {
         result = await submissionService.getAllSubmissions();
       } else {
         return;
@@ -49,10 +49,10 @@ export const ApprovalsDashboard: React.FC = () => {
         filteredSubmissions = filteredSubmissions.filter(s => 
           s.status === 'Approved by FDC'
         );
-      } else if (user?.role === 'accounts') {
-        // Accounts sees submissions approved by HoD
+        } else if (user?.role === 'accounts') {
+        // Accounts sees submissions pending accounts approval
         filteredSubmissions = filteredSubmissions.filter(s => 
-          s.status === 'Approved by HoD'
+          s.status === 'Pending Accounts Approval'
         );
       }
 
@@ -78,7 +78,7 @@ export const ApprovalsDashboard: React.FC = () => {
       
       if (user?.role === 'admin') {
         newStatus = approved ? 'Approved by FDC' : 'Rejected by FDC';
-        commentField = 'faculty_development_cell_comment';
+        commentField = 'fdcComment';
       } else if (user?.role === 'hod') {
         newStatus = approved ? 'Approved by HoD' : 'Rejected by HoD';
         commentField = 'hodComment';
@@ -163,15 +163,18 @@ export const ApprovalsDashboard: React.FC = () => {
 
   const getStatusIcon = (status: string) => {
     switch (status) {
+      case 'Pending FDC Approval':
       case 'Pending HoD Approval':
+      case 'Pending Accounts Approval':
         return <Clock className="w-4 h-4 text-yellow-500" />;
+      case 'Approved by FDC':
       case 'Approved by HoD':
+      case 'Approved by Accounts':
         return <CheckCircle className="w-4 h-4 text-green-500" />;
+      case 'Rejected by FDC':
       case 'Rejected by HoD':
-      case 'Rejected by Admin':
+      case 'Rejected by Accounts':
         return <XCircle className="w-4 h-4 text-red-500" />;
-      case 'Approved by Admin':
-        return <CheckCircle className="w-4 h-4 text-green-600" />;
       default:
         return <FileText className="w-4 h-4 text-gray-500" />;
     }
@@ -179,15 +182,18 @@ export const ApprovalsDashboard: React.FC = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
+      case 'Pending FDC Approval':
       case 'Pending HoD Approval':
+      case 'Pending Accounts Approval':
         return 'bg-yellow-100 text-yellow-800';
+      case 'Approved by FDC':
       case 'Approved by HoD':
+      case 'Approved by Accounts':
         return 'bg-green-100 text-green-800';
+      case 'Rejected by FDC':
       case 'Rejected by HoD':
-      case 'Rejected by Admin':
+      case 'Rejected by Accounts':
         return 'bg-red-100 text-red-800';
-      case 'Approved by Admin':
-        return 'bg-green-100 text-green-900';
       default:
         return 'bg-gray-100 text-gray-800';
     }

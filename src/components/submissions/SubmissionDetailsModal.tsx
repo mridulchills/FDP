@@ -27,15 +27,19 @@ export const SubmissionDetailsModal: React.FC<SubmissionDetailsModalProps> = ({
 
   const getStatusColor = (status: string) => {
     switch (status) {
+      case 'Pending FDC Approval':
       case 'Pending HoD Approval':
+      case 'Pending Accounts Approval':
         return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'Approved by HoD':
+      case 'Approved by FDC':
         return 'bg-blue-100 text-blue-800 border-blue-200';
-      case 'Rejected by HoD':
-        return 'bg-red-100 text-red-800 border-red-200';
-      case 'Approved by Admin':
+      case 'Approved by HoD':
+        return 'bg-purple-100 text-purple-800 border-purple-200';
+      case 'Approved by Accounts':
         return 'bg-green-100 text-green-800 border-green-200';
-      case 'Rejected by Admin':
+      case 'Rejected by FDC':
+      case 'Rejected by HoD':
+      case 'Rejected by Accounts':
         return 'bg-red-100 text-red-800 border-red-200';
       default:
         return 'bg-gray-100 text-gray-800 border-gray-200';
@@ -340,21 +344,27 @@ export const SubmissionDetailsModal: React.FC<SubmissionDetailsModalProps> = ({
           </div>
 
           {/* Comments */}
-          {(submission.hodComment || submission.adminComment) && (
+          {(submission.fdcComment || submission.hodComment || submission.accountsComment) && (
             <>
               <Separator />
               <div className="space-y-4">
                 <h3 className="text-lg font-medium">Comments</h3>
-                {submission.hodComment && (
+                {submission.fdcComment && (
                   <div className="bg-blue-50 p-4 rounded-lg">
-                    <label className="text-sm font-medium text-blue-800">HoD Comment</label>
-                    <p className="mt-1 text-blue-700">{submission.hodComment}</p>
+                    <label className="text-sm font-medium text-blue-800">FDC Comment</label>
+                    <p className="mt-1 text-blue-700">{submission.fdcComment}</p>
                   </div>
                 )}
-                {submission.adminComment && (
+                {submission.hodComment && (
+                  <div className="bg-purple-50 p-4 rounded-lg">
+                    <label className="text-sm font-medium text-purple-800">HoD Comment</label>
+                    <p className="mt-1 text-purple-700">{submission.hodComment}</p>
+                  </div>
+                )}
+                {submission.accountsComment && (
                   <div className="bg-green-50 p-4 rounded-lg">
-                    <label className="text-sm font-medium text-green-800">FDC Comment</label>
-                    <p className="mt-1 text-green-700">{submission.adminComment}</p>
+                    <label className="text-sm font-medium text-green-800">Accounts Comment</label>
+                    <p className="mt-1 text-green-700">{submission.accountsComment}</p>
                   </div>
                 )}
               </div>

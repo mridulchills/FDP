@@ -267,6 +267,7 @@ export type Database = {
           created_at: string
           document_url: string | null
           faculty_development_cell_comment: string | null
+          fdc_comment: string | null
           form_data: Json
           hod_comment: string | null
           id: string
@@ -281,6 +282,7 @@ export type Database = {
           created_at?: string
           document_url?: string | null
           faculty_development_cell_comment?: string | null
+          fdc_comment?: string | null
           form_data: Json
           hod_comment?: string | null
           id?: string
@@ -295,6 +297,7 @@ export type Database = {
           created_at?: string
           document_url?: string | null
           faculty_development_cell_comment?: string | null
+          fdc_comment?: string | null
           form_data?: Json
           hod_comment?: string | null
           id?: string

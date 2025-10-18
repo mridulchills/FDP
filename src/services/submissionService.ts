@@ -34,7 +34,7 @@ export const submissionService = {
           module_type: data.moduleType,
           form_data: data.formData,
           document_url: null, // We'll update this after moving the file
-          status: 'Pending HoD Approval'
+          status: 'Pending FDC Approval'
         })
         .select(`
           *,
@@ -232,7 +232,8 @@ export const submissionService = {
       const dbUpdates: any = {};
       if (updates.status) dbUpdates.status = updates.status;
       if (updates.hodComment !== undefined) dbUpdates.hod_comment = updates.hodComment;
-      if (updates.adminComment !== undefined) dbUpdates.admin_comment = updates.adminComment;
+      if (updates.fdcComment !== undefined) dbUpdates.fdc_comment = updates.fdcComment;
+      if (updates.accountsComment !== undefined) dbUpdates.accounts_comment = updates.accountsComment;
       if (updates.documentUrl !== undefined) dbUpdates.document_url = updates.documentUrl;
       if (updates.formData) dbUpdates.form_data = updates.formData;
 

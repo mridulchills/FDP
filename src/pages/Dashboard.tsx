@@ -60,12 +60,18 @@ export const Dashboard: React.FC = () => {
 
   // Calculate statistics
   const totalSubmissions = submissions.length;
-  const approvedSubmissions = submissions.filter(s => s.status === 'Approved by Admin').length;
+  const approvedSubmissions = submissions.filter(s => s.status === 'Approved by Accounts').length;
   const pendingSubmissions = submissions.filter(s => 
-    s.status === 'Pending HoD Approval' || s.status === 'Approved by HoD'
+    s.status === 'Pending FDC Approval' || 
+    s.status === 'Pending HoD Approval' || 
+    s.status === 'Pending Accounts Approval' ||
+    s.status === 'Approved by FDC' ||
+    s.status === 'Approved by HoD'
   ).length;
   const rejectedSubmissions = submissions.filter(s => 
-    s.status === 'Rejected by HoD' || s.status === 'Rejected by Admin'
+    s.status === 'Rejected by FDC' || 
+    s.status === 'Rejected by HoD' || 
+    s.status === 'Rejected by Accounts'
   ).length;
 
   // Calculate current and previous month's statistics for trend calculation
@@ -95,25 +101,37 @@ export const Dashboard: React.FC = () => {
   );
 
   const approvedTrend = calculateTrend(
-    currentMonthSubmissions.filter(s => s.status === 'Approved by Admin').length,
-    previousMonthSubmissions.filter(s => s.status === 'Approved by Admin').length
+    currentMonthSubmissions.filter(s => s.status === 'Approved by Accounts').length,
+    previousMonthSubmissions.filter(s => s.status === 'Approved by Accounts').length
   );
 
   const pendingTrend = calculateTrend(
     currentMonthSubmissions.filter(s => 
-      s.status === 'Pending HoD Approval' || s.status === 'Approved by HoD'
+      s.status === 'Pending FDC Approval' || 
+      s.status === 'Pending HoD Approval' || 
+      s.status === 'Pending Accounts Approval' ||
+      s.status === 'Approved by FDC' ||
+      s.status === 'Approved by HoD'
     ).length,
     previousMonthSubmissions.filter(s => 
-      s.status === 'Pending HoD Approval' || s.status === 'Approved by HoD'
+      s.status === 'Pending FDC Approval' || 
+      s.status === 'Pending HoD Approval' || 
+      s.status === 'Pending Accounts Approval' ||
+      s.status === 'Approved by FDC' ||
+      s.status === 'Approved by HoD'
     ).length
   );
 
   const rejectedTrend = calculateTrend(
     currentMonthSubmissions.filter(s => 
-      s.status === 'Rejected by HoD' || s.status === 'Rejected by Admin'
+      s.status === 'Rejected by FDC' || 
+      s.status === 'Rejected by HoD' || 
+      s.status === 'Rejected by Accounts'
     ).length,
     previousMonthSubmissions.filter(s => 
-      s.status === 'Rejected by HoD' || s.status === 'Rejected by Admin'
+      s.status === 'Rejected by FDC' || 
+      s.status === 'Rejected by HoD' || 
+      s.status === 'Rejected by Accounts'
     ).length
   );
 
@@ -372,8 +390,8 @@ export const Dashboard: React.FC = () => {
                         </div>
                       </div>
                       <Badge variant={
-                        submission.status === 'Approved by Admin' ? 'default' :
-                        submission.status.includes('Pending') ? 'secondary' : 'destructive'
+                        submission.status === 'Approved by Accounts' ? 'default' :
+                        submission.status.includes('Pending') || submission.status.includes('Approved by') ? 'secondary' : 'destructive'
                       }>
                         {submission.status}
                       </Badge>
