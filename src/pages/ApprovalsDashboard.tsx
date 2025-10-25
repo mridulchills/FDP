@@ -45,9 +45,9 @@ export const ApprovalsDashboard: React.FC = () => {
           s.status === 'Pending FDC Approval'
         );
       } else if (user?.role === 'hod') {
-        // HoD sees submissions approved by FDC
+        // HoD sees submissions pending HoD approval
         filteredSubmissions = filteredSubmissions.filter(s => 
-          s.status === 'Approved by FDC'
+          s.status === 'Pending HoD Approval'
         );
         } else if (user?.role === 'accounts') {
         // Accounts sees submissions pending accounts approval

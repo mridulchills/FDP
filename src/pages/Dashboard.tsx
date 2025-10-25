@@ -64,9 +64,7 @@ export const Dashboard: React.FC = () => {
   const pendingSubmissions = submissions.filter(s => 
     s.status === 'Pending FDC Approval' || 
     s.status === 'Pending HoD Approval' || 
-    s.status === 'Pending Accounts Approval' ||
-    s.status === 'Approved by FDC' ||
-    s.status === 'Approved by HoD'
+    s.status === 'Pending Accounts Approval'
   ).length;
   const rejectedSubmissions = submissions.filter(s => 
     s.status === 'Rejected by FDC' || 
@@ -109,16 +107,12 @@ export const Dashboard: React.FC = () => {
     currentMonthSubmissions.filter(s => 
       s.status === 'Pending FDC Approval' || 
       s.status === 'Pending HoD Approval' || 
-      s.status === 'Pending Accounts Approval' ||
-      s.status === 'Approved by FDC' ||
-      s.status === 'Approved by HoD'
+      s.status === 'Pending Accounts Approval'
     ).length,
     previousMonthSubmissions.filter(s => 
       s.status === 'Pending FDC Approval' || 
       s.status === 'Pending HoD Approval' || 
-      s.status === 'Pending Accounts Approval' ||
-      s.status === 'Approved by FDC' ||
-      s.status === 'Approved by HoD'
+      s.status === 'Pending Accounts Approval'
     ).length
   );
 
