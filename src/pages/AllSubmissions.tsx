@@ -70,6 +70,8 @@ export const AllSubmissions: React.FC = () => {
       return true; // Admin can see all submissions
     } else if (user?.role === 'hod') {
       return true; // HoD can see all submissions from all departments
+    } else if (user?.role === 'accounts') {
+      return true; // Accounts can see all submissions from all departments
     }
     return false; // Other roles shouldn't access this page
   });
@@ -146,7 +148,7 @@ export const AllSubmissions: React.FC = () => {
     });
   };
 
-  if (!user || !['hod', 'admin'].includes(user.role)) {
+  if (!user || !['hod', 'admin', 'accounts'].includes(user.role)) {
     return (
       <div className="text-center py-20">
         <h2 className="text-2xl font-bold text-gray-900 mb-4">Access Denied</h2>
@@ -165,6 +167,8 @@ export const AllSubmissions: React.FC = () => {
             <p className="text-muted-foreground">
               {user.role === 'admin' 
                 ? 'View and manage all faculty submissions' 
+                : user.role === 'accounts'
+                ? 'View all faculty submissions for accounts processing'
                 : 'View all faculty submissions across departments'
               }
             </p>
