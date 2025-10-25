@@ -206,7 +206,7 @@ export const submissionService = {
 
       // If user is HoD, filter by their department
       if (userData.role === 'hod') {
-        query = query.eq('users.department_id', userData.department_id);
+        query = query.eq('user.department_id', userData.department_id);
       }
 
       const { data, error } = await query;
