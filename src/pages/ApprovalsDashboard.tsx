@@ -49,10 +49,10 @@ export const ApprovalsDashboard: React.FC = () => {
         filteredSubmissions = filteredSubmissions.filter(s => 
           s.status === 'Pending HoD Approval'
         );
-        } else if (user?.role === 'accounts') {
-        // Accounts sees submissions pending accounts approval
+      } else if (user?.role === 'accounts') {
+        // Accounts sees submissions approved by HoD (pending accounts approval)
         filteredSubmissions = filteredSubmissions.filter(s => 
-          s.status === 'Pending Accounts Approval'
+          s.status === 'Approved by HoD'
         );
       }
 

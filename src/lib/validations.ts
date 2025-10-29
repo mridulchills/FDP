@@ -23,7 +23,7 @@ export const programAttendedSchema = baseSubmissionSchema.extend({
   contribution: z.string().min(10, 'Contribution must be at least 10 characters'),
   sponsored: z.boolean(),
   sponsorName: z.string().optional(),
-  documentUrl: z.string().optional(),
+  documentUrl: z.string().min(1, 'Please upload a supporting document'),
 }).refine((data) => {
   if (data.domain === 'Other' && !data.domainOther) {
     return false;
@@ -48,7 +48,7 @@ export const programOrganizedSchema = baseSubmissionSchema.extend({
   outcomeSummary: z.string().min(10, 'Outcome summary must be at least 10 characters'),
   participantFeedback: z.string().optional(),
   publicationLinks: z.string().optional(),
-  documentUrl: z.string().optional(),
+  documentUrl: z.string().min(1, 'Please upload a supporting document'),
 }).refine((data) => {
   if (data.budgetApproval && !data.budgetAmount) {
     return false;
@@ -73,7 +73,7 @@ export const certificationSchema = z.object({
   extractedName: z.string().optional(),
   extractedCourse: z.string().optional(),
   extractedDate: z.string().optional(),
-  documentUrl: z.string().optional(),
+  documentUrl: z.string().min(1, 'Please upload a certificate document'),
 }).refine((data) => {
   if (data.platform === 'Other' && !data.platformOther) {
     return false;
