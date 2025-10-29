@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -48,6 +48,9 @@ export const ProgramOrganizedForm: React.FC<ProgramOrganizedFormProps> = ({
   isSubmitting
 }) => {
   const { user } = useAuth();
+  const [uploadedFileUrl, setUploadedFileUrl] = useState<string>('');
+  const [uploadedFilePath, setUploadedFilePath] = useState<string>('');
+  
   const form = useForm<ProgramOrganizedFormData>({
     resolver: zodResolver(programOrganizedSchema),
     defaultValues: {
@@ -57,7 +60,11 @@ export const ProgramOrganizedForm: React.FC<ProgramOrganizedFormProps> = ({
   });
 
   const handleSubmit = (data: ProgramOrganizedFormData) => {
-    onSubmit(data);
+    const finalData = {
+      ...data,
+      documentUrl: uploadedFileUrl
+    };
+    onSubmit(finalData);
   };
 
   const toggleAudience = (audience: string) => {
@@ -446,10 +453,22 @@ export const ProgramOrganizedForm: React.FC<ProgramOrganizedFormProps> = ({
           </CardHeader>
           <CardContent>
             <FileUpload
-              onFileUpload={(url) => form.setValue('documentUrl', url)}
-              label="Upload Brochure/Flyer/Report (Optional)"
+              onFileUpload={(url, path) => {
+                setUploadedFileUrl(url);
+                setUploadedFilePath(path);
+                form.setValue('documentUrl', url);
+              }}
+              currentFileUrl={uploadedFileUrl}
+              currentFilePath={uploadedFilePath}
+              onFileRemoved={() => {
+                setUploadedFileUrl('');
+                setUploadedFilePath('');
+                form.setValue('documentUrl', '');
+              }}
+              label="Upload Brochure/Flyer/Report"
               description="Upload PDF, DOC, DOCX, JPG, or PNG files (max 10MB)"
               accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+              submissionId="temp"
             />
           </CardContent>
         </Card>

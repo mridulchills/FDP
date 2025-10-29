@@ -7,8 +7,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Clock, CheckCircle, XCircle, FileText } from 'lucide-react';
+import { Clock, CheckCircle, XCircle, FileText, Eye } from 'lucide-react';
 import type { Submission, ProgramAttendedData, ProgramOrganizedData, CertificationData } from '@/types';
+import { SubmissionDetailModal } from '@/components/submissions/SubmissionDetailModal';
 
 export const ApprovalsDashboard: React.FC = () => {
   const { user } = useAuth();
@@ -18,6 +19,8 @@ export const ApprovalsDashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState<string | null>(null);
   const [comments, setComments] = useState<{ [key: string]: string }>({});
+  const [selectedSubmission, setSelectedSubmission] = useState<Submission | null>(null);
+  const [detailModalOpen, setDetailModalOpen] = useState(false);
 
   useEffect(() => {
     loadSubmissions();
@@ -50,9 +53,9 @@ export const ApprovalsDashboard: React.FC = () => {
           s.status === 'Pending HoD Approval'
         );
       } else if (user?.role === 'accounts') {
-        // Accounts sees submissions approved by HoD (pending accounts approval)
+        // Accounts sees submissions pending accounts approval
         filteredSubmissions = filteredSubmissions.filter(s => 
-          s.status === 'Approved by HoD'
+          s.status === 'Pending Accounts Approval'
         );
       }
 
@@ -285,32 +288,38 @@ export const ApprovalsDashboard: React.FC = () => {
           {submissions.map((submission) => {
             const details = getSubmissionDetails(submission);
             return (
-              <Card key={submission.id} className="border border-gray-200">
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <CardTitle className="text-lg">
-                        {getSubmissionTitle(submission)}
-                      </CardTitle>
-                      <div className="flex items-center gap-2 mt-2">
-                        <Badge variant="outline" className="capitalize">
-                          {submission.moduleType.replace('_', ' ')}
-                        </Badge>
-                        <Badge className={getStatusColor(submission.status)}>
-                          <div className="flex items-center gap-1">
-                            {getStatusIcon(submission.status)}
-                            {submission.status}
-                          </div>
-                        </Badge>
+              <Card key={submission.id} className="border border-gray-200 cursor-pointer hover:shadow-lg transition-shadow">
+                <div onClick={() => {
+                  setSelectedSubmission(submission);
+                  setDetailModalOpen(true);
+                }}>
+                  <CardHeader>
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <CardTitle className="text-lg flex items-center gap-2">
+                          {getSubmissionTitle(submission)}
+                          <Eye className="w-4 h-4 text-gray-400" />
+                        </CardTitle>
+                        <div className="flex items-center gap-2 mt-2">
+                          <Badge variant="outline" className="capitalize">
+                            {submission.moduleType.replace('_', ' ')}
+                          </Badge>
+                          <Badge className={getStatusColor(submission.status)}>
+                            <div className="flex items-center gap-1">
+                              {getStatusIcon(submission.status)}
+                              {submission.status}
+                            </div>
+                          </Badge>
+                        </div>
+                      </div>
+                      <div className="text-right text-sm text-gray-500">
+                        <p className="font-medium">{submission.user?.name}</p>
+                        <p>{submission.user?.department}</p>
+                        <p>{new Date(submission.createdAt).toLocaleDateString()}</p>
                       </div>
                     </div>
-                    <div className="text-right text-sm text-gray-500">
-                      <p className="font-medium">{submission.user?.name}</p>
-                      <p>{submission.user?.department}</p>
-                      <p>{new Date(submission.createdAt).toLocaleDateString()}</p>
-                    </div>
-                  </div>
-                </CardHeader>
+                  </CardHeader>
+                </div>
                 
                 <CardContent className="space-y-4">
                   {details && (
@@ -396,6 +405,13 @@ export const ApprovalsDashboard: React.FC = () => {
           })}
         </div>
       )}
+
+      <SubmissionDetailModal
+        submission={selectedSubmission}
+        open={detailModalOpen}
+        onOpenChange={setDetailModalOpen}
+        onViewDocument={handleViewDocument}
+      />
     </div>
   );
 };

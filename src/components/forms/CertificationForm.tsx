@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -39,6 +38,9 @@ export const CertificationForm: React.FC<CertificationFormProps> = ({
   isSubmitting
 }) => {
   const { user } = useAuth();
+  const [uploadedFileUrl, setUploadedFileUrl] = useState<string>('');
+  const [uploadedFilePath, setUploadedFilePath] = useState<string>('');
+  
   const form = useForm<CertificationFormData>({
     resolver: zodResolver(certificationSchema),
     defaultValues: {
@@ -48,7 +50,11 @@ export const CertificationForm: React.FC<CertificationFormProps> = ({
   });
 
   const handleSubmit = (data: CertificationFormData) => {
-    onSubmit(data);
+    const finalData = {
+      ...data,
+      documentUrl: uploadedFileUrl
+    };
+    onSubmit(finalData);
   };
 
   const watchPlatform = form.watch('platform');
@@ -301,10 +307,22 @@ export const CertificationForm: React.FC<CertificationFormProps> = ({
           </CardHeader>
           <CardContent>
             <FileUpload
-              onFileUpload={(url) => form.setValue('documentUrl', url)}
-              label="Upload Certificate (Required for completed courses)"
+              onFileUpload={(url, path) => {
+                setUploadedFileUrl(url);
+                setUploadedFilePath(path);
+                form.setValue('documentUrl', url);
+              }}
+              currentFileUrl={uploadedFileUrl}
+              currentFilePath={uploadedFilePath}
+              onFileRemoved={() => {
+                setUploadedFileUrl('');
+                setUploadedFilePath('');
+                form.setValue('documentUrl', '');
+              }}
+              label="Upload Certificate"
               description="Upload PDF, DOC, DOCX, JPG, or PNG files (max 10MB)"
               accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+              submissionId="temp"
             />
           </CardContent>
         </Card>
