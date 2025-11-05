@@ -350,9 +350,13 @@ export const ApprovalsDashboard: React.FC = () => {
                   {submission.documentUrl && (
                     <div>
                       <Button
+                        type="button"
                         variant="outline"
                         size="sm"
-                        onClick={() => handleViewDocument(submission)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleViewDocument(submission);
+                        }}
                       >
                         <FileText className="w-4 h-4 mr-2" />
                         View Document

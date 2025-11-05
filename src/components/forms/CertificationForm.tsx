@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { FileUpload } from './FileUpload';
+import { MultiFileUpload } from './MultiFileUpload';
 import { useAuth } from '@/contexts/AuthContext';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 
@@ -40,6 +41,7 @@ export const CertificationForm: React.FC<CertificationFormProps> = ({
   const { user } = useAuth();
   const [uploadedFileUrl, setUploadedFileUrl] = useState<string>('');
   const [uploadedFilePath, setUploadedFilePath] = useState<string>('');
+  const [uploadedFiles, setUploadedFiles] = useState<Array<{url: string; path: string; name: string}>>([]);
   
   const form = useForm<CertificationFormData>({
     resolver: zodResolver(certificationSchema),
@@ -52,7 +54,8 @@ export const CertificationForm: React.FC<CertificationFormProps> = ({
   const handleSubmit = (data: CertificationFormData) => {
     const finalData = {
       ...data,
-      documentUrl: uploadedFileUrl
+      documentUrl: uploadedFileUrl || (uploadedFiles.length > 0 ? uploadedFiles[0].url : ''),
+      documentUrls: uploadedFiles
     };
     onSubmit(finalData);
   };
@@ -305,25 +308,38 @@ export const CertificationForm: React.FC<CertificationFormProps> = ({
           <CardHeader>
             <CardTitle>Certificate Upload</CardTitle>
           </CardHeader>
-          <CardContent>
-            <FileUpload
-              onFileUpload={(url, path) => {
-                setUploadedFileUrl(url);
-                setUploadedFilePath(path);
-                form.setValue('documentUrl', url);
-              }}
-              currentFileUrl={uploadedFileUrl}
-              currentFilePath={uploadedFilePath}
-              onFileRemoved={() => {
-                setUploadedFileUrl('');
-                setUploadedFilePath('');
-                form.setValue('documentUrl', '');
-              }}
-              label="Upload Certificate"
-              description="Upload PDF, DOC, DOCX, JPG, or PNG files (max 10MB)"
-              accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-              submissionId="temp"
-            />
+          <CardContent className="space-y-4">
+            <div>
+              <FileUpload
+                onFileUpload={(url, path) => {
+                  setUploadedFileUrl(url);
+                  setUploadedFilePath(path);
+                  form.setValue('documentUrl', url);
+                }}
+                currentFileUrl={uploadedFileUrl}
+                currentFilePath={uploadedFilePath}
+                onFileRemoved={() => {
+                  setUploadedFileUrl('');
+                  setUploadedFilePath('');
+                  form.setValue('documentUrl', '');
+                }}
+                label="Primary Certificate"
+                description="Upload your main certificate (max 10MB)"
+                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                submissionId="temp"
+              />
+            </div>
+            <div>
+              <MultiFileUpload
+                onFilesChange={setUploadedFiles}
+                currentFiles={uploadedFiles}
+                label="Additional Certificates (Optional)"
+                description="Upload up to 5 additional certificates or documents (max 10MB each)"
+                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                submissionId="temp"
+                maxFiles={5}
+              />
+            </div>
           </CardContent>
         </Card>
 

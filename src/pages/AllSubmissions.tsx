@@ -7,11 +7,12 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { SubmissionsTable } from '@/components/submissions/SubmissionsTable';
 import { SubmissionDetailsModal } from '@/components/submissions/SubmissionDetailsModal';
+import { DeleteSubmissionsModal } from '@/components/admin/DeleteSubmissionsModal';
 import { submissionService } from '@/services/submissionService';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { Search, Filter, Download, FileText, Users } from 'lucide-react';
+import { Search, Filter, Download, FileText, Users, Trash2 } from 'lucide-react';
 import type { Submission } from '@/types';
 import { SubmissionStatus } from '@/types';
 
@@ -42,6 +43,7 @@ export const AllSubmissions: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [moduleFilter, setModuleFilter] = useState<string>('all');
   const [departmentFilter, setDepartmentFilter] = useState<string>('all');
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
   const { data: submissions = [], isLoading, refetch } = useQuery({
     queryKey: ['all-submissions'],
@@ -174,10 +176,22 @@ export const AllSubmissions: React.FC = () => {
             </p>
           </div>
         </div>
-        <Button onClick={handleExportData} className="flex items-center gap-2">
-          <Download size={16} />
-          Export Data
-        </Button>
+        <div className="flex gap-2">
+          {user.role === 'admin' && (
+            <Button
+              variant="destructive"
+              onClick={() => setDeleteModalOpen(true)}
+              className="flex items-center gap-2"
+            >
+              <Trash2 size={16} />
+              Delete Old
+            </Button>
+          )}
+          <Button onClick={handleExportData} className="flex items-center gap-2">
+            <Download size={16} />
+            Export Data
+          </Button>
+        </div>
       </div>
 
       {/* Filters */}
@@ -299,6 +313,19 @@ export const AllSubmissions: React.FC = () => {
           onClose={() => setSelectedSubmission(null)}
         />
       )}
+
+      {/* Delete Submissions Modal */}
+      <DeleteSubmissionsModal
+        open={deleteModalOpen}
+        onOpenChange={setDeleteModalOpen}
+        onDeleted={() => {
+          refetch();
+          toast({
+            title: "Submissions Deleted",
+            description: "Old submissions have been removed successfully.",
+          });
+        }}
+      />
     </div>
   );
 };
