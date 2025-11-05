@@ -10,7 +10,6 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { programAttendedSchema, type ProgramAttendedFormData } from '@/lib/validations';
 import { FileUpload } from '@/components/forms/FileUpload';
-import { MultiFileUpload } from '@/components/forms/MultiFileUpload';
 import { ArrowLeft, ArrowRight, FileText } from 'lucide-react';
 
 interface ProgramAttendedFormProps {
@@ -29,11 +28,6 @@ export const ProgramAttendedForm: React.FC<ProgramAttendedFormProps> = ({
   const [currentStep, setCurrentStep] = useState(1);
   const [uploadedFileUrl, setUploadedFileUrl] = useState<string>(initialData?.documentUrl || '');
   const [uploadedFilePath, setUploadedFilePath] = useState<string>('');
-  const [uploadedFiles, setUploadedFiles] = useState<Array<{url: string; path: string; name: string}>>(
-    (initialData?.documentUrls || []).filter((f): f is {url: string; path: string; name: string} => 
-      Boolean(f.url && f.path && f.name)
-    )
-  );
 
   const form = useForm<ProgramAttendedFormData>({
     resolver: zodResolver(programAttendedSchema),
@@ -61,8 +55,7 @@ export const ProgramAttendedForm: React.FC<ProgramAttendedFormProps> = ({
   const handleFormSubmit = async (data: ProgramAttendedFormData) => {
     const finalData = {
       ...data,
-      documentUrl: uploadedFileUrl || (uploadedFiles.length > 0 ? uploadedFiles[0].url : ''),
-      documentUrls: uploadedFiles
+      documentUrl: uploadedFileUrl
     };
     await onSubmit(finalData);
   };
@@ -403,7 +396,7 @@ export const ProgramAttendedForm: React.FC<ProgramAttendedFormProps> = ({
       </div>
 
       <div className="space-y-4">
-        <FormLabel>Supporting Documents (Primary)</FormLabel>
+        <FormLabel>Supporting Document</FormLabel>
         <FileUpload
           onFileUpload={(url, path) => {
             setUploadedFileUrl(url);
@@ -418,26 +411,10 @@ export const ProgramAttendedForm: React.FC<ProgramAttendedFormProps> = ({
             form.setValue('documentUrl', '');
           }}
           accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-          submissionId="temp"
+          submissionId="temp" // Use temp folder for new submissions
         />
         <p className="text-sm text-gray-500">
-          Upload primary certificate, brochure, or supporting document (Max 10MB)
-        </p>
-      </div>
-
-      <div className="space-y-4">
-        <FormLabel>Additional Supporting Documents (Optional)</FormLabel>
-        <MultiFileUpload
-          onFilesChange={(files) => {
-            setUploadedFiles(files);
-          }}
-          currentFiles={uploadedFiles}
-          accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-          submissionId="temp"
-          maxFiles={5}
-        />
-        <p className="text-sm text-gray-500">
-          Upload up to 5 additional supporting documents (Max 10MB each)
+          Upload certificate, brochure, or any supporting document (Max 10MB)
         </p>
       </div>
     </div>

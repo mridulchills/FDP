@@ -105,7 +105,6 @@ export const FileUpload: React.FC<FileUploadProps> = ({
             </div>
             <div className="flex space-x-2">
               <Button
-                type="button"
                 variant="outline"
                 size="sm"
                 onClick={handleViewFile}
@@ -113,7 +112,6 @@ export const FileUpload: React.FC<FileUploadProps> = ({
                 View
               </Button>
               <Button
-                type="button"
                 variant="outline"
                 size="sm"
                 onClick={handleRemoveFile}

@@ -10,7 +10,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { FileUpload } from './FileUpload';
-import { MultiFileUpload } from './MultiFileUpload';
 import { useAuth } from '@/contexts/AuthContext';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Badge } from '@/components/ui/badge';
@@ -51,7 +50,6 @@ export const ProgramOrganizedForm: React.FC<ProgramOrganizedFormProps> = ({
   const { user } = useAuth();
   const [uploadedFileUrl, setUploadedFileUrl] = useState<string>('');
   const [uploadedFilePath, setUploadedFilePath] = useState<string>('');
-  const [uploadedFiles, setUploadedFiles] = useState<Array<{url: string; path: string; name: string}>>([]);
   
   const form = useForm<ProgramOrganizedFormData>({
     resolver: zodResolver(programOrganizedSchema),
@@ -64,8 +62,7 @@ export const ProgramOrganizedForm: React.FC<ProgramOrganizedFormProps> = ({
   const handleSubmit = (data: ProgramOrganizedFormData) => {
     const finalData = {
       ...data,
-      documentUrl: uploadedFileUrl || (uploadedFiles.length > 0 ? uploadedFiles[0].url : ''),
-      documentUrls: uploadedFiles
+      documentUrl: uploadedFileUrl
     };
     onSubmit(finalData);
   };
@@ -454,38 +451,25 @@ export const ProgramOrganizedForm: React.FC<ProgramOrganizedFormProps> = ({
           <CardHeader>
             <CardTitle>Supporting Documents</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <FileUpload
-                onFileUpload={(url, path) => {
-                  setUploadedFileUrl(url);
-                  setUploadedFilePath(path);
-                  form.setValue('documentUrl', url);
-                }}
-                currentFileUrl={uploadedFileUrl}
-                currentFilePath={uploadedFilePath}
-                onFileRemoved={() => {
-                  setUploadedFileUrl('');
-                  setUploadedFilePath('');
-                  form.setValue('documentUrl', '');
-                }}
-                label="Primary Document"
-                description="Upload primary brochure, flyer, or report (max 10MB)"
-                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                submissionId="temp"
-              />
-            </div>
-            <div>
-              <MultiFileUpload
-                onFilesChange={setUploadedFiles}
-                currentFiles={uploadedFiles}
-                label="Additional Supporting Documents (Optional)"
-                description="Upload up to 5 additional documents (max 10MB each)"
-                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                submissionId="temp"
-                maxFiles={5}
-              />
-            </div>
+          <CardContent>
+            <FileUpload
+              onFileUpload={(url, path) => {
+                setUploadedFileUrl(url);
+                setUploadedFilePath(path);
+                form.setValue('documentUrl', url);
+              }}
+              currentFileUrl={uploadedFileUrl}
+              currentFilePath={uploadedFilePath}
+              onFileRemoved={() => {
+                setUploadedFileUrl('');
+                setUploadedFilePath('');
+                form.setValue('documentUrl', '');
+              }}
+              label="Upload Brochure/Flyer/Report"
+              description="Upload PDF, DOC, DOCX, JPG, or PNG files (max 10MB)"
+              accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+              submissionId="temp"
+            />
           </CardContent>
         </Card>
 
