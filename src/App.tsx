@@ -16,6 +16,7 @@ import { AllSubmissions } from "@/pages/AllSubmissions";
 import { UserManagement } from "@/pages/UserManagement";
 import { Reports } from "@/pages/Reports";
 import { Settings } from "@/pages/Settings";
+import { UserProfile } from "@/pages/UserProfile";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient({
@@ -109,6 +110,17 @@ const AppRoutes: React.FC = () => {
       />
 
       {/* Common Routes */}
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <UserProfile />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+
       <Route
         path="/reports"
         element={

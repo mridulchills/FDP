@@ -3,8 +3,9 @@ import React from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Eye, Edit, Trash2, FileText } from 'lucide-react';
+import { Eye, Edit, Trash2, FileText, File as FileIcon } from 'lucide-react';
 import { format } from 'date-fns';
+import { useFileUpload } from '@/hooks/useFileUpload';
 import type { Submission, SubmissionStatus, ProgramAttendedData, ProgramOrganizedData, CertificationData } from '@/types';
 
 interface SubmissionsTableProps {
@@ -77,6 +78,18 @@ export const SubmissionsTable: React.FC<SubmissionsTableProps> = ({
   onDelete,
   isLoading = false
 }) => {
+  const { getSignedUrl } = useFileUpload();
+
+  const handleViewDocument = async (submission: Submission, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (submission.documentUrl) {
+      const signedUrl = await getSignedUrl(submission.documentUrl);
+      if (signedUrl) {
+        window.open(signedUrl, '_blank');
+      }
+    }
+  };
+
   if (submissions.length === 0) {
     return (
       <div className="text-center py-12">
@@ -136,15 +149,28 @@ export const SubmissionsTable: React.FC<SubmissionsTableProps> = ({
                       size="sm"
                       onClick={() => onView(submission)}
                       className="h-8 w-8 p-0"
+                      title="View Details"
                     >
                       <Eye className="w-4 h-4" />
                     </Button>
+                    {submission.documentUrl && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={(e) => handleViewDocument(submission, e)}
+                        className="h-8 w-8 p-0"
+                        title="View Document"
+                      >
+                        <FileIcon className="w-4 h-4" />
+                      </Button>
+                    )}
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => onEdit(submission)}
                       disabled={submission.status !== 'Pending FDC Approval'}
                       className="h-8 w-8 p-0"
+                      title="Edit"
                     >
                       <Edit className="w-4 h-4" />
                     </Button>
@@ -154,6 +180,7 @@ export const SubmissionsTable: React.FC<SubmissionsTableProps> = ({
                       onClick={() => onDelete(submission.id, submission.status)}
                       disabled={submission.status !== 'Pending FDC Approval' || isLoading}
                       className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                      title="Delete"
                     >
                       <Trash2 className="w-4 h-4" />
                     </Button>

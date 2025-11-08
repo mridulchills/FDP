@@ -10,6 +10,13 @@ export const baseSubmissionSchema = z.object({
   durationType: z.enum(['hours', 'days']),
 });
 
+// File data schema
+export const fileDataSchema = z.object({
+  url: z.string(),
+  path: z.string(),
+  name: z.string(),
+});
+
 // Programs Attended validation
 export const programAttendedSchema = baseSubmissionSchema.extend({
   type: z.enum(['FDP', 'Workshop', 'Conference', 'Seminar', 'Webinar', 'MOOC']),
@@ -24,6 +31,7 @@ export const programAttendedSchema = baseSubmissionSchema.extend({
   sponsored: z.boolean(),
   sponsorName: z.string().optional(),
   documentUrl: z.string().min(1, 'Please upload a supporting document'),
+  documentUrls: z.array(fileDataSchema).optional(),
 }).refine((data) => {
   if (data.domain === 'Other' && !data.domainOther) {
     return false;
@@ -49,6 +57,7 @@ export const programOrganizedSchema = baseSubmissionSchema.extend({
   participantFeedback: z.string().optional(),
   publicationLinks: z.string().optional(),
   documentUrl: z.string().min(1, 'Please upload a supporting document'),
+  documentUrls: z.array(fileDataSchema).optional(),
 }).refine((data) => {
   if (data.budgetApproval && !data.budgetAmount) {
     return false;
@@ -70,10 +79,12 @@ export const certificationSchema = z.object({
   mode: z.enum(['Online', 'Blended']),
   status: z.enum(['Completed', 'In Progress']),
   relevance: z.string().min(10, 'Relevance must be at least 10 characters'),
+  implementation: z.string().min(10, 'Implementation must be at least 10 characters'),
   extractedName: z.string().optional(),
   extractedCourse: z.string().optional(),
   extractedDate: z.string().optional(),
   documentUrl: z.string().min(1, 'Please upload a certificate document'),
+  documentUrls: z.array(fileDataSchema).optional(),
 }).refine((data) => {
   if (data.platform === 'Other' && !data.platformOther) {
     return false;

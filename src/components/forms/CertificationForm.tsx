@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { FileUpload } from './FileUpload';
+import { MultiFileUpload } from './MultiFileUpload';
 import { useAuth } from '@/contexts/AuthContext';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 
@@ -40,6 +41,7 @@ export const CertificationForm: React.FC<CertificationFormProps> = ({
   const { user } = useAuth();
   const [uploadedFileUrl, setUploadedFileUrl] = useState<string>('');
   const [uploadedFilePath, setUploadedFilePath] = useState<string>('');
+  const [additionalFiles, setAdditionalFiles] = useState<Array<{ url: string; path: string; name: string }>>([]);
   
   const form = useForm<CertificationFormData>({
     resolver: zodResolver(certificationSchema),
@@ -52,7 +54,8 @@ export const CertificationForm: React.FC<CertificationFormProps> = ({
   const handleSubmit = (data: CertificationFormData) => {
     const finalData = {
       ...data,
-      documentUrl: uploadedFileUrl
+      documentUrl: uploadedFileUrl,
+      documentUrls: additionalFiles
     };
     onSubmit(finalData);
   };
@@ -323,6 +326,23 @@ export const CertificationForm: React.FC<CertificationFormProps> = ({
               description="Upload PDF, DOC, DOCX, JPG, or PNG files (max 10MB)"
               accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
               submissionId="temp"
+            />
+          </CardContent>
+        </Card>
+
+        {/* Additional Documents */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Additional Documents</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <MultiFileUpload
+              onFilesChange={setAdditionalFiles}
+              currentFiles={additionalFiles}
+              label="Additional Documents (Optional)"
+              description="Upload additional supporting documents (Max 10MB each, up to 5 files)"
+              submissionId="temp"
+              maxFiles={5}
             />
           </CardContent>
         </Card>

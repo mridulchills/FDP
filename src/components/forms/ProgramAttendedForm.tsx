@@ -10,6 +10,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { programAttendedSchema, type ProgramAttendedFormData } from '@/lib/validations';
 import { FileUpload } from '@/components/forms/FileUpload';
+import { MultiFileUpload } from '@/components/forms/MultiFileUpload';
 import { ArrowLeft, ArrowRight, FileText } from 'lucide-react';
 
 interface ProgramAttendedFormProps {
@@ -28,6 +29,7 @@ export const ProgramAttendedForm: React.FC<ProgramAttendedFormProps> = ({
   const [currentStep, setCurrentStep] = useState(1);
   const [uploadedFileUrl, setUploadedFileUrl] = useState<string>(initialData?.documentUrl || '');
   const [uploadedFilePath, setUploadedFilePath] = useState<string>('');
+  const [additionalFiles, setAdditionalFiles] = useState<Array<{ url: string; path: string; name: string }>>([]);
 
   const form = useForm<ProgramAttendedFormData>({
     resolver: zodResolver(programAttendedSchema),
@@ -55,7 +57,8 @@ export const ProgramAttendedForm: React.FC<ProgramAttendedFormProps> = ({
   const handleFormSubmit = async (data: ProgramAttendedFormData) => {
     const finalData = {
       ...data,
-      documentUrl: uploadedFileUrl
+      documentUrl: uploadedFileUrl,
+      documentUrls: additionalFiles
     };
     await onSubmit(finalData);
   };
@@ -411,11 +414,22 @@ export const ProgramAttendedForm: React.FC<ProgramAttendedFormProps> = ({
             form.setValue('documentUrl', '');
           }}
           accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-          submissionId="temp" // Use temp folder for new submissions
+          submissionId="temp"
         />
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-muted-foreground">
           Upload certificate, brochure, or any supporting document (Max 10MB)
         </p>
+      </div>
+
+      <div className="space-y-4">
+        <MultiFileUpload
+          onFilesChange={setAdditionalFiles}
+          currentFiles={additionalFiles}
+          label="Additional Documents (Optional)"
+          description="Upload additional supporting documents (Max 10MB each, up to 5 files)"
+          submissionId="temp"
+          maxFiles={5}
+        />
       </div>
     </div>
   );
