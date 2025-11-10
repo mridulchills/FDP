@@ -134,12 +134,16 @@ export const Reports: React.FC = () => {
 
   // Calculate statistics from real data
   const totalSubmissions = timeFilteredSubmissions.length;
-  const approvedSubmissions = timeFilteredSubmissions.filter(s => s.status === 'Approved by Admin').length;
+  const approvedSubmissions = timeFilteredSubmissions.filter(s => s.status === 'Approved by Accounts').length;
   const pendingSubmissions = timeFilteredSubmissions.filter(s => 
-    s.status === 'Pending HoD Approval' || s.status === 'Approved by HoD'
+    s.status === 'Pending FDC Approval' || 
+    s.status === 'Pending HoD Approval' || 
+    s.status === 'Pending Accounts Approval'
   ).length;
   const rejectedSubmissions = timeFilteredSubmissions.filter(s => 
-    s.status === 'Rejected by HoD' || s.status === 'Rejected by Admin'
+    s.status === 'Rejected by FDC' || 
+    s.status === 'Rejected by HoD' || 
+    s.status === 'Rejected by Accounts'
   ).length;
 
   // Active users count (unique users who have submitted)
