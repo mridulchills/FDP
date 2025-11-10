@@ -12,7 +12,8 @@ import {
   Plus,
   Calendar,
   Users,
-  X
+  X,
+  Trash2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -70,6 +71,12 @@ const sidebarItems: SidebarItem[] = [
     label: 'Settings',
     icon: <Settings size={20} />,
     path: '/settings',
+    roles: ['admin']
+  },
+  {
+    label: 'Delete Records',
+    icon: <Trash2 size={20} />,
+    path: '/delete-records',
     roles: ['admin']
   }
 ];
