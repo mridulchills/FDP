@@ -51,6 +51,10 @@ export const Dashboard: React.FC = () => {
       } else if (user.role === 'admin') {
         const response = await submissionService.getAllSubmissions();
         return response.data || [];
+      } else if (user.role === 'accounts') {
+        // For Accounts, get all submissions from all departments
+        const response = await submissionService.getAllSubmissions();
+        return response.data || [];
       }
       
       return [];
@@ -180,6 +184,8 @@ export const Dashboard: React.FC = () => {
         return `HoD Dashboard - ${user.department}`;
       case 'admin':
         return 'Faculty Development Cell Dashboard';
+      case 'accounts':
+        return 'Accounts Dashboard';
       default:
         return 'Dashboard';
     }
@@ -193,6 +199,8 @@ export const Dashboard: React.FC = () => {
         return 'Monitor and manage all faculty submissions across departments';
       case 'admin':
         return 'Comprehensive overview of all institutional submissions';
+      case 'accounts':
+        return 'Review and approve final submissions from all departments';
       default:
         return 'Welcome to your dashboard';
     }
@@ -222,7 +230,7 @@ export const Dashboard: React.FC = () => {
               New Submission
             </Button>
           )}
-          {(['hod', 'admin'].includes(user.role)) && (
+          {(['hod', 'admin', 'accounts'].includes(user.role)) && (
             <Button 
               variant="outline" 
               onClick={() => navigate('/reports')} 
@@ -245,6 +253,8 @@ export const Dashboard: React.FC = () => {
                   ? "Track your professional development journey and submit new activities."
                   : user.role === 'hod'
                   ? "Manage and review all faculty submissions across departments."
+                  : user.role === 'accounts'
+                  ? "Review and approve final submissions from all departments."
                   : "Monitor and manage institutional professional development activities."}
               </p>
             </div>
