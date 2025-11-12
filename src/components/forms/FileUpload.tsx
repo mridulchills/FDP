@@ -95,20 +95,21 @@ export const FileUpload: React.FC<FileUploadProps> = ({
     return (
       <Card>
         <CardContent className="p-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <File className="w-8 h-8 text-blue-500" />
-              <div>
-                <p className="font-medium">{getFileName(currentFilePath || currentFileUrl)}</p>
-                <p className="text-sm text-gray-500">File uploaded successfully</p>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:justify-between">
+            <div className="flex items-center space-x-3 flex-1 min-w-0">
+              <File className="w-8 h-8 text-blue-500 flex-shrink-0" />
+              <div className="min-w-0">
+                <p className="font-medium text-sm truncate">{getFileName(currentFilePath || currentFileUrl)}</p>
+                <p className="text-xs text-gray-500">File uploaded successfully</p>
               </div>
             </div>
-            <div className="flex space-x-2">
+            <div className="flex space-x-2 w-full sm:w-auto">
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
                 onClick={handleViewFile}
+                className="flex-1 sm:flex-none"
               >
                 View
               </Button>
@@ -117,6 +118,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
                 variant="outline"
                 size="sm"
                 onClick={handleRemoveFile}
+                className="flex-shrink-0"
               >
                 <X className="w-4 h-4" />
               </Button>
