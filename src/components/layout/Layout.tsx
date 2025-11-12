@@ -18,7 +18,7 @@ const LayoutContent: React.FC<LayoutProps> = ({ children }) => {
       <div className="flex flex-1 relative">
         <Sidebar />
         <main className={`
-          flex-1 p-6 transition-all duration-300
+          flex-1 p-4 sm:p-6 transition-all duration-300
           ${!isMobile && isOpen ? 'lg:ml-0' : ''}
           ${isMobile ? 'w-full' : ''}
         `}>

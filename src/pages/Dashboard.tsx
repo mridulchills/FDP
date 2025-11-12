@@ -218,14 +218,14 @@ export const Dashboard: React.FC = () => {
   return (
     <div className="container mx-auto p-6 space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-start">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">{getDashboardTitle()}</h1>
-          <p className="text-muted-foreground mt-2">{getDashboardDescription()}</p>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">{getDashboardTitle()}</h1>
+          <p className="text-sm sm:text-base text-muted-foreground mt-2">{getDashboardDescription()}</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
           {user.role === 'faculty' && (
-            <Button onClick={() => navigate('/submissions/new')} className="flex items-center gap-2">
+            <Button onClick={() => navigate('/submissions/new')} className="flex items-center justify-center gap-2 w-full sm:w-auto">
               <Plus size={16} />
               New Submission
             </Button>
@@ -234,7 +234,7 @@ export const Dashboard: React.FC = () => {
             <Button 
               variant="outline" 
               onClick={() => navigate('/reports')} 
-              className="flex items-center gap-2"
+              className="flex items-center justify-center gap-2 w-full sm:w-auto"
             >
               <BarChart3 size={16} />
               View Reports
@@ -245,10 +245,10 @@ export const Dashboard: React.FC = () => {
 
       {/* Login Welcome Message */}
               <Card className="bg-blue-50 border-blue-200">
-          <CardContent className="pt-6 flex items-center justify-between">
+          <CardContent className="pt-6 flex flex-col sm:flex-row items-start sm:items-center sm:justify-between gap-4">
             <div>
-              <h3 className="text-xl font-semibold text-blue-900 mb-2">Welcome back, {user.name}!</h3>
-              <p className="text-blue-700">
+              <h3 className="text-lg sm:text-xl font-semibold text-blue-900 mb-2">Welcome back, {user.name}!</h3>
+              <p className="text-sm sm:text-base text-blue-700">
                 {user.role === 'faculty' 
                   ? "Track your professional development journey and submit new activities."
                   : user.role === 'hod'
@@ -258,7 +258,7 @@ export const Dashboard: React.FC = () => {
                   : "Monitor and manage institutional professional development activities."}
               </p>
             </div>
-            <Calendar className="h-12 w-12 text-blue-500" />
+            <Calendar className="h-10 w-10 sm:h-12 sm:w-12 text-blue-500 flex-shrink-0" />
           </CardContent>
         </Card>
 

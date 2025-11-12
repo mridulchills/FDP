@@ -156,14 +156,14 @@ export const DeleteRecords: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto p-6 max-w-4xl">
-      <div className="flex items-center gap-3 mb-6">
-        <div className="bg-destructive/10 text-destructive p-3 rounded-full">
+    <div className="container mx-auto p-4 sm:p-6 max-w-4xl">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-6">
+        <div className="bg-destructive/10 text-destructive p-3 rounded-full flex-shrink-0">
           <Trash2 size={24} />
         </div>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Delete Records</h1>
-          <p className="text-muted-foreground">Remove old submissions to clear database space</p>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Delete Records</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">Remove old submissions to clear database space</p>
         </div>
       </div>
 
@@ -208,11 +208,12 @@ export const DeleteRecords: React.FC = () => {
             </div>
           </div>
 
-          <div className="flex justify-end">
+          <div className="flex flex-col sm:flex-row sm:justify-end gap-3">
             <Button
               variant="destructive"
               onClick={handleCheckDeleteCount}
               disabled={!timeRange || isDeleting}
+              className="w-full sm:w-auto"
             >
               <Trash2 className="mr-2 h-4 w-4" />
               Check & Delete Records

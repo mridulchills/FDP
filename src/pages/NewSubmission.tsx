@@ -91,14 +91,14 @@ export const NewSubmission: React.FC = () => {
 
   const renderModuleSelection = () => (
     <div className="space-y-6">
-      <div className="text-center">
-        <h1 className="text-3xl font-bold tracking-tight">New Submission</h1>
-        <p className="text-muted-foreground mt-2">
+      <div className="text-center px-4">
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">New Submission</h1>
+        <p className="text-sm sm:text-base text-muted-foreground mt-2">
           Select the type of professional development activity you want to submit
         </p>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-3 max-w-6xl mx-auto">
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 max-w-6xl mx-auto px-4">
         {modules.map((module) => {
           const IconComponent = module.icon;
           return (
@@ -135,14 +135,14 @@ export const NewSubmission: React.FC = () => {
 
     return (
       <div className="space-y-6">
-        <div className="flex items-center space-x-4">
-          <Button variant="outline" onClick={handleBackToSelection}>
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+          <Button variant="outline" onClick={handleBackToSelection} className="w-full sm:w-auto">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Selection
           </Button>
           <div>
-            <h1 className="text-2xl font-bold">{selectedModuleData?.title}</h1>
-            <p className="text-muted-foreground">{selectedModuleData?.description}</p>
+            <h1 className="text-xl sm:text-2xl font-bold">{selectedModuleData?.title}</h1>
+            <p className="text-sm sm:text-base text-muted-foreground">{selectedModuleData?.description}</p>
           </div>
         </div>
 

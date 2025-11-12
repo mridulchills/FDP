@@ -121,14 +121,14 @@ export const UserProfile: React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto p-6 max-w-4xl space-y-6">
-      <div className="flex items-center gap-3">
-        <div className="bg-primary text-primary-foreground p-3 rounded-full">
+    <div className="container mx-auto p-4 sm:p-6 max-w-4xl space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+        <div className="bg-primary text-primary-foreground p-3 rounded-full flex-shrink-0">
           <UserIcon size={24} />
         </div>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">User Profile</h1>
-          <p className="text-muted-foreground">Manage your account settings</p>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">User Profile</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">Manage your account settings</p>
         </div>
       </div>
 
@@ -139,7 +139,7 @@ export const UserProfile: React.FC = () => {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleUpdateProfile} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="name">Full Name</Label>
                 <Input
@@ -202,8 +202,8 @@ export const UserProfile: React.FC = () => {
               </div>
             </div>
 
-            <div className="flex justify-end">
-              <Button type="submit" disabled={isUpdating}>
+            <div className="flex flex-col sm:flex-row sm:justify-end gap-3">
+              <Button type="submit" disabled={isUpdating} className="w-full sm:w-auto">
                 {isUpdating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Update Profile
               </Button>
@@ -219,7 +219,7 @@ export const UserProfile: React.FC = () => {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleChangePassword} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="newPassword">New Password</Label>
                 <Input
@@ -245,8 +245,8 @@ export const UserProfile: React.FC = () => {
               </div>
             </div>
 
-            <div className="flex justify-end">
-              <Button type="submit" disabled={isChangingPassword}>
+            <div className="flex flex-col sm:flex-row sm:justify-end gap-3">
+              <Button type="submit" disabled={isChangingPassword} className="w-full sm:w-auto">
                 {isChangingPassword && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Change Password
               </Button>

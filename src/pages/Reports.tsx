@@ -246,18 +246,18 @@ export const Reports: React.FC = () => {
       : departments.find(d => d.id === selectedDepartment)?.name || 'Selected Department';
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div className="flex justify-between items-center">
+    <div className="container mx-auto p-4 sm:p-6 space-y-6">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Reports & Analytics</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Reports & Analytics</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">
             {user.role === 'admin' 
               ? `Comprehensive reports and analytics - ${currentDepartmentName}` 
               : `Department reports and analytics - ${user.department}`
             }
           </p>
         </div>
-        <Button onClick={handleExport} className="flex items-center gap-2">
+        <Button onClick={handleExport} className="flex items-center justify-center gap-2 w-full sm:w-auto">
           <Download size={16} />
           Export Report
         </Button>
@@ -266,7 +266,7 @@ export const Reports: React.FC = () => {
       {/* Filters */}
       <Card>
         <CardContent className="pt-6">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <Select value={timeframe} onValueChange={setTimeframe}>
               <SelectTrigger>
                 <SelectValue placeholder="Select timeframe" />

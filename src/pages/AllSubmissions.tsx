@@ -159,12 +159,12 @@ export const AllSubmissions: React.FC = () => {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <div className="flex items-center gap-3">
-          <FileText size={32} className="text-primary" />
+          <FileText size={32} className="text-primary flex-shrink-0" />
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">All Submissions</h1>
-            <p className="text-muted-foreground">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">All Submissions</h1>
+            <p className="text-sm sm:text-base text-muted-foreground">
               {user.role === 'admin' 
                 ? 'View and manage all faculty submissions' 
                 : user.role === 'accounts'
@@ -174,9 +174,9 @@ export const AllSubmissions: React.FC = () => {
             </p>
           </div>
         </div>
-        <Button onClick={handleExportData} className="flex items-center gap-2">
+        <Button onClick={handleExportData} className="flex items-center gap-2 w-full sm:w-auto">
           <Download size={16} />
-          Export Data
+          <span className="sm:inline">Export Data</span>
         </Button>
       </div>
 
@@ -189,7 +189,7 @@ export const AllSubmissions: React.FC = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
             <div className="relative">
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input

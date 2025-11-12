@@ -262,8 +262,8 @@ export const ApprovalsDashboard: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
           {user?.role === 'admin' ? 'Pending FDC Approvals' : 
            user?.role === 'hod' ? 'Pending HoD Approvals' : 
            'Pending Accounts Approvals'}
@@ -294,28 +294,28 @@ export const ApprovalsDashboard: React.FC = () => {
                   setDetailModalOpen(true);
                 }}>
                   <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <CardTitle className="text-lg flex items-center gap-2">
+                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                      <div className="flex-1">
+                        <CardTitle className="text-base sm:text-lg flex items-center gap-2">
                           {getSubmissionTitle(submission)}
                           <Eye className="w-4 h-4 text-gray-400" />
                         </CardTitle>
-                        <div className="flex items-center gap-2 mt-2">
-                          <Badge variant="outline" className="capitalize">
+                        <div className="flex flex-wrap items-center gap-2 mt-2">
+                          <Badge variant="outline" className="capitalize text-xs">
                             {submission.moduleType.replace('_', ' ')}
                           </Badge>
-                          <Badge className={getStatusColor(submission.status)}>
+                          <Badge className={`${getStatusColor(submission.status)} text-xs`}>
                             <div className="flex items-center gap-1">
                               {getStatusIcon(submission.status)}
-                              {submission.status}
+                              <span className="hidden sm:inline">{submission.status}</span>
                             </div>
                           </Badge>
                         </div>
                       </div>
-                      <div className="text-right text-sm text-gray-500">
+                      <div className="text-left sm:text-right text-sm text-gray-500">
                         <p className="font-medium">{submission.user?.name}</p>
                         <p>{submission.user?.department}</p>
-                        <p>{new Date(submission.createdAt).toLocaleDateString()}</p>
+                        <p className="text-xs">{new Date(submission.createdAt).toLocaleDateString()}</p>
                       </div>
                     </div>
                   </CardHeader>
@@ -323,13 +323,13 @@ export const ApprovalsDashboard: React.FC = () => {
                 
                 <CardContent className="space-y-4">
                   {details && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                      <div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-xs sm:text-sm">
+                      <div className="space-y-1">
                         <p><strong>Type:</strong> {details.type}</p>
                         <p><strong>Mode:</strong> {details.mode}</p>
                         <p><strong>Duration:</strong> {details.duration}</p>
                       </div>
-                      <div>
+                      <div className="space-y-1">
                         <p><strong>Start Date:</strong> {details.startDate}</p>
                         <p><strong>End Date:</strong> {details.endDate}</p>
                         <p><strong>Institution:</strong> {details.institution}</p>
@@ -379,11 +379,11 @@ export const ApprovalsDashboard: React.FC = () => {
                       />
                     </div>
 
-                    <div className="flex gap-3">
+                    <div className="flex flex-col sm:flex-row gap-3">
                       <Button
                         onClick={() => handleApproval(submission.id, true)}
                         disabled={processingId === submission.id}
-                        className="bg-green-600 hover:bg-green-700"
+                        className="bg-green-600 hover:bg-green-700 w-full sm:w-auto"
                       >
                         <CheckCircle className="w-4 h-4 mr-2" />
                         {processingId === submission.id ? 'Processing...' : 'Approve'}
@@ -393,6 +393,7 @@ export const ApprovalsDashboard: React.FC = () => {
                         onClick={() => handleApproval(submission.id, false)}
                         disabled={processingId === submission.id}
                         variant="destructive"
+                        className="w-full sm:w-auto"
                       >
                         <XCircle className="w-4 h-4 mr-2" />
                         {processingId === submission.id ? 'Processing...' : 'Reject'}
