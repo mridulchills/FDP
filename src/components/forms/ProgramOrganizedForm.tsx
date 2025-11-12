@@ -495,8 +495,13 @@ export const ProgramOrganizedForm: React.FC<ProgramOrganizedFormProps> = ({
 
         {/* Submit Button */}
         <div className="flex justify-end">
-          <Button type="submit" disabled={isSubmitting} size="lg">
-            {isSubmitting ? 'Submitting...' : 'Submit Program Details'}
+          <Button type="submit" disabled={isSubmitting} size="lg" className="w-full sm:w-auto">
+            {isSubmitting ? 'Submitting...' : (
+              <>
+                <span className="hidden sm:inline">Submit Program Details</span>
+                <span className="sm:hidden">Submit</span>
+              </>
+            )}
           </Button>
         </div>
       </form>
