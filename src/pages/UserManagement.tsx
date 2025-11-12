@@ -129,17 +129,17 @@ export const UserManagement: React.FC = () => {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="flex items-center gap-3">
           <Users size={32} className="text-primary" />
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">User Management</h1>
-            <p className="text-muted-foreground">Manage faculty and staff accounts</p>
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">User Management</h1>
+            <p className="text-sm text-muted-foreground">Manage faculty and staff accounts</p>
           </div>
         </div>
-        <Button onClick={() => setIsCreateModalOpen(true)} className="flex items-center gap-2">
+        <Button onClick={() => setIsCreateModalOpen(true)} className="flex items-center gap-2 w-full sm:w-auto">
           <UserPlus size={16} />
-          Add New User
+          <span className="sm:inline">Add New User</span>
         </Button>
       </div>
 

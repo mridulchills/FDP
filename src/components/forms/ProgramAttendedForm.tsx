@@ -465,22 +465,22 @@ export const ProgramAttendedForm: React.FC<ProgramAttendedFormProps> = ({
             {currentStep === 2 && renderStep2()}
             {currentStep === 3 && renderStep3()}
 
-            <div className="flex justify-between pt-6">
+            <div className="flex flex-col sm:flex-row justify-between gap-3 pt-6">
               {currentStep > 1 && (
-                <Button type="button" variant="outline" onClick={prevStep}>
+                <Button type="button" variant="outline" onClick={prevStep} className="w-full sm:w-auto">
                   <ArrowLeft className="w-4 h-4 mr-2" />
                   Previous
                 </Button>
               )}
 
-              <div className="ml-auto">
+              <div className="w-full sm:w-auto sm:ml-auto">
                 {currentStep < 3 ? (
-                  <Button type="button" onClick={nextStep}>
+                  <Button type="button" onClick={nextStep} className="w-full sm:w-auto">
                     Next
                     <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>
                 ) : (
-                  <Button type="submit" disabled={isSubmitting}>
+                  <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto">
                     {isSubmitting ? (
                       <>
                         <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
@@ -489,7 +489,8 @@ export const ProgramAttendedForm: React.FC<ProgramAttendedFormProps> = ({
                     ) : (
                       <>
                         <FileText className="w-4 h-4 mr-2" />
-                        {submitButtonText}
+                        <span className="hidden sm:inline">{submitButtonText}</span>
+                        <span className="sm:hidden">Submit</span>
                       </>
                     )}
                   </Button>

@@ -349,8 +349,13 @@ export const CertificationForm: React.FC<CertificationFormProps> = ({
 
         {/* Submit Button */}
         <div className="flex justify-end">
-          <Button type="submit" disabled={isSubmitting} size="lg">
-            {isSubmitting ? 'Submitting...' : 'Submit Certification Details'}
+          <Button type="submit" disabled={isSubmitting} size="lg" className="w-full sm:w-auto">
+            {isSubmitting ? 'Submitting...' : (
+              <>
+                <span className="hidden sm:inline">Submit Certification Details</span>
+                <span className="sm:hidden">Submit</span>
+              </>
+            )}
           </Button>
         </div>
       </form>
