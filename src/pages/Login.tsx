@@ -52,7 +52,7 @@ export const Login: React.FC = () => {
     <div 
       className="min-h-screen flex items-center justify-center p-4 relative"
       style={{
-        backgroundImage: `linear-gradient(rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.92)), url(${nmitCampus})`,
+        backgroundImage: `linear-gradient(rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.75)), url(${nmitCampus})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat'
@@ -64,7 +64,7 @@ export const Login: React.FC = () => {
             <img 
               src={nmitLogoFull} 
               alt="NMIT Logo" 
-              className="h-16 sm:h-20 md:h-24 w-auto object-contain"
+              className="h-24 sm:h-28 md:h-32 w-auto object-contain"
             />
             <div>
               <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">Faculty Development Portal</h1>
