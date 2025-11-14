@@ -8,8 +8,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
-import { AlertCircle, GraduationCap } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 import { DemoSetupPanel } from '@/components/demo/DemoSetupPanel';
+import nmitLogoFull from '@/assets/nmit-logo-full.png';
+import nmitCampus from '@/assets/nmit-campus.jpeg';
 
 export const Login: React.FC = () => {
   const [employeeId, setEmployeeId] = useState('');
@@ -47,14 +49,28 @@ export const Login: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+    <div 
+      className="min-h-screen flex items-center justify-center p-4 relative"
+      style={{
+        backgroundImage: `linear-gradient(rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.92)), url(${nmitCampus})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      }}
+    >
       <div className="w-full max-w-4xl">
-        <div className="text-center mb-8">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <GraduationCap className="h-8 w-8 text-blue-600" />
-            <h1 className="text-3xl font-bold text-gray-900">Faculty Development Portal</h1>
+        <div className="text-center mb-6 sm:mb-8">
+          <div className="flex flex-col items-center justify-center gap-3 sm:gap-4 mb-4">
+            <img 
+              src={nmitLogoFull} 
+              alt="NMIT Logo" 
+              className="h-16 sm:h-20 md:h-24 w-auto object-contain"
+            />
+            <div>
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">Faculty Development Portal</h1>
+              <p className="text-sm sm:text-base text-gray-600 mt-1">Nitte Meenakshi Institute of Technology</p>
+            </div>
           </div>
-          <p className="text-gray-600">NMIT - Nitte Meenakshi Institute of Technology</p>
         </div>
 
         <Tabs defaultValue="login" className="space-y-6">

@@ -7,6 +7,7 @@ import { User, Menu, LogOut } from 'lucide-react';
 import { NotificationDropdown } from '@/components/notifications/NotificationDropdown';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useNavigate } from 'react-router-dom';
+import nmitLogoBlue from '@/assets/nmit-logo-blue.png';
 
 export const Header: React.FC = () => {
   const { user, logout } = useAuth();
@@ -28,11 +29,11 @@ export const Header: React.FC = () => {
             <Menu size={20} />
           </Button>
           
-          <div className="bg-gradient-to-r from-blue-600 to-blue-800 p-2 rounded-lg">
-            <div className="w-8 h-8 bg-white rounded flex items-center justify-center">
-              <span className="text-blue-600 font-bold text-sm">N</span>
-            </div>
-          </div>
+          <img 
+            src={nmitLogoBlue} 
+            alt="NMIT Logo" 
+            className="h-8 sm:h-10 w-auto object-contain"
+          />
           <div className="hidden sm:block">
             <h1 className="text-xl font-bold text-gray-900">
               Faculty Development Tracking System
