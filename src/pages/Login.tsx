@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 import { AlertCircle } from 'lucide-react';
 import { DemoSetupPanel } from '@/components/demo/DemoSetupPanel';
-import nmitLogoFull from '@/assets/nmit-logo-full.png';
+import nmitLogoHorizontal from '@/assets/nmit-logo-horizontal.png';
 import nmitCampus from '@/assets/nmit-campus.jpeg';
 
 export const Login: React.FC = () => {
@@ -62,9 +62,9 @@ export const Login: React.FC = () => {
         <div className="text-center mb-6 sm:mb-8">
           <div className="flex flex-col items-center justify-center gap-3 sm:gap-4 mb-4">
             <img 
-              src={nmitLogoFull} 
+              src={nmitLogoHorizontal} 
               alt="NMIT Logo" 
-              className="h-24 sm:h-28 md:h-32 w-auto object-contain"
+              className="h-20 sm:h-24 md:h-28 w-auto object-contain"
             />
             <div>
               <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">Faculty Development Portal</h1>
