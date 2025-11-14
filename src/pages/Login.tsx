@@ -6,10 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 import { AlertCircle } from 'lucide-react';
-import { DemoSetupPanel } from '@/components/demo/DemoSetupPanel';
 import nmitLogoHorizontal from '@/assets/nmit-logo-horizontal.png';
 import nmitCampus from '@/assets/nmit-campus.jpeg';
 
@@ -52,7 +50,7 @@ export const Login: React.FC = () => {
     <div 
       className="min-h-screen flex items-center justify-center p-4 relative"
       style={{
-        backgroundImage: `linear-gradient(rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.75)), url(${nmitCampus})`,
+        backgroundImage: `linear-gradient(rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0.65)), url(${nmitCampus})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat'
@@ -73,93 +71,80 @@ export const Login: React.FC = () => {
           </div>
         </div>
 
-        <Tabs defaultValue="login" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="login">Login</TabsTrigger>
-            <TabsTrigger value="demo">Demo Setup</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="login">
-            <Card>
-              <CardHeader>
-                <CardTitle>Sign In</CardTitle>
-                <CardDescription>
-                  Enter your employee credentials to access the portal
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="employeeId">Employee ID / Email</Label>
-                    <Input
-                      id="employeeId"
-                      type="text"
-                      value={employeeId}
-                      onChange={(e) => setEmployeeId(e.target.value)}
-                      placeholder="e.g., FAC001 or FAC001@nmit.ac.in"
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="password">Password</Label>
-                    <Input
-                      id="password"
-                      type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="Enter your password"
-                      required
-                    />
-                  </div>
-                  
-                  {error && (
-                    <div className="flex items-center gap-2 text-red-600 bg-red-50 p-3 rounded border border-red-200">
-                      <AlertCircle className="h-4 w-4" />
-                      <span className="text-sm">{error}</span>
-                    </div>
-                  )}
-
-                  <Button type="submit" className="w-full" disabled={isLoading}>
-                    {isLoading ? 'Signing In...' : 'Sign In'}
-                  </Button>
-                </form>
-
-                <Separator className="my-6" />
-
-                <div className="space-y-4">
-                  <h4 className="font-medium text-center">Quick Demo Login</h4>
-                  <div className="grid gap-2">
-                    <Button
-                      variant="outline"
-                      onClick={() => fillDemoCredentials('FAC001@nmit.ac.in', 'demo123')}
-                      className="text-blue-600"
-                    >
-                      Faculty Demo (Dr. John Smith)
-                    </Button>
-                    <Button
-                      variant="outline"
-                      onClick={() => fillDemoCredentials('HOD001@nmit.ac.in', 'demo123')}
-                      className="text-purple-600"
-                    >
-                      HoD Demo (Dr. Sarah Johnson)
-                    </Button>
-                    <Button
-                      variant="outline"
-                      onClick={() => fillDemoCredentials('ADM001@nmit.ac.in', 'demo123')}
-                      className="text-red-600"
-                    >
-                      Faculty Development Cell Demo (Dr. Michael Brown)
-                    </Button>
-                  </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>Sign In</CardTitle>
+            <CardDescription>
+              Enter your employee credentials to access the portal
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="employeeId">Employee ID / Email</Label>
+                <Input
+                  id="employeeId"
+                  type="text"
+                  value={employeeId}
+                  onChange={(e) => setEmployeeId(e.target.value)}
+                  placeholder="e.g., FAC001 or FAC001@nmit.ac.in"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter your password"
+                  required
+                />
+              </div>
+              
+              {error && (
+                <div className="flex items-center gap-2 text-red-600 bg-red-50 p-3 rounded border border-red-200">
+                  <AlertCircle className="h-4 w-4" />
+                  <span className="text-sm">{error}</span>
                 </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+              )}
 
-          <TabsContent value="demo">
-            <DemoSetupPanel />
-          </TabsContent>
-        </Tabs>
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading ? 'Signing In...' : 'Sign In'}
+              </Button>
+            </form>
+
+            <Separator className="my-6" />
+
+            <div className="space-y-4">
+              <h4 className="font-medium text-center">Quick Demo Login</h4>
+              <div className="grid gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => fillDemoCredentials('FAC001@nmit.ac.in', 'demo123')}
+                  className="text-blue-600"
+                >
+                  Faculty Demo (Dr. John Smith)
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => fillDemoCredentials('HOD001@nmit.ac.in', 'demo123')}
+                  className="text-purple-600"
+                >
+                  HoD Demo (Dr. Sarah Johnson)
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => fillDemoCredentials('ADM001@nmit.ac.in', 'demo123')}
+                  className="text-red-600"
+                >
+                  Faculty Development Cell Demo (Dr. Michael Brown)
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
