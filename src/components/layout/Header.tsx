@@ -7,7 +7,7 @@ import { User, Menu, LogOut } from 'lucide-react';
 import { NotificationDropdown } from '@/components/notifications/NotificationDropdown';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useNavigate } from 'react-router-dom';
-import nmitLogoBlue from '@/assets/nmit-logo-blue.png';
+import nmitLogoFull from '@/assets/nmit-logo-full.png';
 
 export const Header: React.FC = () => {
   const { user, logout } = useAuth();
@@ -30,9 +30,9 @@ export const Header: React.FC = () => {
           </Button>
           
           <img 
-            src={nmitLogoBlue} 
+            src={nmitLogoFull} 
             alt="NMIT Logo" 
-            className="h-8 sm:h-10 w-auto object-contain"
+            className="h-10 sm:h-12 w-auto object-contain"
           />
           <div className="hidden sm:block">
             <h1 className="text-xl font-bold text-gray-900">
