@@ -18,6 +18,7 @@ import { Reports } from "@/pages/Reports";
 import { Settings } from "@/pages/Settings";
 import { UserProfile } from "@/pages/UserProfile";
 import { DeleteRecords } from "@/pages/DeleteRecords";
+import { DepartmentManagement } from "@/pages/DepartmentManagement";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient({
@@ -105,6 +106,17 @@ const AppRoutes: React.FC = () => {
           <ProtectedRoute allowedRoles={['admin']}>
             <Layout>
               <UserManagement />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/departments"
+        element={
+          <ProtectedRoute allowedRoles={['admin']}>
+            <Layout>
+              <DepartmentManagement />
             </Layout>
           </ProtectedRoute>
         }
