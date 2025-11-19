@@ -62,6 +62,12 @@ const sidebarItems: SidebarItem[] = [
     roles: ['admin']
   },
   {
+    label: 'Department Management',
+    icon: <Users size={20} />,
+    path: '/departments',
+    roles: ['admin']
+  },
+  {
     label: 'Reports',
     icon: <Calendar size={20} />,
     path: '/reports',

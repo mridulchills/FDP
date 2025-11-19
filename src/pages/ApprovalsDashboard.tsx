@@ -347,18 +347,53 @@ export const ApprovalsDashboard: React.FC = () => {
                     </div>
                   )}
 
-                  {submission.documentUrl && (
+                  {/* Multiple document support */}
+                  {(submission.formData as any)?.documents && Array.isArray((submission.formData as any).documents) && (submission.formData as any).documents.length > 0 ? (
+                    <div className="space-y-2">
+                      <p className="text-sm font-medium">Attached Documents:</p>
+                      <div className="flex flex-wrap gap-2">
+                        {(submission.formData as any).documents.map((doc: any, index: number) => (
+                          <Button
+                            key={index}
+                            variant="outline"
+                            size="sm"
+                            onClick={async (e) => {
+                              e.stopPropagation();
+                              try {
+                                const signedUrl = await getSignedUrl(doc.path);
+                                if (signedUrl) {
+                                  window.open(signedUrl, '_blank');
+                                }
+                              } catch (error) {
+                                toast({
+                                  title: "Error",
+                                  description: "Failed to load document",
+                                  variant: "destructive",
+                                });
+                              }
+                            }}
+                          >
+                            <FileText className="w-4 h-4 mr-2" />
+                            Document {index + 1}
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+                  ) : submission.documentUrl ? (
                     <div>
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => handleViewDocument(submission)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleViewDocument(submission);
+                        }}
                       >
                         <FileText className="w-4 h-4 mr-2" />
                         View Document
                       </Button>
                     </div>
-                  )}
+                  ) : null}
 
                   <div className="space-y-3 pt-4 border-t">
                     <div>
