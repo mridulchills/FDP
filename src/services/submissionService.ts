@@ -20,11 +20,8 @@ export const submissionService = {
         .single();
 
       if (userError || !userData) {
-
         throw new Error('User not found');
       }
-
-
 
       // First create the submission to get the submission ID
       const { data: submission, error } = await supabase
@@ -43,7 +40,6 @@ export const submissionService = {
         .single();
 
       if (error) {
-
         return { data: null, error };
       }
 
@@ -65,20 +61,30 @@ export const submissionService = {
             if (!moveError) {
               finalDocumentUrl = newFilePath;
             } else {
-
+              // If move fails, keep the temp path
+              finalDocumentUrl = data.documentUrl;
             }
           }
         } catch (moveError) {
-
           // Continue with original path if move fails
+          finalDocumentUrl = data.documentUrl;
         }
       }
 
       // Update the submission with the final document URL
       if (finalDocumentUrl) {
+        // Also update the documentUrl in formData to match the new path
+        const updatedFormData = {
+          ...data.formData,
+          documentUrl: finalDocumentUrl
+        };
+        
         const { data: updatedSubmission, error: updateError } = await supabase
           .from('submissions')
-          .update({ document_url: finalDocumentUrl })
+          .update({ 
+            document_url: finalDocumentUrl,
+            form_data: updatedFormData
+          })
           .eq('id', submission.id)
           .select(`
             *,

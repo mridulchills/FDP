@@ -139,15 +139,22 @@ export const ApprovalsDashboard: React.FC = () => {
     }
 
     try {
+      console.log('Document URL:', submission.documentUrl);
       
+      // Check if it's already a full URL (starts with http)
+      if (submission.documentUrl.startsWith('http')) {
+        window.open(submission.documentUrl, '_blank');
+        return;
+      }
       
-      // Get signed URL for the document using the file path
+      // Otherwise, get signed URL for the document using the file path
       const signedUrl = await getSignedUrl(submission.documentUrl);
       
       if (signedUrl) {
-
+        console.log('Signed URL generated successfully');
         window.open(signedUrl, '_blank');
       } else {
+        console.error('Failed to generate signed URL');
         toast({
           title: "Access Denied",
           description: "Document not found or access denied. You may not have permission to view this file.",
@@ -349,16 +356,43 @@ export const ApprovalsDashboard: React.FC = () => {
 
                   {/* Main document */}
                   {(() => {
-                    const mainDocumentUrl = submission.documentUrl || (submission.formData as any)?.documentUrl;
+                    let mainDocumentUrl = submission.documentUrl || (submission.formData as any)?.documentUrl;
+                    
+                    // Fix for old submissions: if path contains /temp/, try to construct the correct path
+                    if (mainDocumentUrl && mainDocumentUrl.includes('/temp/')) {
+                      const fileName = mainDocumentUrl.split('/').pop();
+                      const userId = mainDocumentUrl.split('/')[0];
+                      // Try the submission folder path instead
+                      const correctedPath = `${userId}/${submission.id}/${fileName}`;
+                      mainDocumentUrl = correctedPath;
+                    }
+                    
                     return mainDocumentUrl ? (
                       <div className="space-y-2">
                         <p className="text-sm font-medium">Main Document:</p>
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={(e) => {
+                          onClick={async (e) => {
                             e.stopPropagation();
-                            handleViewDocument({ ...submission, documentUrl: mainDocumentUrl });
+                            try {
+                              const signedUrl = await getSignedUrl(mainDocumentUrl);
+                              if (signedUrl) {
+                                window.open(signedUrl, '_blank');
+                              } else {
+                                toast({
+                                  title: "Error",
+                                  description: "Failed to load main document",
+                                  variant: "destructive",
+                                });
+                              }
+                            } catch (error) {
+                              toast({
+                                title: "Error",
+                                description: "Failed to load main document",
+                                variant: "destructive",
+                              });
+                            }
                           }}
                         >
                           <FileText className="w-4 h-4 mr-2" />

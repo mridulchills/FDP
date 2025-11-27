@@ -73,12 +73,11 @@ export const NewSubmission: React.FC = () => {
 
       toast({
         title: "Submission Created",
-        description: "Your submission has been created successfully and sent for HoD approval.",
+        description: "Your submission has been created successfully and sent for FDC approval.",
       });
 
       navigate('/submissions');
     } catch (error: any) {
-
       toast({
         title: "Submission Failed",
         description: error.message || "Failed to create submission. Please try again.",

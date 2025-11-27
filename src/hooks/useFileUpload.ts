@@ -65,19 +65,16 @@ export const useFileUpload = () => {
       const fileExt = file.name.split('.').pop();
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
       
-      // CRITICAL: Use the correct path structure for RLS policies
+      // Use the correct path structure for RLS policies
       // Format: {auth_user_id}/{submission_id_or_temp}/{filename}
       const folder = submissionId || 'temp';
       const filePath = `${authUser.id}/${folder}/${fileName}`;
-
-
 
       const { error: uploadError } = await supabase.storage
         .from('submissions')
         .upload(filePath, file);
 
       if (uploadError) {
-
         throw uploadError;
       }
 
@@ -87,11 +84,10 @@ export const useFileUpload = () => {
       });
 
       return {
-        url: filePath, // Store the path for database
+        url: filePath,
         path: filePath
       };
     } catch (error: any) {
-
       toast({
         title: "Upload Failed",
         description: error.message || "Failed to upload file. Please try again.",
@@ -120,7 +116,6 @@ export const useFileUpload = () => {
 
       return true;
     } catch (error: any) {
-
       toast({
         title: "Delete Failed",
         description: error.message || "Failed to delete file. Please try again.",
@@ -132,24 +127,20 @@ export const useFileUpload = () => {
 
   const getSignedUrl = async (filePath: string): Promise<string | null> => {
     try {
-
-
       // Use the file path as-is since it's already in the correct format
       const { data, error } = await supabase.storage
         .from('submissions')
         .createSignedUrl(filePath, 600); // 10 minutes expiry
 
       if (error) {
-
         throw error;
       }
 
       return data.signedUrl;
     } catch (error: any) {
-
       toast({
         title: "Access Failed",
-        description: "Failed to load document. You may not have access or the file is missing.",
+        description: "Failed to load document. The file may not exist or you may not have access.",
         variant: "destructive",
       });
       return null;
