@@ -347,10 +347,31 @@ export const ApprovalsDashboard: React.FC = () => {
                     </div>
                   )}
 
-                  {/* Multiple document support */}
+                  {/* Main document */}
+                  {(() => {
+                    const mainDocumentUrl = submission.documentUrl || (submission.formData as any)?.documentUrl;
+                    return mainDocumentUrl ? (
+                      <div className="space-y-2">
+                        <p className="text-sm font-medium">Main Document:</p>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleViewDocument({ ...submission, documentUrl: mainDocumentUrl });
+                          }}
+                        >
+                          <FileText className="w-4 h-4 mr-2" />
+                          View Main Document
+                        </Button>
+                      </div>
+                    ) : null;
+                  })()}
+
+                  {/* Additional documents */}
                   {(submission.formData as any)?.documentUrls && Array.isArray((submission.formData as any).documentUrls) && (submission.formData as any).documentUrls.length > 0 ? (
                     <div className="space-y-2">
-                      <p className="text-sm font-medium">Attached Documents:</p>
+                      <p className="text-sm font-medium">Additional Documents:</p>
                       <div className="flex flex-wrap gap-2">
                         {(submission.formData as any).documentUrls.map((doc: any, index: number) => (
                           <Button
@@ -374,24 +395,10 @@ export const ApprovalsDashboard: React.FC = () => {
                             }}
                           >
                             <FileText className="w-4 h-4 mr-2" />
-                            Document {index + 1}
+                            Additional Doc {index + 1}
                           </Button>
                         ))}
                       </div>
-                    </div>
-                  ) : submission.documentUrl ? (
-                    <div>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleViewDocument(submission);
-                        }}
-                      >
-                        <FileText className="w-4 h-4 mr-2" />
-                        View Document
-                      </Button>
                     </div>
                   ) : null}
 
