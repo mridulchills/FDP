@@ -60,17 +60,32 @@ serve(async (req) => {
     console.log('User record created in database')
 
     // 3. Send credentials email
-    const { error: emailError } = await supabaseAdmin.functions.invoke('send-user-credentials', {
-      body: {
-        name,
-        email,
-        employee_id,
-        password,
-        role,
-      },
-    })
-
-    if (emailError) {
+    try {
+      const emailResponse = await fetch(
+        `${Deno.env.get('SUPABASE_URL')}/functions/v1/send-user-credentials`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`,
+          },
+          body: JSON.stringify({
+            name,
+            email,
+            employee_id,
+            password,
+            role,
+          }),
+        }
+      )
+      
+      if (!emailResponse.ok) {
+        const errorText = await emailResponse.text()
+        console.warn('Email sending failed:', errorText)
+      } else {
+        console.log('Credentials email sent successfully')
+      }
+    } catch (emailError) {
       console.warn('Email sending failed:', emailError)
       // Don't throw error for email failure, just log it
     }

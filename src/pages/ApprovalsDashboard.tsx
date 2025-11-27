@@ -348,11 +348,11 @@ export const ApprovalsDashboard: React.FC = () => {
                   )}
 
                   {/* Multiple document support */}
-                  {(submission.formData as any)?.documents && Array.isArray((submission.formData as any).documents) && (submission.formData as any).documents.length > 0 ? (
+                  {(submission.formData as any)?.documentUrls && Array.isArray((submission.formData as any).documentUrls) && (submission.formData as any).documentUrls.length > 0 ? (
                     <div className="space-y-2">
                       <p className="text-sm font-medium">Attached Documents:</p>
                       <div className="flex flex-wrap gap-2">
-                        {(submission.formData as any).documents.map((doc: any, index: number) => (
+                        {(submission.formData as any).documentUrls.map((doc: any, index: number) => (
                           <Button
                             key={index}
                             variant="outline"
