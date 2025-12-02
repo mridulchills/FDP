@@ -14,6 +14,14 @@ export interface DatabaseSubmission {
   user?: DatabaseUser;
 }
 
+export interface DatabaseDepartment {
+  id: string;
+  name: string;
+  hod_user_id?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
 export interface DatabaseUser {
   id: string;
   employee_id: string;
@@ -26,4 +34,5 @@ export interface DatabaseUser {
   auth_user_id: string | null;
   created_at: string;
   updated_at: string;
+  department?: DatabaseDepartment;
 }

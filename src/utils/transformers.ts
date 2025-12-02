@@ -8,7 +8,7 @@ export const transformDatabaseUser = (dbUser: DatabaseUser): User => ({
   name: dbUser.name,
   email: dbUser.email,
   role: dbUser.role as 'faculty' | 'hod' | 'admin',
-  department: dbUser.department_id || '',
+  department: dbUser.department?.name || dbUser.department_id || '',
   designation: dbUser.designation,
   institution: dbUser.institution,
   createdAt: dbUser.created_at,
