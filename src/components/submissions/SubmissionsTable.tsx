@@ -106,6 +106,8 @@ export const SubmissionsTable: React.FC<SubmissionsTableProps> = ({
         <TableHeader>
           <TableRow>
             <TableHead>Title</TableHead>
+            <TableHead>Faculty Name</TableHead>
+            <TableHead>Department</TableHead>
             <TableHead>Module Type</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Submitted</TableHead>
@@ -125,6 +127,13 @@ export const SubmissionsTable: React.FC<SubmissionsTableProps> = ({
                   {type && (
                     <div className="text-sm text-gray-500">{type}</div>
                   )}
+                </TableCell>
+                <TableCell>
+                  <div className="font-medium">{submission.user?.name || 'N/A'}</div>
+                  <div className="text-sm text-gray-500">{submission.user?.designation || ''}</div>
+                </TableCell>
+                <TableCell>
+                  <div className="text-sm">{submission.user?.department || 'N/A'}</div>
                 </TableCell>
                 <TableCell>
                   <Badge variant="outline" className="font-normal">

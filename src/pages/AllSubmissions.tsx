@@ -84,8 +84,10 @@ export const AllSubmissions: React.FC = () => {
     
     const matchesStatus = statusFilter === 'all' || submission.status === statusFilter;
     const matchesModule = moduleFilter === 'all' || submission.moduleType === moduleFilter;
+    
+    // Fix: Compare department name instead of ID
     const matchesDepartment = departmentFilter === 'all' || 
-                             departments.find(dept => dept.id === departmentFilter)?.id === submission.user?.department;
+                             departments.find(dept => dept.id === departmentFilter)?.name === submission.user?.department;
     
     return matchesSearch && matchesStatus && matchesModule && matchesDepartment;
   });
